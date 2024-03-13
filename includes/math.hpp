@@ -9,7 +9,7 @@
 
     class Matrix{
         private:
-            double *storage_space;
+            int *storage_space;
             level shape;
         public:
             Matrix(level,Matrix_type);
