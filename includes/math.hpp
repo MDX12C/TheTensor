@@ -1,8 +1,6 @@
 ﻿namespace Linear_Algebra{
-    
-    enum Matrix_type{zero,identity};
 
-    struct level{
+    struct meta{
         int* shape=nullptr;
         int Dimensions=0;
     };
@@ -10,17 +8,18 @@
     class Matrix{
         private:
             int *storage_space;
-            level shape;
+            meta shape;
         public:
-            Matrix(level,Matrix_type);
-            void reset(level,Matrix_type);
-            double *item(level);
+            Matrix(meta,int*);
+            double *item(meta);
             Matrix T();
-            Matrix inverse();
+            Matrix L_inverse();
+            Matrix R_inverse();
             Matrix operator=(Matrix const& Matrix);
             Matrix operator+(Matrix const& Matrix);
             Matrix operator-(Matrix const& Matrix);
             Matrix operator*(Matrix const& Matrix);
+            
     };
 
 };
