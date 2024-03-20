@@ -1,5 +1,4 @@
-﻿#include"math.hpp"
-namespace Linalg{
+﻿namespace Linalg{
     struct meta{
         int* shape=nullptr;
         int Dimensions=0;
