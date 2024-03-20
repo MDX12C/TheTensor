@@ -1,27 +1,29 @@
 ﻿namespace Linalg{
-
-    struct meta{
-        int* shape=nullptr;
-        int Dimensions=0;
-    };
-
-    template <typename T>
+    typedef struct{
+        int row;
+        int lines;
+    }MaShape;
+    
+    template <typename Data>
     class Matrix{
         private:
-            T *storage_space;
-            meta meta;
-
+            Data *storage_space;
+            MaShape shape;
         public:
-            Matrix(meta,T*);
+            Matrix(Data* const&,MaShape const&);
+            Matrix(Data const&,MaShape const&);
             ~Matrix();
-            T *item(meta);
+            Data *item(MaShape const&);
             Matrix T();
-            Matrix L_inverse();
-            Matrix R_inverse();
-            Matrix operator=(Matrix const& Matrix);
-            Matrix operator+(Matrix const& Matrix);
-            Matrix operator-(Matrix const& Matrix);
-            Matrix operator*(Matrix const& Matrix);
-            
+            void operator=(Matrix const&);
+            void operator=(Data const&);
+            Matrix operator+(Matrix const&);
+            Matrix operator+(Data const&);
+            Matrix operator-(Matrix const&);
+            Matrix operator-(Data const&);
+            Matrix operator*(Matrix const&);
+            Matrix operator*(Data const&);
+            Matrix operator/(Data const&);
+            void add_line_(Data const&);
     };
 };
