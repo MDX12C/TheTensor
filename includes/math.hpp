@@ -16,7 +16,9 @@ namespace Linalg
     private:
         Data *storage_space;
         MaShape shape;
-        friend void show_Matrix(Matrix<Data> const &);
+
+        template <typename T>
+        friend void show_Matrix(Matrix<T> const &);
     public:
         Matrix(MaShape const &, Data *const &);
         Matrix(MaShape const &, Data const &);

@@ -244,6 +244,5 @@ namespace Linalg
         return;
     }
 }
-
 template class Linalg::Matrix<int>;
 template void Linalg::show_Matrix<int>(Linalg::Matrix<int> const &);
