@@ -1,4 +1,6 @@
 ﻿#include<iostream>
+#ifndef MATRIX
+#define MATRIX
 namespace Linalg{
     typedef struct{
         int row;
@@ -19,6 +21,13 @@ namespace Linalg{
             Matrix T();
             void operator=(Matrix const&);
             void operator=(Data const&);
+            // void operator+=(Matrix const&);
+            // void operator+=(Data const&);
+            // void operator-=(Matrix const&);
+            // void operator-=(Data const&);
+            // void operator*=(Matrix const&);
+            // void operator*=(Data const&);
+            // void operator/=(Data const&);
             Matrix operator+(Matrix const&);
             Matrix operator+(Data const&);
             Matrix operator-(Matrix const&);
@@ -31,3 +40,6 @@ namespace Linalg{
     template <typename Data>
     void show_Matrix(Matrix<Data> const&);
 };
+
+
+#endif

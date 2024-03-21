@@ -144,17 +144,57 @@ namespace Linalg{
     /*add line*/
     template <typename Data>
     void Matrix<Data>::add_line_(Data const& alpha){
-        MaShape beta={this->row,this->lines+1};
-        Matrix<Data> temp(beta,Data(0));
-        for(int i=0;i<this->row;i++){
-            for(int j=0;j<this->lines;j++){
-                temp.storage_space[i*(this->lines+1)+j]=storage_space[i*this->lines+j];
-            }
-            temp.storage_space[i*(this->lines+1)+this->lines]=alpha;
-        }
-        *this=temp;
-        return;
+        /////////////////////////////////////
     }
+    /*operator+= Matrix*/
+
+    // template <typename Data>
+    // void Matrix<Data>::operator+=(Matrix const& alpha){
+    //     if(!(this->shape==alpha.shape))
+    //         return;
+    //     for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
+    //         this->storage_space[i]+=alpha.storage_space[i];
+    //     return;
+    // }
+
+    /*operator+= Data*/
+
+    // template <typename Data>
+    // void Matrix<Data>::operator+=(Data const&){
+    //     for(int i=0;i<this->shape.row*this->shape.lines;i++){
+    //         this->storage_space[i]+=alpha;
+    //     }
+    //     return;
+    // }
+
+    /*operator-= Matrix*/
+
+    // template <typename Data>
+    // void Matrix<Data>::operator-=(Matrix const& alpha){
+    //     if(!(this->shape==alpha.shape))
+    //         return;
+    //     for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
+    //         this->storage_space[i]-=alpha.storage_space[i];
+    //     return;
+    // }
+
+    /*operator-= Data*/
+
+    // template <typename Data>
+    // void Matrix<Data>::operator-=(Data const& alpha){
+    //     for(int i=0;i<this->shape.row*this->shape.lines;i++){
+    //         this->storage_space[i]-=alpha;
+    //     }
+    //     return;
+    // }
+
+    /*operator*= Matrix*/
+
+    // template <typename Data>
+    // void Matrix<Data>::operator*=(Matrix const& alpha){
+    //     //////////////////////////////
+    // }
+    
     /*show Matrix*/
     template <typename Data>
     void show_Matrix(Matrix<Data> const& alpha){
