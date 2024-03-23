@@ -1,4 +1,4 @@
-﻿#include "../includes/math.hpp"
+﻿#include "../includes/matrix.hpp"
 /*Define Matrix*/
 namespace Linalg
 {
@@ -245,4 +245,10 @@ namespace Linalg
     }
 }
 template class Linalg::Matrix<int>;
+template class Linalg::Matrix<float>;
+template class Linalg::Matrix<long long>;
+template class Linalg::Matrix<double>;
 template void Linalg::show_Matrix<int>(Linalg::Matrix<int> const &);
+template void Linalg::show_Matrix<float>(Linalg::Matrix<float> const &);
+template void Linalg::show_Matrix<long long>(Linalg::Matrix<long long> const &);
+template void Linalg::show_Matrix<double>(Linalg::Matrix<double> const &);
