@@ -9,5 +9,8 @@ signed main()
     cin >> ms.row >> ms.lines >> a;
     La::Matrix<float> alpha(ms, a);
     La::show_Matrix(alpha);
+    cin >> ms.row >> ms.lines >> a;
+    alpha.endow_(ms,a);
+    La::show_Matrix(alpha);
     return 0;
 }

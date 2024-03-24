@@ -38,11 +38,11 @@ namespace Linalg
         delete[] storage_space;
         return;
     }
-    /*return pointer of item*/
+    /*return value of item*/
     template <typename Data>
-    Data *Matrix<Data>::item(MaShape const &alpha)
+    Data Matrix<Data>::item(MaShape const &alpha)
     {
-        return &storage_space[alpha.row * shape.lines + alpha.lines];
+        return storage_space[alpha.row * shape.lines + alpha.lines];
     }
     /*return transpose matrix*/
     template <typename Data>
@@ -57,6 +57,12 @@ namespace Linalg
             }
         }
         return temp;
+    }
+    /*endow_*/
+    template <typename Data>
+    void Matrix<Data>::endow_(MaShape const &alpha, Data const &beta){
+        this->storage_space[alpha.row * shape.lines + alpha.lines] = beta;
+        return;
     }
     /*operator= Matrix*/
     template <typename Data>
@@ -172,60 +178,87 @@ namespace Linalg
         }
         return temp;
     }
-    /*add line*/
-    template <typename Data>
-    void Matrix<Data>::add_line_(Data const &alpha)
-    {
-        /////////////////////////////////////
-    }
     /*operator+= Matrix*/
-
-    // template <typename Data>
-    // void Matrix<Data>::operator+=(Matrix const& alpha){
-    //     if(!(this->shape==alpha.shape))
-    //         return;
-    //     for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
-    //         this->storage_space[i]+=alpha.storage_space[i];
-    //     return;
-    // }
-
+    template <typename Data>
+    void Matrix<Data>::operator+=(Matrix const& alpha){
+        if(!(this->shape==alpha.shape))
+            return;
+        for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
+            this->storage_space[i]+=alpha.storage_space[i];
+        return;
+    }
     /*operator+= Data*/
-
-    // template <typename Data>
-    // void Matrix<Data>::operator+=(Data const&){
-    //     for(int i=0;i<this->shape.row*this->shape.lines;i++){
-    //         this->storage_space[i]+=alpha;
-    //     }
-    //     return;
-    // }
-
+    template <typename Data>
+    void Matrix<Data>::operator+=(Data const& alpha){
+        for(int i=0;i<this->shape.row*this->shape.lines;i++){
+            this->storage_space[i]+=alpha;
+        }
+        return;
+    }
     /*operator-= Matrix*/
-
-    // template <typename Data>
-    // void Matrix<Data>::operator-=(Matrix const& alpha){
-    //     if(!(this->shape==alpha.shape))
-    //         return;
-    //     for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
-    //         this->storage_space[i]-=alpha.storage_space[i];
-    //     return;
-    // }
-
+    template <typename Data>
+    void Matrix<Data>::operator-=(Matrix const& alpha){
+        if(!(this->shape==alpha.shape))
+            return;
+        for(int i=0;i<alpha.shape.row*alpha.shape.lines;i++)
+            this->storage_space[i]-=alpha.storage_space[i];
+        return;
+    }
     /*operator-= Data*/
-
-    // template <typename Data>
-    // void Matrix<Data>::operator-=(Data const& alpha){
-    //     for(int i=0;i<this->shape.row*this->shape.lines;i++){
-    //         this->storage_space[i]-=alpha;
-    //     }
-    //     return;
-    // }
-
+    template <typename Data>
+    void Matrix<Data>::operator-=(Data const& alpha){
+        for(int i=0;i<this->shape.row*this->shape.lines;i++){
+            this->storage_space[i]-=alpha;
+        }
+        return;
+    }
     /*operator*= Matrix*/
-
-    // template <typename Data>
-    // void Matrix<Data>::operator*=(Matrix const& alpha){
-    //     //////////////////////////////
-    // }
+    template <typename Data>
+    void Matrix<Data>::operator*=(Matrix const& alpha){
+        if(!(this->shape.lines==alpha.shape.row)){
+            return;
+        }
+        Matrix<Data> temp=*this;
+        *this=temp*alpha;
+        return;
+    }
+    /*operator*= Data*/
+    template <typename Data>
+    void Matrix<Data>::operator*=(Data const& alpha){
+        for(int i=0;i<this->shape.row*this->shape.lines;i++){
+            this->storage_space[i]*=alpha;
+        }
+        return;
+    }
+    /*operator/= Data*/
+    template <typename Data>
+    void Matrix<Data>::operator/=(Data const& alpha){
+        for(int i=0;i<this->shape.row*this->shape.lines;i++){
+            this->storage_space[i]/=alpha;
+        }
+        return;
+    }
+    /*reshape*/
+    template <typename Data>
+    void Matrix<Data>::reshape_(MaShape const &alpha)
+    {
+        Matrix<Data> temp=*this;
+        Data value=Data(1);
+        delete[] storage_space;
+        shape=alpha;
+        storage_space=new Data[shape.row * shape.lines];
+        for(int i=0;i<shape.row;i++){
+            for(int j=0;j<shape.lines;j++){
+                if(i<temp.shape.row&&j<temp.shape.lines){
+                    storage_space[i*shape.lines+j]=temp.storage_space[i*temp.shape.lines+j];
+                }else{
+                    storage_space[i*shape.lines+j]=value;
+                }
+            }
+        }
+        temp.~Matrix();
+        return;
+    }
 
     /*show Matrix*/
     template <typename Data>
@@ -244,11 +277,13 @@ namespace Linalg
         return;
     }
 }
-template class Linalg::Matrix<int>;
-template class Linalg::Matrix<float>;
-template class Linalg::Matrix<long long>;
-template class Linalg::Matrix<double>;
-template void Linalg::show_Matrix<int>(Linalg::Matrix<int> const &);
-template void Linalg::show_Matrix<float>(Linalg::Matrix<float> const &);
-template void Linalg::show_Matrix<long long>(Linalg::Matrix<long long> const &);
-template void Linalg::show_Matrix<double>(Linalg::Matrix<double> const &);
+template class Linalg::Matrix<int8_t>;
+template class Linalg::Matrix<int16_t>;
+template class Linalg::Matrix<int32_t>;
+template class Linalg::Matrix<int64_t>;
+template class Linalg::Matrix<_Float32>;
+template void Linalg::show_Matrix<int8_t>(Linalg::Matrix<int8_t> const &);
+template void Linalg::show_Matrix<int16_t>(Linalg::Matrix<int16_t> const &);
+template void Linalg::show_Matrix<int32_t>(Linalg::Matrix<int32_t> const &);
+template void Linalg::show_Matrix<int64_t>(Linalg::Matrix<int64_t> const &);
+template void Linalg::show_Matrix<_Float32>(Linalg::Matrix<_Float32> const &);

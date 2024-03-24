@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <memory>
 #ifndef MATRIX_H
 #define MATRIX_H
 namespace Linalg
@@ -19,21 +20,24 @@ namespace Linalg
 
         template <typename T>
         friend void show_Matrix(Matrix<T> const &);
+
     public:
         Matrix(MaShape const &, Data *const &);
         Matrix(MaShape const &, Data const &);
         ~Matrix();
-        Data *item(MaShape const &);
+        Data item(MaShape const &);
         Matrix T();
+        void endow_(MaShape const &, Data const &);
+        void reshape_(MaShape const &);
         void operator=(Matrix const &);
         void operator=(Data const &);
-        // void operator+=(Matrix const&);
-        // void operator+=(Data const&);
-        // void operator-=(Matrix const&);
-        // void operator-=(Data const&);
-        // void operator*=(Matrix const&);
-        // void operator*=(Data const&);
-        // void operator/=(Data const&);
+        void operator+=(Matrix const &);
+        void operator+=(Data const &);
+        void operator-=(Matrix const &);
+        void operator-=(Data const &);
+        void operator*=(Matrix const &);
+        void operator*=(Data const &);
+        void operator/=(Data const &);
         Matrix operator+(Matrix const &);
         Matrix operator+(Data const &);
         Matrix operator-(Matrix const &);
@@ -41,7 +45,6 @@ namespace Linalg
         Matrix operator*(Matrix const &);
         Matrix operator*(Data const &);
         Matrix operator/(Data const &);
-        void add_line_(Data const &);
     };
     template <typename Data>
     void show_Matrix(Matrix<Data> const &);
