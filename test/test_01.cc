@@ -1,16 +1,14 @@
-#include <iostream>
 #include "../includes/math.hpp"
+#include <iostream>
 using namespace std;
-namespace La = Linalg;
-signed main()
-{
-    float a;
-    La::MaShape ms;
-    cin >> ms.row >> ms.lines >> a;
-    La::Matrix<float> alpha(ms, a);
-    La::show_Matrix(alpha);
-    cin >> ms.row >> ms.lines >> a;
-    alpha.endow_(ms,a);
-    La::show_Matrix(alpha);
-    return 0;
+signed main() {
+  float a;
+  Linalg::MaShape ms;
+  cin >> ms.row >> ms.lines >> a;
+  Linalg::Matrix<float> alpha(ms, a);
+  Linalg::show_Matrix(alpha);
+  cin >> ms.row >> ms.lines >> a;
+  alpha.endow_(ms, a);
+  Linalg::show_Matrix(alpha);
+  return 0;
 }
