@@ -38,19 +38,19 @@ namespace Linalg
     }
     /*constructor_03*/
     template <typename Data>
+    Matrix<Data>::Matrix(MaShape const& alpha) {
+        this->shape = alpha;
+        this->storage_space = new Data[this->shape.rows * this->shape.lines];
+        return;
+    }
+    /*default constructor*/
+    template <typename Data>
     Matrix<Data>::Matrix() {
         this->shape.rows = this->shape.lines = 1;
         this->storage_space = new Data[1];
         return;
     }
-    /*constructor_04*/
-    template <typename Data>
-    Matrix<Data>::Matrix(MaShape const& alpha) {
-        this->shape = alpha;
-        this->storage_space = nullptr;
-        return;
-    }
-    /*constructor_05*/
+    /*copy constructor*/
     template <typename Data>
     Matrix<Data>::Matrix(const Matrix& alpha){
         this->shape = alpha.shape;
