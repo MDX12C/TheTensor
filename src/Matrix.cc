@@ -29,9 +29,7 @@ namespace Linalg
         this->shape.rows = beta.rows > 0 ? beta.rows : 1;
         this->storage_space = new Data[this->shape.rows * this->shape.lines];
         for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
-        {
             this->storage_space[i] = alpha;
-        }
         return;
     }
     /*Constructor_Values
@@ -42,14 +40,11 @@ namespace Linalg
     Matrix<Data>::Matrix(MaShape const& beta, Data* const& alpha)
     {
         this->shape = beta;
-        if (this->shape.rows <= 0 || this->shape.lines <= 0) {
+        if (this->shape.rows <= 0 || this->shape.lines <= 0)
             this->shape.lines=this->shape.rows=1;
-        }
         this->storage_space = new Data[this->shape.rows * this->shape.lines];
         for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
-        {
             this->storage_space[i] = alpha[i];
-        }
         return;
     }
     /*Constructor_Shape
@@ -85,9 +80,7 @@ namespace Linalg
         this->shape = alpha.shape;
         this->storage_space = new Data[this->shape.rows * this->shape.lines];
         for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
-        {
             this->storage_space[i] = alpha.storage_space[i];
-        }
         return;
     }
     /*Destructor
@@ -121,137 +114,156 @@ namespace Linalg
         for (int i = 0; i < this->shape.rows; i++)
         {
             for (int j = 0; j < this->shape.lines; j++)
-            {
                 temp.storage_space[i * this->shape.lines + j] = this->storage_space[j * this->shape.rows + i];
-            }
         }
         return temp;
     }
-    /*endow_*/
+    /*endow_
+    Enter: 1.coordinate 2.value
+    endow the value in the coordinate
+    no return*/
     template <typename Data>
     void Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
         this->storage_space[alpha.rows * this->shape.lines + alpha.lines] = beta;
         return;
     }
-    /*operator= Matrix*/
+    /*operator=
+    Enter: 1.Matrix 2.Matrix
+    copy the second Matrix to the first
+    no return*/
     template <typename Data>
     void Matrix<Data>::operator=(Matrix const& alpha)
     {
-        shape = alpha.shape;
+        this->shape = alpha.shape;
         if (storage_space != nullptr)
             delete[] storage_space;
-        storage_space = new Data[shape.rows * shape.lines];
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
-            storage_space[i] = alpha.storage_space[i];
-        }
+        this->storage_space = new Data[this->shape.rows * this->shape.lines];
+        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+            this->storage_space[i] = alpha.storage_space[i];
         return;
     }
-    /*operator= Data*/
+    /*operator= 
+    Enter: 1.Matrix 2.value
+    let the Matrix fulled with the value
+    no return*/
     template <typename Data>
     void Matrix<Data>::operator=(Data const& alpha)
     {
-        if (storage_space == nullptr)
-            this->resize_({ 1, 1 });
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
-            storage_space[i] = alpha;
-        }
+        if (this->storage_space == nullptr)
+            this->resize_(MaShape{ 1, 1 });
+        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+            this->storage_space[i] = alpha;
         return;
     }
-    /*operator+ Matrix*/
+    /*operator+
+    Enter: 1.Matrix 2.Matrix
+    add two Matrix
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator+(Matrix const& alpha)
     {
-        if (!(shape == alpha.shape))
+        if (!(this->shape == alpha.shape))
             return *this;
-        Matrix<Data> temp(shape, Data(0));
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
-            temp.storage_space[i] = storage_space[i] + alpha.storage_space[i];
-        }
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+            temp.storage_space[i] += alpha.storage_space[i];
         return temp;
     }
-    /*operator+ Data*/
+    /*operator+ 
+    Enter: 1.Matrix 2.value
+    add the Matrix and the value
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator+(Data const& alpha)
     {
-        Matrix<Data> temp(shape, storage_space);
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
             temp.storage_space[i] += alpha;
-        }
         return temp;
     }
-    /*operator- Matrix*/
+    /*operator- 
+    Enter: 1.Matrix 2.Matrix
+    the first Matrix minus the second Matrix
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator-(Matrix const& alpha)
     {
-        if (!(shape == alpha.shape))
+        if (!(this->shape == alpha.shape))
             return *this;
-        Matrix<Data> temp(shape, Data(0));
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
             temp.storage_space[i] -= alpha.storage_space[i];
-        }
         return temp;
     }
-    /*operator- Data*/
+    /*operator-
+    Enter: 1.Matrix 2.value
+    the Matrix minus the value
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator-(Data const& alpha)
     {
-        Matrix<Data> temp(shape, storage_space);
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
             temp.storage_space[i] -= alpha;
-        }
         return temp;
     }
-    /*operator* Matrix*/
+    /*operator*
+    Enter: 1.Matrix 2.Matrix
+    multiply every element in the two Matrix
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator*(Matrix const& alpha)
     {
-        if (shape.lines != alpha.shape.rows)
+        if (!(this->shape==alpha.shape))
             return *this;
-        int n = shape.lines;
-        Data k = Data(0);
-        Matrix<Data> temp({ shape.rows, alpha.shape.lines }, Data(0));
-        for (int i = 0; i < temp.shape.rows; i++)
-        {
-            for (int j = 0; j < temp.shape.lines; j++)
-            {
-                for (int l = 0; l < n; l++)
-                {
-                    k += storage_space[i * shape.lines + l] * alpha.storage_space[l * alpha.shape.lines + j];
-                }
-                temp.storage_space[i * temp.shape.lines + j] = k;
-            }
-        }
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+            temp.storage_space[i] *= alpha.storage_space[i];
         return temp;
     }
-    /*operator* Data*/
+    /*operator*
+    Enter: 1.Matrix 2.value
+    multiply every element and the value
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator*(Data const& alpha)
     {
-        Matrix<Data> temp(shape, storage_space);
-        for (int i = 0; i < shape.rows * shape.lines; i++)
-        {
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
             temp.storage_space[i] *= alpha;
-        }
         return temp;
     }
-    /*operator/ Data*/
+    /*operator/ 
+    Enter: 1.Matrix 2.Matrix
+    divide elements in the first Matrix by elements in the second Matrix
+    return the result*/
+    template <typename Data>
+    Matrix<Data> Matrix<Data>::operator/(Matrix const& alpha){
+        if (!(this->shape == alpha.shape))
+            return *this;
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+            temp.storage_space[i] /= alpha.storage_space[i];
+        return temp;
+    }
+    /*operator/ 
+    Enter: 1.Matrix 2.value
+    divide every element in the Matrix by the value
+    return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator/(Data const& alpha)
     {
-        Matrix<Data> temp(shape, storage_space);
-        for (int i = 0; i < shape.rows * shape.lines; i++)
+        Matrix<Data> temp(*this);
+        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
         {
             temp.storage_space[i] /= alpha;
         }
         return temp;
     }
-    /*operator+= Matrix*/
+    /*operator+= 
+    Enter: 1.Matrix 2.Matrix
+    add elements in the second Matrix into the first Matrix
+    no return*/
     template <typename Data>
     void Matrix<Data>::operator+=(Matrix const& alpha) {
         if (!(this->shape == alpha.shape))
@@ -260,7 +272,10 @@ namespace Linalg
             this->storage_space[i] += alpha.storage_space[i];
         return;
     }
-    /*operator+= Data*/
+    /*operator+=
+    Enter: 1.Matrix 2.value
+    add the value into the Matrix
+    no return*/
     template <typename Data>
     void Matrix<Data>::operator+=(Data const& alpha) {
         for (int i = 0; i < this->shape.rows * this->shape.lines; i++) {
@@ -343,6 +358,28 @@ namespace Linalg
         return;
     }
 
+    /*dot
+    Enter: 1.Matrix 2.Matrix
+    dot the first matrix and the second matrix
+    return the result*/
+    template <typename Data>
+    Matrix<Data> dot(Matrix<Data> const& beta,Matrix<Data> const& alpha)
+    {
+        if (beta.shape.lines != alpha.shape.rows)
+            return beta;
+        int n = beta.shape.lines;
+        Data k = static_cast<Data>(0);
+        Matrix<Data> temp({ beta.shape.rows, alpha.shape.lines }, k);
+        for (int i = 0; i < temp.shape.rows; i++)
+        {
+            for (int j = 0; j < temp.shape.lines; j++)
+            {
+                for (int l = 0; l < n; l++)
+                    temp.storage_space[i * temp.shape.lines + j] += beta.storage_space[i * beta.shape.lines + l] * alpha.storage_space[l * alpha.shape.lines + j];
+            }
+        }
+        return temp;
+    }
     /*show Matrix*/
     template <typename Data>
     void show_Matrix(Matrix<Data> const& alpha)

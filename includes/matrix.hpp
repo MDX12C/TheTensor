@@ -43,15 +43,19 @@ namespace Linalg
         void operator*=(Matrix const&);
         void operator*=(Data const&);
         void operator/=(Data const&);
+        void operator/=(Matrix const&);
         Matrix operator+(Matrix const&);
         Matrix operator+(Data const&);
         Matrix operator-(Matrix const&);
         Matrix operator-(Data const&);
         Matrix operator*(Matrix const&);
         Matrix operator*(Data const&);
+        Matrix operator/(Matrix const&);
         Matrix operator/(Data const&);
     };
     template <typename Data>
     void show_Matrix(Matrix<Data> const&);
+    template <typename Data>
+    Matrix<Data> dot(Matrix<Data> const&, Matrix<Data> const&);
 };
 #endif

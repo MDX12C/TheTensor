@@ -24,12 +24,13 @@ signed main() {
     /*below is init block*/
     zeta.lines = 1 + random(Max_wide - 1);
     zeta.rows = 1 + random(Max_hight - 1);
+    value=1.0;
     /*below is testing block*/
     ss(zeta);
-    Linalg::Matrix<float> alpha = initer(zeta, true);
+    Linalg::Matrix<float> alpha=initer(zeta, true);
     sv(alpha);
-    Linalg::Matrix<float> beta=alpha.T();
-    sv(beta);
+    alpha+=value;
+    sv(alpha);
     /*above is testing block*/
     return 0;
 }
