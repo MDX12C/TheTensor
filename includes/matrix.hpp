@@ -18,14 +18,15 @@ namespace Linalg
     private:
         Data* storage_space;
         MaShape shape;
+
         template <typename PLUS>
-        friend Matrix<PLUS> operator+(Matrix<PLUS> const&, Matrix<PLUS> const&);
+        friend Matrix<PLUS> operator+(PLUS const&, Matrix<PLUS> const&);
         template <typename MINUS>
-        friend Matrix<MINUS> operator-(Matrix<MINUS> const&, Matrix<MINUS> const&);
+        friend Matrix<MINUS> operator-(MINUS const&, Matrix<MINUS> const&);
         template <typename MULTI>
-        friend Matrix<MULTI> operator*(Matrix<MULTI> const&, Matrix<MULTI> const&);
+        friend Matrix<MULTI> operator*(MULTI const&, Matrix<MULTI> const&);
         template <typename DIV>
-        friend Matrix<DIV> operator/(Matrix<DIV> const&, Matrix<DIV> const&);
+        friend Matrix<DIV> operator/(DIV const&, Matrix<DIV> const&);
         template <typename W>
         friend std::ostream& operator<<(std::ostream&, Matrix<W> const&);
         template <typename C>
