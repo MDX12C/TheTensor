@@ -2,13 +2,8 @@
 #include <iostream>
 #include<cstdlib>
 #include<ctime>
-#define sv(x){    \
-    std::cout<<#x<<":\n";\
-    Linalg::show_Matrix(x);\
-}
-#define ss(x){  \
-    std::cout<<#x<<":\n";\
-    Linalg::show_Mashape(x);\
+#define show(x){    \
+    std::cout<<#x<<':'<<'\n'<<x<<'\n';\
 }
 const int Max_hight = 10;
 const int Max_wide = 10;
@@ -20,19 +15,20 @@ Linalg::Matrix<float> initer(const Linalg::MaShape&, bool);
 signed main() {
     std::srand(std::time(0));
     float value = 0;
-    Linalg::MaShape zeta, omega;
-    Linalg::Matrix<float> alpha, beta;
+    Linalg::MaShape theta, omega;
     /*below is init block*/
-    zeta.lines = random(Max_wide);
-    zeta.rows = random(Max_hight);
-    alpha = initer(zeta, true);
-    beta = initer(zeta, true);
+    omega.lines = 1 + random(Max_wide - 1);
+    theta.rows = 1 + random(Max_hight - 1);
+    theta.lines = omega.rows = 1 + random(Max_wide - 1);
+    value = 100.0;
     /*below is testing block*/
-    ss(zeta); sv(alpha); sv(beta);
-    alpha += beta;
-    sv(alpha);
+    Linalg::Matrix<float> A = initer(theta, false);
+    Linalg::Matrix<float> B = initer(omega, true);
+    show(A);
+    show(B);
+    Linalg::Matrix<float> C = Linalg::dot(A, B);
+    show(C);
     /*above is testing block*/
-    alpha.~Matrix(); beta.~Matrix();
     return 0;
 }
 
@@ -40,7 +36,7 @@ int random(int const& alpha) {
     return std::rand() % (alpha + 1);
 }
 float random(float const& alpha) {
-    return ((float) std::rand() / RAND_MAX) * alpha;
+    return (static_cast<float>(std::rand()) / RAND_MAX) * alpha;
 }
 Linalg::Matrix<float> initer(const Linalg::MaShape& alpha, bool) {
     Linalg::Matrix<float> temp(alpha);
