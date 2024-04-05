@@ -2,13 +2,8 @@
 #include <iostream>
 #include<cstdlib>
 #include<ctime>
-#define sv(x){    \
-    std::cout<<#x<<":\n";\
-    Linalg::show_Matrix(x);\
-}
-#define ss(x){  \
-    std::cout<<#x<<":\n";\
-    Linalg::show_Mashape(x);\
+#define show(x){    \
+    std::cout<<#x<<':'<<'\n'<<x<<'\n';\
 }
 const int Max_hight = 10;
 const int Max_wide = 10;
@@ -20,17 +15,19 @@ Linalg::Matrix<float> initer(const Linalg::MaShape&, bool);
 signed main() {
     std::srand(std::time(0));
     float value = 0;
-    Linalg::MaShape zeta, omega;
+    Linalg::MaShape theta, omega;
     /*below is init block*/
-    zeta.lines = 1 + random(Max_wide - 1);
-    zeta.rows = 1 + random(Max_hight - 1);
-    value=1.0;
+    omega.lines = 1 + random(Max_wide - 1);
+    theta.rows = 1 + random(Max_hight - 1);
+    theta.lines = omega.rows = 1 + random(Max_wide - 1);
+    value = 100.0;
     /*below is testing block*/
-    ss(zeta);
-    Linalg::Matrix<float> alpha=initer(zeta, true);
-    sv(alpha);
-    alpha+=value;
-    sv(alpha);
+    Linalg::Matrix<float> A = initer(theta, false);
+    Linalg::Matrix<float> B = initer(omega, true);
+    show(A);
+    show(B);
+    Linalg::Matrix<float> C = Linalg::dot(A, B);
+    show(C);
     /*above is testing block*/
     return 0;
 }
