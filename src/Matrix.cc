@@ -135,7 +135,7 @@ namespace Linalg
     }
     /*endow_
     Enter: 1.coordinate 2.value
-    endow the value in the coordinate
+    endow the value at the coordinate
     no return*/
     template <typename Data>
     void Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
@@ -405,47 +405,6 @@ namespace Linalg
         return;
     }
 
-    /*operator+
-    Enter: 1.value 2.Matrix
-    add the value and the Matrix
-    return the result*/
-    template <typename Data>
-    Matrix<Data> operator+(Data const& alpha, Matrix<Data> const& beta) {
-        Matrix<Data> temp = beta;
-        temp += alpha;
-        return temp;
-    }
-    /*operator-
-    Enter: 1.value 2.Matrix
-    subtract the value from the Matrix
-    return the result*/
-    template <typename Data>
-    Matrix<Data> operator-(Data const& alpha, Matrix<Data> const& beta) {
-        Matrix<Data> temp = beta;
-        temp *= static_cast<Data>(-1);
-        temp += alpha;
-        return temp;
-    }
-    /*operator*
-    Enter: 1.value 2.Matrix
-    multiply the value to the Matrix
-    return the result*/
-    template <typename Data>
-    Matrix<Data> operator*(Data const& alpha, Matrix<Data> const& beta) {
-        Matrix<Data> temp = beta;
-        temp *= alpha;
-        return temp;
-    }
-    /*operator/
-    Enter: 1.value 2.Matrix
-    divide the value to the Matrix
-    return the result*/
-    template <typename Data>
-    Matrix<Data> operator/(Data const& alpha, Matrix<Data> const& beta) {
-        Matrix<Data> temp(beta.shape, alpha);
-        temp /= beta;
-        return temp;
-    }
     /*dot
     Enter: 1.Matrix 2.Matrix
     dot the first matrix and the second matrix
@@ -510,33 +469,6 @@ template class Linalg::Matrix<int64_t>;
 template class Linalg::Matrix<_Float32>;
 template class Linalg::Matrix<_Float64>;
 template class Linalg::Matrix<bool>;
-template Linalg::Matrix<int8_t> Linalg::operator+(int8_t const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::operator+(int16_t const&, Linalg::Matrix<int16_t> const&);
-template Linalg::Matrix<int32_t> Linalg::operator+(int32_t const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::operator+(int64_t const&, Linalg::Matrix<int64_t> const&);
-template Linalg::Matrix<_Float32> Linalg::operator+(_Float32 const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::operator+(_Float64 const&, Linalg::Matrix<_Float64> const&);
-template Linalg::Matrix<bool> Linalg::operator+(bool const&, Linalg::Matrix<bool> const&);
-template Linalg::Matrix<int8_t> Linalg::operator-(int8_t const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::operator-(int16_t const&, Linalg::Matrix<int16_t> const&);
-template Linalg::Matrix<int32_t> Linalg::operator-(int32_t const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::operator-(int64_t const&, Linalg::Matrix<int64_t> const&);
-template Linalg::Matrix<_Float32> Linalg::operator-(_Float32 const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::operator-(_Float64 const&, Linalg::Matrix<_Float64> const&);
-template Linalg::Matrix<bool> Linalg::operator-(bool const&, Linalg::Matrix<bool> const&);
-template Linalg::Matrix<int8_t> Linalg::operator*(int8_t const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::operator*(int16_t const&, Linalg::Matrix<int16_t> const&);
-template Linalg::Matrix<int32_t> Linalg::operator*(int32_t const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::operator*(int64_t const&, Linalg::Matrix<int64_t> const&);
-template Linalg::Matrix<_Float32> Linalg::operator*(_Float32 const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::operator*(_Float64 const&, Linalg::Matrix<_Float64> const&);
-template Linalg::Matrix<bool> Linalg::operator*(bool const&, Linalg::Matrix<bool> const&);
-template Linalg::Matrix<int8_t> Linalg::operator/(int8_t const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::operator/(int16_t const&, Linalg::Matrix<int16_t> const&);
-template Linalg::Matrix<int32_t> Linalg::operator/(int32_t const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::operator/(int64_t const&, Linalg::Matrix<int64_t> const&);
-template Linalg::Matrix<_Float32> Linalg::operator/(_Float32 const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::operator/(_Float64 const&, Linalg::Matrix<_Float64> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int8_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int16_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
