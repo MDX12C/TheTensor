@@ -21,18 +21,16 @@ signed main() {
     std::srand(std::time(0));
     float value = 0;
     Linalg::MaShape zeta, omega;
-    Linalg::Matrix<float> alpha, beta;
     /*below is init block*/
-    zeta.lines = random(Max_wide);
-    zeta.rows = random(Max_hight);
-    alpha = initer(zeta, true);
-    beta = initer(zeta, true);
+    zeta.lines = 1 + random(Max_wide - 1);
+    zeta.rows = 1 + random(Max_hight - 1);
     /*below is testing block*/
-    ss(zeta); sv(alpha); sv(beta);
-    alpha += beta;
+    ss(zeta);
+    Linalg::Matrix<float> alpha = initer(zeta, true);
     sv(alpha);
+    Linalg::Matrix<float> beta=alpha.T();
+    sv(beta);
     /*above is testing block*/
-    alpha.~Matrix(); beta.~Matrix();
     return 0;
 }
 
@@ -40,7 +38,7 @@ int random(int const& alpha) {
     return std::rand() % (alpha + 1);
 }
 float random(float const& alpha) {
-    return ((float) std::rand() / RAND_MAX) * alpha;
+    return (static_cast<float>(std::rand()) / RAND_MAX) * alpha;
 }
 Linalg::Matrix<float> initer(const Linalg::MaShape& alpha, bool) {
     Linalg::Matrix<float> temp(alpha);

@@ -6,8 +6,8 @@ namespace Linalg
 {
     typedef struct
     {
-        int rows=1;
-        int lines=1;
+        int rows = 1;
+        int lines = 1;
     } MaShape;
     bool operator==(MaShape const&, MaShape const&);
     void show_Mashape(MaShape const&);
@@ -28,12 +28,12 @@ namespace Linalg
         Matrix();
         Matrix(const Matrix&);
         ~Matrix();
-        Data item(MaShape const&);
         Matrix T();
-        inline MaShape size() { return shape; }
+        inline MaShape size() { return this->shape; }
         void endow_(MaShape const&, Data const&);
         void resize_(MaShape const&);
         void reshape_(MaShape const&);
+        Data operator[](MaShape const&);
         void operator=(Matrix const&);
         void operator=(Data const&);
         void operator+=(Matrix const&);
