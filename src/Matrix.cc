@@ -18,14 +18,6 @@ namespace Linalg
         beta << "rows: " << alpha.rows << "\nlines: " << alpha.lines << '\n';
         return beta;
     }
-    /*MaShape operator>>
-    Enter: 1.istream 2.MaShape
-    read the MaShape's rows and lines from the istream
-    return the istream*/
-    std::istream& operator>>(std::istream& beta, MaShape& alpha) {
-        beta >> alpha.rows >> alpha.lines;
-        return beta;
-    }
     /*belong
     Enter: 1.coordinate 2.MaShape
     check if the coordinate is in the MaShape
@@ -447,20 +439,7 @@ namespace Linalg
         }
         return beta;
     }
-    /*operator>>
-    Enter: 1.istream 2.Matrix
-    read the shape and the value from the istream
-    return the istream*/
-    template <typename Data>
-    std::istream& operator>>(std::istream& beta, Matrix<Data>& alpha) {
-        Linalg::MaShape theta;
-        beta >> alpha.shape;
-        for (theta.rows = 0; theta.rows < alpha.shape.rows; theta.rows++) {
-            for (theta.lines = 0; theta.lines < alpha.shape.lines; theta.lines++)
-                beta >> alpha.storage_space[theta.rows * alpha.shape.lines + theta.lines];
-        }
-        return beta;
-    }
+    
 }
 template class Linalg::Matrix<int8_t>;
 template class Linalg::Matrix<int16_t>;
@@ -476,13 +455,6 @@ template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int64_t>
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float32> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float64> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<bool> const&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int8_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int16_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int32_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int64_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<_Float32>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<_Float64>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<bool>&);
 template Linalg::Matrix<int8_t> Linalg::dot(Linalg::Matrix<int8_t> const&, Linalg::Matrix<int8_t> const&);
 template Linalg::Matrix<int16_t> Linalg::dot(Linalg::Matrix<int16_t> const&, Linalg::Matrix<int16_t> const&);
 template Linalg::Matrix<int32_t> Linalg::dot(Linalg::Matrix<int32_t> const&, Linalg::Matrix<int32_t> const&);

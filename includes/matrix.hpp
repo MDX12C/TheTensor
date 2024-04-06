@@ -11,7 +11,6 @@ namespace Linalg
     bool operator==(MaShape const&, MaShape const&);
     bool belongs(MaShape const&, MaShape const&);
     std::ostream& operator<<(std::ostream&, MaShape const&);
-    std::istream& operator>>(std::istream&, MaShape&);
     template <typename Data>
     class Matrix
     {
@@ -21,8 +20,6 @@ namespace Linalg
 
         template <typename W>
         friend std::ostream& operator<<(std::ostream&, Matrix<W> const&);
-        template <typename C>
-        friend std::istream& operator>>(std::istream&, Matrix<C>&);
         template <typename T>
         friend Matrix<T> dot(Matrix<T> const&, Matrix<T> const&);
     public:
@@ -60,8 +57,6 @@ namespace Linalg
     
     template <typename Data>
     std::ostream& operator<<(std::ostream&, Matrix<Data> const&);
-    template <typename Data>
-    std::istream& operator>>(std::istream&, Matrix<Data>&);
     template <typename Data>
     Matrix<Data> dot(Matrix<Data> const&, Matrix<Data> const&);
 };

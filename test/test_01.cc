@@ -22,8 +22,8 @@ signed main() {
     value = 100.0;
     /*below is testing block*/
     Linalg::Matrix<float> A = initer(theta, false);
-    Linalg::Matrix<float> B = initer(omega, true);
     show(A);
+    Linalg::Matrix<float> B = initer(omega, true);
     show(B);
     Linalg::Matrix<float> C = Linalg::dot(A, B);
     show(C);
