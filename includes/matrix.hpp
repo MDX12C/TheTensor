@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include<float.h>
 #ifndef MATRIX_H
 #define MATRIX_H
 namespace Linalg
@@ -54,7 +55,7 @@ namespace Linalg
         Matrix operator/(Matrix const&);
         Matrix operator/(Data const&);
     };
-    
+
     template <typename Data>
     std::ostream& operator<<(std::ostream&, Matrix<Data> const&);
     template <typename Data>

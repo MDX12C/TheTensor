@@ -441,24 +441,15 @@ namespace Linalg
     }
     
 }
-template class Linalg::Matrix<int8_t>;
-template class Linalg::Matrix<int16_t>;
 template class Linalg::Matrix<int32_t>;
-template class Linalg::Matrix<int64_t>;
 template class Linalg::Matrix<_Float32>;
-template class Linalg::Matrix<_Float64>;
 template class Linalg::Matrix<bool>;
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int8_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int16_t> const&);
+template class Linalg::Matrix<__fp16>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int64_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float32> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float64> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<bool> const&);
-template Linalg::Matrix<int8_t> Linalg::dot(Linalg::Matrix<int8_t> const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::dot(Linalg::Matrix<int16_t> const&, Linalg::Matrix<int16_t> const&);
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<__fp16> const&);
 template Linalg::Matrix<int32_t> Linalg::dot(Linalg::Matrix<int32_t> const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::dot(Linalg::Matrix<int64_t> const&, Linalg::Matrix<int64_t> const&);
 template Linalg::Matrix<_Float32> Linalg::dot(Linalg::Matrix<_Float32> const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::dot(Linalg::Matrix<_Float64> const&, Linalg::Matrix<_Float64> const&);
 template Linalg::Matrix<bool> Linalg::dot(Linalg::Matrix<bool> const&, Linalg::Matrix<bool> const&);
+template Linalg::Matrix<__fp16> Linalg::dot(Linalg::Matrix<__fp16> const&, Linalg::Matrix<__fp16> const&);
