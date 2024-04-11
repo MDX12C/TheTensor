@@ -6,7 +6,12 @@ namespace Basic_Math {
     return the number*/
     template <typename Data>
     int Int_Digits(Data const& alpha) {
-        return (std::floor(std::log10(alpha)) + 1);
+        if (alpha < 0) {
+            return (std::floor(std::log10(-alpha)) + 1);
+        }
+        else {
+            return (std::floor(std::log10(alpha)) + 1);
+        }
     }
     /*constructor with Dimansion
     Enter: 1.Dimansion
@@ -14,6 +19,7 @@ namespace Basic_Math {
     no return*/
     Teshape::Teshape(int const& alpha) {
         this->_dimansion = alpha > 0 ? alpha : 1;
+        this->_size = 1;
         this->shape = new int[this->_dimansion];
         for (int i = 0; i < this->_dimansion; i++)
             this->shape[i] = 1;
@@ -26,8 +32,11 @@ namespace Basic_Math {
     Teshape::Teshape(int const& alpha, int* const& beta) {
         this->_dimansion = alpha > 0 ? alpha : 1;
         this->shape = new int[this->_dimansion];
-        for (int i = 0; i < this->_dimansion; i++)
+        this->_size = 1;
+        for (int i = 0; i < this->_dimansion; i++) {
             this->shape[i] = beta[i] > 0 ? beta[i] : 1;
+            this->_size *= this->shape[i];
+        }
         return;
     }
     /*copy constructor
@@ -36,6 +45,7 @@ namespace Basic_Math {
     no return*/
     Teshape::Teshape(Teshape const& alpha) {
         this->_dimansion = alpha._dimansion;
+        this->_size = alpha._size;
         this->shape = new int[this->_dimansion];
         for (int i = 0; i < this->_dimansion; i++)
             this->shape[i] = alpha.shape[i];
@@ -47,6 +57,7 @@ namespace Basic_Math {
     no return*/
     Teshape::Teshape() {
         this->_dimansion = 1;
+        this->_size = 1;
         this->shape = new int[1];
         this->shape[0] = 1;
         return;
@@ -66,7 +77,9 @@ namespace Basic_Math {
     void Teshape::endow_(int const& alpha, int const& beta) {
         if (alpha < 0 || alpha >= this->_dimansion)
             return;
+        this->_size /= this->shape[alpha];
         this->shape[alpha] = beta > 0 ? beta : 1;
+        this->_size *= this->shape[alpha];
         return;
     }
     /*operator[]
@@ -86,6 +99,7 @@ namespace Basic_Math {
         if (this->_dimansion)
             delete[] this->shape;
         this->_dimansion = alpha._dimansion;
+        this->_size = alpha._size;
         this->shape = new int[this->_dimansion];
         for (int i = 0; i < this->_dimansion; i++)
             this->shape[i] = alpha.shape[i];
@@ -103,22 +117,12 @@ namespace Basic_Math {
                 return false;
         return true;
     }
-    /*size
-    Enter: none
-    count there are how many numbers in total
-    return the number*/
-    int Teshape::size() {
-        int alpha = 1;
-        for (int i = 0; i < this->_dimansion; i++)
-            alpha *= this->shape[i];
-        return alpha;
-    }
     /*reshape
     Enter: 1.Teshape
     reshape this through the Teshape
     return true if the shape is reshaped*/
-    bool Teshape::reshape_(Teshape& alpha) {
-        if (this->size() != alpha.size())
+    bool Teshape::reshape_(Teshape const& alpha) {
+        if (this->_size != alpha._size)
             return false;
         if ((*this) == alpha)
             return true;
@@ -130,6 +134,33 @@ namespace Basic_Math {
             this->shape[i] = alpha.shape[i];
         return true;
     }
+    /*freedom
+    Enter: none
+    free the space of the Teshape and set the shape to 1
+    no return*/
+    void Teshape::freedom_() {
+        delete[] this->shape;
+        this->_dimansion = 1;
+        this->_size = 1;
+        this->shape = new int[1];
+        this->shape[0] = 1;
+        return;
+    }
+    /*coordinate
+    Enter: 1.coordinate
+    count the steps of the coordinate
+    return the steps*/
+    int Teshape::coordinate(Teshape const& alpha) {
+        if (belongs(alpha, (*this)))
+            return 0;
+        int temp = 0;
+        for (int i = 0; i < this->_dimansion - 1; i++) {
+            temp += alpha.shape[i];
+            temp *= this->shape[i + 1];
+        }
+        temp += this->shape[this->_dimansion - 1];
+        return temp;
+    }
     /*operator>>
     Enter: 1.istream 2.Teshape
     read the Teshape from the istream
@@ -140,10 +171,12 @@ namespace Basic_Math {
             delete[] beta.shape;
         alpha >> gamma;
         beta._dimansion = gamma > 0 ? gamma : 1;
+        beta._size = 1;
         beta.shape = new int[beta._dimansion];
         for (int i = 0; i < beta._dimansion; i++) {
             alpha >> gamma;
             beta.shape[i] = gamma > 0 ? gamma : 1;
+            beta._size *= beta.shape[i];
         }
         return alpha;
     }
@@ -167,9 +200,13 @@ namespace Basic_Math {
     bool belongs(Teshape const& alpha, Teshape const& beta) {
         if (alpha._dimansion != beta._dimansion)
             return false;
-        for (int i = 0; i < alpha._dimansion; i++)
-            if (alpha.shape[i] != beta.shape[i])
+        for (int i = 0; i < alpha._dimansion; i++) {
+            if ((alpha.shape[i] < 0) || (alpha.shape[i] >= beta.shape[i]))
                 return false;
+        }
         return true;
     }
 }
+template int Basic_Math::Int_Digits(int32_t const&);
+template int Basic_Math::Int_Digits(_Float32 const&);
+template int Basic_Math::Int_Digits(bool const&);

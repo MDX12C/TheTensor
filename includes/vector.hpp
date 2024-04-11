@@ -1,7 +1,6 @@
 ﻿#include"./basic.hpp"
-#include<iostream>
-#include<float.h>
-#include<iomanip>
+
+
 #ifndef VECTOR_H
 #define VECTOR_H
 namespace Linalg
@@ -10,12 +9,14 @@ namespace Linalg
     class Vector
     {
     private:
-        Data *storage_space;
+        Data* storage_space;
+        Data _sum;
         int _shape;
+        int _digits;
         template <typename T>
-        friend std::ostream &operator<<(std::ostream &, Vector<T> const &);
+        friend std::ostream& operator<<(std::ostream&, Vector<T> const&);
         template <typename T>
-        friend T dot(Vector<T> const &, Vector<T> const &);
+        friend T dot(Vector<T> const&, Vector<T> const&);
     public:
         Vector(int const&, Data* const&);
         Vector(int const&, Data const&);
@@ -23,11 +24,12 @@ namespace Linalg
         Vector();
         Vector(Vector const&);
         ~Vector();
-        void freedom_();
         inline int size() { return this->_shape; }
+        inline Data sum() { return this->_sum; }
+        void freedom_();
         void endow_(int const&, Data const&);
         void resize_(int const&);
-        Data& operator[](int const&);
+        Data operator[](int const&);
         void operator=(Vector const&);
         void operator=(Data const&);
         void operator+=(Vector const&);

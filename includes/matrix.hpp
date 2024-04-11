@@ -1,7 +1,6 @@
 ﻿#include"./vector.hpp"
-#include <iostream>
-#include<float.h>
-#include<iomanip>
+
+
 #ifndef MATRIX_H
 #define MATRIX_H
 namespace Linalg
@@ -19,7 +18,9 @@ namespace Linalg
     {
     private:
         Data* storage_space;
+        Data _sum;
         MaShape _shape;
+        int _digits;
 
         template <typename T>
         friend std::ostream& operator<<(std::ostream&, Matrix<T> const&);
@@ -38,6 +39,7 @@ namespace Linalg
         ~Matrix();
         Matrix T();
         inline MaShape shape() { return this->_shape; }
+        inline Data sum() { return this->_sum; }
         void freedom_();
         void endow_(MaShape const&, Data const&);
         void resize_(MaShape const&);

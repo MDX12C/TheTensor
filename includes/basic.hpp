@@ -1,18 +1,20 @@
 ﻿#include<iostream>
 #include<iomanip>
-#include<float.h>
+#include<cfloat>
 #include<cmath>
+
 #ifndef BASIC_H
 #define BASIC_H
 namespace Basic_Math {
-    constexpr int Float16_Accuracy=3;
-    constexpr int Float32_Accuracy=7;
+    constexpr int Float16_Accuracy = 3;
+    constexpr int Float32_Accuracy = 7;
     template <typename Data>
     int Int_Digits(Data const&);
-    class Teshape{
+    class Teshape {
     private:
-        int _dimansion=1;
-        int *shape=nullptr;
+        int _dimansion = 1;
+        int _size = 1;
+        int* shape = nullptr;
         friend std::istream& operator>>(std::istream&, Teshape&);
         friend std::ostream& operator<<(std::ostream&, Teshape const&);
         friend bool belongs(Teshape const&, Teshape const&);
@@ -27,8 +29,10 @@ namespace Basic_Math {
         void operator=(Teshape const&);
         bool operator==(Teshape const&);
         inline int dimansion() { return this->_dimansion; }
-        int size();
-        bool reshape_(Teshape &);
+        inline int size() { return this->_size; }
+        bool reshape_(Teshape const&);
+        void freedom_();
+        int coordinate(Teshape const&);
     };
     std::istream& operator>>(std::istream&, Teshape&);
     std::ostream& operator<<(std::ostream&, Teshape const&);
