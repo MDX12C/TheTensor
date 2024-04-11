@@ -21,6 +21,7 @@ namespace Linalg
         Data _sum;
         MaShape _shape;
         int _digits;
+        int _size;
 
         template <typename T>
         friend std::ostream& operator<<(std::ostream&, Matrix<T> const&);
@@ -40,11 +41,12 @@ namespace Linalg
         Matrix T();
         inline MaShape shape() { return this->_shape; }
         inline Data sum() { return this->_sum; }
+        inline int size() { return this->_size; }
         void freedom_();
         void endow_(MaShape const&, Data const&);
         void resize_(MaShape const&);
         void reshape_(MaShape const&);
-        Data& operator[](MaShape const&);
+        Data operator[](MaShape const&);
         void operator=(Matrix const&);
         void operator=(Data const&);
         void operator+=(Matrix const&);

@@ -6,7 +6,7 @@ namespace Basic_Math {
     return the number*/
     template <typename Data>
     int Int_Digits(Data const& alpha) {
-        if (alpha < 0) {
+        if (alpha < static_cast<Data>(0)) {
             return (std::floor(std::log10(-alpha)) + 1);
         }
         else {

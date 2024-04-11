@@ -15,7 +15,7 @@ namespace Linalg
     show the MaShape's rows and lines
     return the ostream */
     std::ostream& operator<<(std::ostream& beta, MaShape const& alpha) {
-        beta << "rows: " << alpha.rows << "\nlines: " << alpha.lines << '\n';
+        beta << "rows: " << alpha.rows << " lines: " << alpha.lines << '\n';
         return beta;
     }
     /*belong
@@ -23,7 +23,7 @@ namespace Linalg
     check if the coordinate is in the MaShape
     return true if it is*/
     bool belongs(MaShape const& alpha, MaShape const& beta) {
-        if(alpha.lines < 0 || alpha.rows < 0)
+        if (alpha.lines < 0 || alpha.rows < 0)
             return false;
         return (alpha.lines < beta.lines) && (alpha.rows < beta.rows);
     }
@@ -36,9 +36,12 @@ namespace Linalg
     {
         this->_shape.lines = beta.lines > 0 ? beta.lines : 1;
         this->_shape.rows = beta.rows > 0 ? beta.rows : 1;
-        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
-        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
+        this->_size = this->_shape.lines * this->_shape.rows;
+        this->storage_space = new Data[this->_size];
+        for (int i = 0; i < this->_shape.size; i++)
             this->storage_space[i] = alpha;
+        this->_sum = static_cast<Data>(this->_size) * alpha;
+        this->_digits = Basic_Math::Int_Digits(alpha);
         return;
     }
     /*Constructor_Datas
@@ -50,13 +53,22 @@ namespace Linalg
     {
         this->_shape = beta;
         if (this->_shape.rows <= 0 || this->_shape.lines <= 0) {
-            this->_shape.lines = this->_shape.rows = 1;
+            this->_shape.lines = this->_shape.rows = this->_size = 1;
             this->storage_space = new Data[1];
+            this->_sum = static_cast<Data>(0);
+            this->_digits = 1;
             this->storage_space[0] = static_cast<Data>(0);
+            return;
         }
-        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
-        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
+        this->_digits = 1;
+        this->_sum = static_cast<Data>(0);
+        this->_size = this->_shape.lines * this->_shape.rows;
+        this->storage_space = new Data[this->_size];
+        for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] = alpha[i];
+            this->_sum += alpha[i];
+            this->_digits = max(this->_digits, Basic_Math::Int_Digits(alpha[i]));
+        }
         return;
     }
     /*Constructor_Shape
@@ -67,8 +79,11 @@ namespace Linalg
     Matrix<Data>::Matrix(MaShape const& alpha) {
         this->_shape.lines = alpha.lines > 0 ? alpha.lines : 1;
         this->_shape.rows = alpha.rows > 0 ? alpha.rows : 1;
-        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
-        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
+        this->_size = this->_shape.lines * this->_shape.rows;
+        this->storage_space = new Data[this->_size];
+        this->_sum = static_cast<Data>(0);
+        this->_digits = 1;
+        for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = static_cast<Data>(0);
         return;
     }
@@ -78,9 +93,11 @@ namespace Linalg
     no return */
     template <typename Data>
     Matrix<Data>::Matrix() {
-        this->_shape.rows = this->_shape.lines = 1;
+        this->_shape.rows = this->_shape.lines = this->_size = 1;
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
+        this->_sum = static_cast<Data>(0);
+        this->_digits = 1;
         return;
     }
     /*Copy constructor
@@ -90,8 +107,11 @@ namespace Linalg
     template <typename Data>
     Matrix<Data>::Matrix(const Matrix& alpha) {
         this->_shape = alpha._shape;
-        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
-        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
+        this->_size = alpha._size;
+        this->_sum = alpha._sum;
+        this->_digits = alpha._digits;
+        this->storage_space = new Data[this->_size];
+        for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = alpha.storage_space[i];
         return;
     }
@@ -102,7 +122,7 @@ namespace Linalg
     template <typename Data>
     Matrix<Data>::~Matrix()
     {
-        if (this->_shape.rows * this->_shape.lines)
+        if (this->_size)
             delete[] this->storage_space;
         return;
     }
@@ -111,11 +131,11 @@ namespace Linalg
     do nothing
     return the data in the coordinate*/
     template <typename Data>
-    Data& Matrix<Data>::operator[](MaShape const& alpha)
+    Data Matrix<Data>::operator[](MaShape const& alpha)
     {
         if (belongs(alpha, this->_shape))
             return this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
-        return this->storage_space[0];
+        return static_cast<Data>(0);
     }
     /*Transpose matrix
     Enter: none
@@ -128,8 +148,10 @@ namespace Linalg
         for (int i = 0; i < this->_shape.rows; i++)
         {
             for (int j = 0; j < this->_shape.lines; j++)
-                temp.storage_space[i * this->_shape.lines + j] = this->storage_space[j * this->_shape.rows + i];
+                temp.storage_space[j * temp._shape.lines + i] = this->storage_space[i * this->_shape.lines + j];
         }
+        temp._sum = this->_sum;
+        temp._digits = this->_digits;
         return temp;
     }
     /*endow_
@@ -470,12 +492,12 @@ namespace Linalg
     no return*/
     template <typename Data>
     void AddLine_(Matrix<Data>& alpha, Vector<Data> const& beta) {
-        if(alpha._shape.rows!=beta._shape)
+        if (alpha._shape.rows != beta._shape)
             return;
-        int gamma=alpha._shape.lines;
-        alpha.resize_(MaShape{alpha._shape.rows, alpha._shape.lines + 1});
-        for (int theta=0;theta<beta._shape;theta++){
-            alpha.storage_space[alpha._shape.lines*theta+gamma]=beta[theta];
+        int gamma = alpha._shape.lines;
+        alpha.resize_(MaShape{ alpha._shape.rows, alpha._shape.lines + 1 });
+        for (int theta = 0; theta < beta._shape; theta++) {
+            alpha.storage_space[alpha._shape.lines * theta + gamma] = beta[theta];
         }
         return;
     }
@@ -485,12 +507,12 @@ namespace Linalg
     no return*/
     template <typename Data>
     void AddRow_(Matrix<Data>& alpha, Vector<Data> const& beta) {
-        if(alpha._shape.lines!=beta._shape)
+        if (alpha._shape.lines != beta._shape)
             return;
-        int gamma=alpha._shape.rows;
-        alpha.resize_(MaShape{alpha._shape.rows+1, alpha._shape.lines});
-        for (int theta=0;theta<beta._shape;theta++){
-            alpha.storage_space[alpha._shape.lines*gamma+theta]=beta[theta];
+        int gamma = alpha._shape.rows;
+        alpha.resize_(MaShape{ alpha._shape.rows + 1, alpha._shape.lines });
+        for (int theta = 0; theta < beta._shape; theta++) {
+            alpha.storage_space[alpha._shape.lines * gamma + theta] = beta[theta];
         }
         return;
     }
