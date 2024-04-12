@@ -187,10 +187,9 @@ namespace Basic_Math {
     std::ostream& operator<<(std::ostream& alpha, Teshape const& beta) {
         alpha << beta._dimansion << " : ";
         for (int i = 0; i < beta._dimansion; i++) {
-            alpha << beta.shape[i];
-            if (i != beta._dimansion - 1)
-                alpha << ' ';
+            alpha << beta.shape[i] << ' ';
         }
+        alpha << "= " << beta._size << '\n';
         return alpha;
     }
     /*belongs

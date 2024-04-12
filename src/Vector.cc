@@ -115,7 +115,9 @@ namespace Linalg {
             return;
         this->_sum += beta - this->storage_space[alpha];
         this->storage_space[alpha] = beta;
-        this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(beta));
+        this->_digits = 1;
+        for (int i = 0; i < this->_shape; i++)
+            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         return;
     }
     /*resize
@@ -415,6 +417,7 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return;
         this->_digits = 1;
+        this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] /= alpha.storage_space[i];
             this->_sum += this->storage_space[i];
