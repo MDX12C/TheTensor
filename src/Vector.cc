@@ -134,7 +134,8 @@ namespace Linalg {
         if (this->_shape)
             delete[] this->storage_space;
         this->_shape = alpha;
-        this->_sum = static_cast<Data>(0);
+        Data gamma = static_cast<Data>(0);
+        this->_sum = gamma;
         this->_digits = 1;
         this->storage_space = new Data[this->_shape];
         for (int i = 0; i < this->_shape; i++) {
@@ -144,7 +145,7 @@ namespace Linalg {
                 this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
             }
             else {
-                this->storage_space[i] = static_cast<Data>(0);
+                this->storage_space[i] = gamma;
             }
         }
         return;
@@ -459,7 +460,7 @@ namespace Linalg {
     return the ostream*/
     template <typename Data>
     std::ostream& operator<<(std::ostream& beta, Vector<Data> const& alpha) {
-        beta << "size: " << alpha._shape << " total: " << alpha._sum << '\n';
+        beta << std::noshowpos << "size: " << alpha._shape << " total: " << alpha._sum << '\n';
         for (int i = 0; i < alpha._shape; i++) {
             beta << std::setprecision(Basic_Math::Float16_Accuracy) \
                 << std::fixed << std::setfill(' ') << std::showpoint \

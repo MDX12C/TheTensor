@@ -15,7 +15,7 @@ namespace Linalg
     show the MaShape's rows and lines
     return the ostream */
     std::ostream& operator<<(std::ostream& beta, MaShape const& alpha) {
-        beta << "rows: " << alpha.rows << " lines: " << alpha.lines << '\n';
+        beta << std::noshowpos << "rows: " << alpha.rows << " lines: " << alpha.lines << '\n';
         return beta;
     }
     /*belong
@@ -464,7 +464,7 @@ namespace Linalg
     }
     /*resize
     Enter: 1.Mashape
-    resize the Matrix into the shape, and the beyond's elements will be filled with 1
+    resize the Matrix into the shape, and the beyond's elements will be filled with 0
     no return*/
     template <typename Data>
     void Matrix<Data>::resize_(MaShape const& alpha)
@@ -473,12 +473,12 @@ namespace Linalg
         if (alpha.lines <= 0 || alpha.rows <= 0) return;
         Linalg::MaShape beta;
         Matrix<Data> temp(*this);
-        Data value = static_cast<Data>(1);
+        Data value = static_cast<Data>(0);
         delete[] this->storage_space;
         this->_shape = alpha;
         this->_size = this->_shape.rows * this->_shape.lines;
         this->_digits = 1;
-        this->_sum = static_cast<Data>(0);
+        this->_sum = value;
         this->storage_space = new Data[this->_size];
         for (beta.rows = 0; beta.rows < this->_shape.rows; beta.rows++) {
             for (beta.lines = 0; beta.lines < this->_shape.lines; beta.lines++) {
@@ -489,8 +489,6 @@ namespace Linalg
                 }
                 else {
                     this->storage_space[this->_shape.lines * beta.rows + beta.lines] = value;
-                    this->_sum += value;
-                    this->_digits = std::max(this->_digits, 1);
                 }
             }
         }

@@ -1,8 +1,6 @@
-﻿#include"./basic.hpp"
-
-
-#ifndef VECTOR_H
+﻿#ifndef VECTOR_H
 #define VECTOR_H
+#include"./basic.hpp"
 namespace Linalg
 {
     template <typename Data>
