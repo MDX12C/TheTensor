@@ -18,47 +18,44 @@ namespace Linalg
         beta << "rows: " << alpha.rows << "\nlines: " << alpha.lines << '\n';
         return beta;
     }
-    /*MaShape operator>>
-    Enter: 1.istream 2.MaShape
-    read the MaShape's rows and lines from the istream
-    return the istream*/
-    std::istream& operator>>(std::istream& beta, MaShape& alpha) {
-        beta >> alpha.rows >> alpha.lines;
-        return beta;
-    }
     /*belong
     Enter: 1.coordinate 2.MaShape
     check if the coordinate is in the MaShape
     return true if it is*/
     bool belongs(MaShape const& alpha, MaShape const& beta) {
+        if(alpha.lines < 0 || alpha.rows < 0)
+            return false;
         return (alpha.lines < beta.lines) && (alpha.rows < beta.rows);
     }
     /*Constructor_Value
-    Enter 1.Matrix_shape 2.init data
+    Enter 1.Matrix_shape 2.init value
     use the shape to construct a Matrix full of the init data
     no return */
     template <typename Data>
     Matrix<Data>::Matrix(MaShape const& beta, Data const& alpha)
     {
-        this->shape.lines = beta.lines > 0 ? beta.lines : 1;
-        this->shape.rows = beta.rows > 0 ? beta.rows : 1;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        this->_shape.lines = beta.lines > 0 ? beta.lines : 1;
+        this->_shape.rows = beta.rows > 0 ? beta.rows : 1;
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = alpha;
         return;
     }
-    /*Constructor_Values
+    /*Constructor_Datas
     Enter 1.Matrix_shape 2.pointer to init datas
     use the shape to construct a Matrix and init it with the array
     no return */
     template <typename Data>
     Matrix<Data>::Matrix(MaShape const& beta, Data* const& alpha)
     {
-        this->shape = beta;
-        if (this->shape.rows <= 0 || this->shape.lines <= 0)
-            this->shape.lines = this->shape.rows = 1;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        this->_shape = beta;
+        if (this->_shape.rows <= 0 || this->_shape.lines <= 0) {
+            this->_shape.lines = this->_shape.rows = 1;
+            this->storage_space = new Data[1];
+            this->storage_space[0] = static_cast<Data>(0);
+        }
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = alpha[i];
         return;
     }
@@ -68,10 +65,10 @@ namespace Linalg
     no return */
     template <typename Data>
     Matrix<Data>::Matrix(MaShape const& alpha) {
-        this->shape.lines = alpha.lines > 0 ? alpha.lines : 1;
-        this->shape.rows = alpha.rows > 0 ? alpha.rows : 1;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        this->_shape.lines = alpha.lines > 0 ? alpha.lines : 1;
+        this->_shape.rows = alpha.rows > 0 ? alpha.rows : 1;
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = static_cast<Data>(0);
         return;
     }
@@ -81,7 +78,7 @@ namespace Linalg
     no return */
     template <typename Data>
     Matrix<Data>::Matrix() {
-        this->shape.rows = this->shape.lines = 1;
+        this->_shape.rows = this->_shape.lines = 1;
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
         return;
@@ -92,9 +89,9 @@ namespace Linalg
     no return */
     template <typename Data>
     Matrix<Data>::Matrix(const Matrix& alpha) {
-        this->shape = alpha.shape;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        this->_shape = alpha._shape;
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = alpha.storage_space[i];
         return;
     }
@@ -105,7 +102,7 @@ namespace Linalg
     template <typename Data>
     Matrix<Data>::~Matrix()
     {
-        if (this->shape.rows * this->shape.lines)
+        if (this->_shape.rows * this->_shape.lines)
             delete[] this->storage_space;
         return;
     }
@@ -114,9 +111,11 @@ namespace Linalg
     do nothing
     return the data in the coordinate*/
     template <typename Data>
-    Data Matrix<Data>::operator[](MaShape const& alpha)
+    Data& Matrix<Data>::operator[](MaShape const& alpha)
     {
-        return this->storage_space[alpha.rows * this->shape.lines + alpha.lines];
+        if (belongs(alpha, this->_shape))
+            return this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
+        return this->storage_space[0];
     }
     /*Transpose matrix
     Enter: none
@@ -125,11 +124,11 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> Matrix<Data>::T()
     {
-        Matrix<Data> temp(MaShape{ this->shape.lines, this->shape.rows }, static_cast<Data>(0));
-        for (int i = 0; i < this->shape.rows; i++)
+        Matrix<Data> temp(MaShape{ this->_shape.lines, this->_shape.rows }, static_cast<Data>(0));
+        for (int i = 0; i < this->_shape.rows; i++)
         {
-            for (int j = 0; j < this->shape.lines; j++)
-                temp.storage_space[i * this->shape.lines + j] = this->storage_space[j * this->shape.rows + i];
+            for (int j = 0; j < this->_shape.lines; j++)
+                temp.storage_space[i * this->_shape.lines + j] = this->storage_space[j * this->_shape.rows + i];
         }
         return temp;
     }
@@ -139,7 +138,8 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
-        this->storage_space[alpha.rows * this->shape.lines + alpha.lines] = beta;
+        if (belongs(alpha, this->_shape))
+            this->storage_space[alpha.rows * this->_shape.lines + alpha.lines] = beta;
         return;
     }
     /*operator=
@@ -149,11 +149,11 @@ namespace Linalg
     template <typename Data>
     void Matrix<Data>::operator=(Matrix const& alpha)
     {
-        this->shape = alpha.shape;
+        this->_shape = alpha._shape;
         if (storage_space != nullptr)
             delete[] storage_space;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = alpha.storage_space[i];
         return;
     }
@@ -166,7 +166,7 @@ namespace Linalg
     {
         if (this->storage_space == nullptr)
             this->resize_(MaShape{ 1, 1 });
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] = alpha;
         return;
     }
@@ -177,10 +177,10 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator+(Matrix const& alpha)
     {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] += alpha.storage_space[i];
         return temp;
     }
@@ -192,7 +192,7 @@ namespace Linalg
     Matrix<Data> Matrix<Data>::operator+(Data const& alpha)
     {
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] += alpha;
         return temp;
     }
@@ -203,10 +203,10 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator-(Matrix const& alpha)
     {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] -= alpha.storage_space[i];
         return temp;
     }
@@ -218,7 +218,7 @@ namespace Linalg
     Matrix<Data> Matrix<Data>::operator-(Data const& alpha)
     {
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] -= alpha;
         return temp;
     }
@@ -229,10 +229,10 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator*(Matrix const& alpha)
     {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] *= alpha.storage_space[i];
         return temp;
     }
@@ -244,7 +244,7 @@ namespace Linalg
     Matrix<Data> Matrix<Data>::operator*(Data const& alpha)
     {
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] *= alpha;
         return temp;
     }
@@ -254,10 +254,10 @@ namespace Linalg
     return the result*/
     template <typename Data>
     Matrix<Data> Matrix<Data>::operator/(Matrix const& alpha) {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
             temp.storage_space[i] /= alpha.storage_space[i];
         return temp;
     }
@@ -269,7 +269,7 @@ namespace Linalg
     Matrix<Data> Matrix<Data>::operator/(Data const& alpha)
     {
         Matrix<Data> temp(*this);
-        for (int i = 0; i < temp.shape.rows * temp.shape.lines; i++)
+        for (int i = 0; i < temp._shape.rows * temp._shape.lines; i++)
         {
             temp.storage_space[i] /= alpha;
         }
@@ -281,9 +281,9 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator+=(Matrix const& alpha) {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return;
-        for (int i = 0; i < alpha.shape.rows * alpha.shape.lines; i++)
+        for (int i = 0; i < alpha._shape.rows * alpha._shape.lines; i++)
             this->storage_space[i] += alpha.storage_space[i];
         return;
     }
@@ -293,7 +293,7 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator+=(Data const& alpha) {
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++) {
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++) {
             this->storage_space[i] += alpha;
         }
         return;
@@ -304,9 +304,9 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator-=(Matrix const& alpha) {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return;
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] -= alpha.storage_space[i];
         return;
     }
@@ -316,7 +316,7 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator-=(Data const& alpha) {
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++) {
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++) {
             this->storage_space[i] -= alpha;
         }
         return;
@@ -327,9 +327,9 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator*=(Matrix const& alpha) {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return;
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] *= alpha.storage_space[i];
         return;
     }
@@ -339,7 +339,7 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator*=(Data const& alpha) {
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++) {
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++) {
             this->storage_space[i] *= alpha;
         }
         return;
@@ -350,9 +350,9 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator/=(Matrix const& alpha) {
-        if (!(this->shape == alpha.shape))
+        if (!(this->_shape == alpha._shape))
             return;
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++)
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++)
             this->storage_space[i] /= alpha.storage_space[i];
         return;
     }
@@ -362,7 +362,7 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::operator/=(Data const& alpha) {
-        for (int i = 0; i < this->shape.rows * this->shape.lines; i++) {
+        for (int i = 0; i < this->_shape.rows * this->_shape.lines; i++) {
             this->storage_space[i] /= alpha;
         }
         return;
@@ -374,19 +374,21 @@ namespace Linalg
     template <typename Data>
     void Matrix<Data>::resize_(MaShape const& alpha)
     {
+        if (this->_shape == alpha) return;
+        if (alpha.lines <= 0 || alpha.rows <= 0) return;
         Linalg::MaShape beta;
         Matrix<Data> temp = *this;
         Data value = static_cast<Data>(1);
         delete[] this->storage_space;
-        this->shape = alpha;
-        this->storage_space = new Data[this->shape.rows * this->shape.lines];
-        for (beta.rows = 0; beta.rows < this->shape.rows; beta.rows++) {
-            for (beta.lines = 0; beta.lines < this->shape.lines; beta.lines++) {
-                if (Linalg::belongs(beta, temp.shape)) {
-                    this->storage_space[this->shape.lines * beta.rows + beta.lines] = temp[beta];
+        this->_shape = alpha;
+        this->storage_space = new Data[this->_shape.rows * this->_shape.lines];
+        for (beta.rows = 0; beta.rows < this->_shape.rows; beta.rows++) {
+            for (beta.lines = 0; beta.lines < this->_shape.lines; beta.lines++) {
+                if (Linalg::belongs(beta, temp._shape)) {
+                    this->storage_space[this->_shape.lines * beta.rows + beta.lines] = temp[beta];
                 }
                 else {
-                    this->storage_space[this->shape.lines * beta.rows + beta.lines] = value;
+                    this->storage_space[this->_shape.lines * beta.rows + beta.lines] = value;
                 }
             }
         }
@@ -398,10 +400,25 @@ namespace Linalg
     no return*/
     template <typename Data>
     void Matrix<Data>::reshape_(MaShape const& alpha) {
-        if (alpha.rows * alpha.lines != this->shape.rows * this->shape.lines)
+        if (this->_shape == alpha) return;
+        if (alpha.lines <= 0 || alpha.rows <= 0) return;
+        if (alpha.rows * alpha.lines != this->_shape.rows * this->_shape.lines)
             return;
-        this->shape.lines = alpha.lines;
-        this->shape.rows = alpha.rows;
+        this->_shape.lines = alpha.lines;
+        this->_shape.rows = alpha.rows;
+        return;
+    }
+    /*freedom
+    Enter: none
+    free the Matrix and set the shape to 1,1
+    no return*/
+    template <typename Data>
+    void Matrix<Data>::freedom_() {
+        delete[] this->storage_space;
+        this->_shape.lines = 1;
+        this->_shape.rows = 1;
+        this->storage_space = new Data[1];
+        this->storage_space[0] = static_cast<Data>(0);
         return;
     }
 
@@ -412,17 +429,17 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> dot(Matrix<Data> const& beta, Matrix<Data> const& alpha)
     {
-        if (beta.shape.lines != alpha.shape.rows)
+        if (beta._shape.lines != alpha._shape.rows)
             return beta;
-        int n = beta.shape.lines;
+        int n = beta._shape.lines;
         Data k = static_cast<Data>(0);
-        Matrix<Data> temp({ beta.shape.rows, alpha.shape.lines }, k);
-        for (int i = 0; i < temp.shape.rows; i++)
+        Matrix<Data> temp({ beta._shape.rows, alpha._shape.lines }, k);
+        for (int i = 0; i < temp._shape.rows; i++)
         {
-            for (int j = 0; j < temp.shape.lines; j++)
+            for (int j = 0; j < temp._shape.lines; j++)
             {
                 for (int l = 0; l < n; l++)
-                    temp.storage_space[i * temp.shape.lines + j] += beta.storage_space[i * beta.shape.lines + l] * alpha.storage_space[l * alpha.shape.lines + j];
+                    temp.storage_space[i * temp._shape.lines + j] += beta.storage_space[i * beta._shape.lines + l] * alpha.storage_space[l * alpha._shape.lines + j];
             }
         }
         return temp;
@@ -434,59 +451,56 @@ namespace Linalg
     template <typename Data>
     std::ostream& operator<<(std::ostream& beta, Matrix<Data> const& alpha)
     {
-        beta << alpha.shape;
-        for (int i = 0; i < alpha.shape.rows; i++)
+        beta << alpha._shape;
+        for (int i = 0; i < alpha._shape.rows; i++)
         {
-            for (int j = 0; j < alpha.shape.lines; j++)
+            for (int j = 0; j < alpha._shape.lines; j++)
             {
-                beta << alpha.storage_space[i * alpha.shape.lines + j];
-                if (j != alpha.shape.lines - 1)
+                beta << alpha.storage_space[i * alpha._shape.lines + j];
+                if (j != alpha._shape.lines - 1)
                     beta << ' ';
             }
             beta << '\n';
         }
         return beta;
     }
-    /*operator>>
-    Enter: 1.istream 2.Matrix
-    read the shape and the value from the istream
-    return the istream*/
+    /*Add Line
+    Enter: 1.Matrix 2.Vector
+    add the Vector to the end of the Matrix(Line)
+    no return*/
     template <typename Data>
-    std::istream& operator>>(std::istream& beta, Matrix<Data>& alpha) {
-        Linalg::MaShape theta;
-        beta >> alpha.shape;
-        for (theta.rows = 0; theta.rows < alpha.shape.rows; theta.rows++) {
-            for (theta.lines = 0; theta.lines < alpha.shape.lines; theta.lines++)
-                beta >> alpha.storage_space[theta.rows * alpha.shape.lines + theta.lines];
+    void AddLine_(Matrix<Data>& alpha, Vector<Data> const& beta) {
+        if(alpha._shape.rows!=beta._shape)
+            return;
+        int gamma=alpha._shape.lines;
+        alpha.resize_(MaShape{alpha._shape.rows, alpha._shape.lines + 1});
+        for (int theta=0;theta<beta._shape;theta++){
+            alpha.storage_space[alpha._shape.lines*theta+gamma]=beta[theta];
         }
-        return beta;
+        return;
+    }
+    /*Add Row
+    Enter: 1.Matrix 2.Vector
+    add the Vector to the end of the Matrix(Row)
+    no return*/
+    template <typename Data>
+    void AddRow_(Matrix<Data>& alpha, Vector<Data> const& beta) {
+        if(alpha._shape.lines!=beta._shape)
+            return;
+        int gamma=alpha._shape.rows;
+        alpha.resize_(MaShape{alpha._shape.rows+1, alpha._shape.lines});
+        for (int theta=0;theta<beta._shape;theta++){
+            alpha.storage_space[alpha._shape.lines*gamma+theta]=beta[theta];
+        }
+        return;
     }
 }
-template class Linalg::Matrix<int8_t>;
-template class Linalg::Matrix<int16_t>;
 template class Linalg::Matrix<int32_t>;
-template class Linalg::Matrix<int64_t>;
 template class Linalg::Matrix<_Float32>;
-template class Linalg::Matrix<_Float64>;
 template class Linalg::Matrix<bool>;
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int8_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int16_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int64_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float32> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float64> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<bool> const&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int8_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int16_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int32_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<int64_t>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<_Float32>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<_Float64>&);
-template std::istream& Linalg::operator>>(std::istream&, Linalg::Matrix<bool>&);
-template Linalg::Matrix<int8_t> Linalg::dot(Linalg::Matrix<int8_t> const&, Linalg::Matrix<int8_t> const&);
-template Linalg::Matrix<int16_t> Linalg::dot(Linalg::Matrix<int16_t> const&, Linalg::Matrix<int16_t> const&);
 template Linalg::Matrix<int32_t> Linalg::dot(Linalg::Matrix<int32_t> const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<int64_t> Linalg::dot(Linalg::Matrix<int64_t> const&, Linalg::Matrix<int64_t> const&);
 template Linalg::Matrix<_Float32> Linalg::dot(Linalg::Matrix<_Float32> const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<_Float64> Linalg::dot(Linalg::Matrix<_Float64> const&, Linalg::Matrix<_Float64> const&);
 template Linalg::Matrix<bool> Linalg::dot(Linalg::Matrix<bool> const&, Linalg::Matrix<bool> const&);

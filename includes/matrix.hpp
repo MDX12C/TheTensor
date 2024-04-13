@@ -1,4 +1,7 @@
-﻿#include <iostream>
+﻿#include"./vector.hpp"
+#include <iostream>
+#include<float.h>
+#include<iomanip>
 #ifndef MATRIX_H
 #define MATRIX_H
 namespace Linalg
@@ -11,20 +14,21 @@ namespace Linalg
     bool operator==(MaShape const&, MaShape const&);
     bool belongs(MaShape const&, MaShape const&);
     std::ostream& operator<<(std::ostream&, MaShape const&);
-    std::istream& operator>>(std::istream&, MaShape&);
     template <typename Data>
     class Matrix
     {
     private:
         Data* storage_space;
-        MaShape shape;
+        MaShape _shape;
 
-        template <typename W>
-        friend std::ostream& operator<<(std::ostream&, Matrix<W> const&);
-        template <typename C>
-        friend std::istream& operator>>(std::istream&, Matrix<C>&);
+        template <typename T>
+        friend std::ostream& operator<<(std::ostream&, Matrix<T> const&);
         template <typename T>
         friend Matrix<T> dot(Matrix<T> const&, Matrix<T> const&);
+        template <typename T>
+        friend void AddLine_(Matrix<T>&, Vector<T> const&);
+        template <typename T>
+        friend void AddRow_(Matrix<T>&, Vector<T> const&);
     public:
         Matrix(MaShape const&, Data* const&);
         Matrix(MaShape const&, Data const&);
@@ -33,11 +37,12 @@ namespace Linalg
         Matrix(const Matrix&);
         ~Matrix();
         Matrix T();
-        inline MaShape size() { return this->shape; }
+        inline MaShape shape() { return this->_shape; }
+        void freedom_();
         void endow_(MaShape const&, Data const&);
         void resize_(MaShape const&);
         void reshape_(MaShape const&);
-        Data operator[](MaShape const&);
+        Data& operator[](MaShape const&);
         void operator=(Matrix const&);
         void operator=(Data const&);
         void operator+=(Matrix const&);
@@ -57,12 +62,14 @@ namespace Linalg
         Matrix operator/(Matrix const&);
         Matrix operator/(Data const&);
     };
-    
+
     template <typename Data>
     std::ostream& operator<<(std::ostream&, Matrix<Data> const&);
     template <typename Data>
-    std::istream& operator>>(std::istream&, Matrix<Data>&);
-    template <typename Data>
     Matrix<Data> dot(Matrix<Data> const&, Matrix<Data> const&);
+    template <typename Data>
+    void AddLine_(Matrix<Data>&, Vector<Data> const&);
+    template <typename Data>
+    void AddRow_(Matrix<Data>&, Vector<Data> const&);
 };
 #endif
