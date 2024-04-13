@@ -18,32 +18,12 @@ namespace Linalg {
         this->_shape = alpha;
         this->_sum = static_cast<Data>(0);
         this->storage_space = new Data[alpha];
+        this->_digits = 1;
         for (int i = 0; i < alpha; i++) {
             this->storage_space[i] = beta[i];
             this->_sum += this->storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
-        return;
-    }
-    /*constructor with value
-    Enter: 1.size 2.value
-    declare a vector filled with value
-    no reture*/
-    template <typename Data>
-    Vector<Data>::Vector(int const& alpha, Data const& beta) {
-        if (alpha <= 0) {
-            this->_shape = 1;
-            this->storage_space = new Data[1];
-            this->_sum = this->storage_space[0] = beta;
-            this->_digits = Basic_Math::Int_Digits(beta);
-            return;
-        }
-        this->_shape = alpha;
-        this->storage_space = new Data[alpha];
-        for (int i = 0; i < alpha; i++)
-            this->storage_space[i] = beta;
-        this->_sum = static_cast<Data>(alpha) * beta;
-        this->_digits = Basic_Math::Int_Digits(beta);
         return;
     }
     /*constructor only size

@@ -31,7 +31,6 @@ namespace Linalg
         friend void AddRow_(Matrix<T>&, Vector<T> const&);
     public:
         Matrix(MaShape const&, Data* const&);
-        Matrix(MaShape const&, Data const&);
         Matrix(MaShape const&);
         Matrix();
         Matrix(const Matrix&);

@@ -2,6 +2,10 @@
 #define TENSOR_H
 #include "./matrix.hpp"
 namespace bsm=Basic_Math;
+namespace Linalg {
+    template <typename Data>
+    class Tensor;
+}
 namespace Basic_Math {
     class Teshape {
     private:
@@ -44,7 +48,6 @@ namespace Linalg {
         int _digits;
     public:
         Tensor(bsm::Teshape const&, Data* const&);
-        Tensor(bsm::Teshape const&, Data const&);
         Tensor(bsm::Teshape const&);
         Tensor();
         Tensor(Tensor const&);

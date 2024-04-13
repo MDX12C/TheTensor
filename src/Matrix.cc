@@ -27,23 +27,6 @@ namespace Linalg
             return false;
         return (alpha.lines < beta.lines) && (alpha.rows < beta.rows);
     }
-    /*Constructor_Value
-    Enter 1.Matrix_shape 2.init value
-    use the shape to construct a Matrix full of the init data
-    no return */
-    template <typename Data>
-    Matrix<Data>::Matrix(MaShape const& beta, Data const& alpha)
-    {
-        this->_shape.lines = beta.lines > 0 ? beta.lines : 1;
-        this->_shape.rows = beta.rows > 0 ? beta.rows : 1;
-        this->_size = this->_shape.lines * this->_shape.rows;
-        this->storage_space = new Data[this->_size];
-        for (int i = 0; i < this->_size; i++)
-            this->storage_space[i] = alpha;
-        this->_sum = static_cast<Data>(this->_size) * alpha;
-        this->_digits = Basic_Math::Int_Digits(alpha);
-        return;
-    }
     /*Constructor_Datas
     Enter 1.Matrix_shape 2.pointer to init datas
     use the shape to construct a Matrix and init it with the array
@@ -144,7 +127,7 @@ namespace Linalg
     template <typename Data>
     Matrix<Data> Matrix<Data>::T()
     {
-        Matrix<Data> temp(MaShape{ this->_shape.lines, this->_shape.rows }, static_cast<Data>(0));
+        Matrix<Data> temp(MaShape{ this->_shape.lines, this->_shape.rows });
         for (int i = 0; i < this->_shape.rows; i++)
         {
             for (int j = 0; j < this->_shape.lines; j++)

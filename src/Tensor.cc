@@ -150,8 +150,8 @@ namespace Basic_Math {
     }
     /*coordinate
     Enter: 1.sequence
-    count the steps of any dimansion
-    return the steps*/
+    count the coordinate of the sequence
+    return the coordinate*/
     Teshape Teshape::coordinate(int const& alpha) {
         Teshape temp(this->_dimansion);
         for (int i = 0; i < this->_dimansion; i++)
@@ -228,22 +228,6 @@ namespace Linalg {
             this->storage_space[zeta] = beta[zeta];
             this->_sum += beta[zeta];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[zeta]));
-        }
-        return;
-    }
-    /*Constructor value
-    Enter: 1.Teshape 2.init value
-    construct a Tensor fill with the value
-    no return*/
-    template <typename Data>
-    Tensor<Data>::Tensor(bsm::Teshape const& alpha, Data const& beta) {
-        this->_shape = alpha;
-        this->_digits = bsm::Int_Digits(beta);
-        int gamma = this->_shape.size();
-        this->_sum = beta * static_cast<Data>(gamma);
-        this->storage_space = new Data[gamma];
-        for (int zeta = 0; zeta < gamma; zeta++) {
-            this->storage_space[zeta] = beta;
         }
         return;
     }
@@ -351,15 +335,111 @@ namespace Linalg {
         bsm::Teshape omega(this->_shape._dimansion);
         this->storage_space = new Data[this->_shape._size];
         for (int i = 0; i < this->_shape._size; i++) {
-            omega=this->_shape.coordinate(i);
-            if(bsm::belongs(omega,temp._shape)){
+            omega = this->_shape.coordinate(i);
+            if (bsm::belongs(omega, temp._shape)) {
                 this->storage_space[i] = temp[omega];
                 this->_sum += this->storage_space[i];
                 this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
-            }else{
+            }
+            else {
                 this->storage_space[i] = gamma;
             }
         }
+        return true;
+    }
+    /*reshape
+    Enter: 1.Teshape
+    reshape the Tensor
+    return if reshape successfully*/
+    template <typename Data>
+    bool Tensor<Data>::reshape_(bsm::Teshape const& alpha) {
+        if (this->_shape == alpha)
+            return true;
+        if (this->_shape._size != alpha._size)
+            return false;
+        this->_shape = alpha;
+        return true;
+    }
+    /*operator[]
+    Enter: 1.coordinate
+    do nothing
+    return the data in the coordinate*/
+    template <typename Data>
+    Data Tensor<Data>::operator[](bsm::Teshape const& alpha) {
+        if (!(bsm::belongs(alpha, this->_shape)))
+            return static_cast<Data>(0);
+        return this->storage_space[this->_shape.coordinate(alpha)];
+    }
+    /*operator=
+    Enter: 1.Tensor
+    copy the Tensor
+    return this*/
+    template <typename Data>
+    Tensor<Data> Tensor<Data>::operator=(Tensor<Data> const& alpha) {
+        if (this->_shape.size())
+            delete[] this->storage_space;
+        this->_shape = alpha._shape;
+        this->_sum = alpha._sum;
+        this->_digits = alpha._digits;
+        int gamma = this->_shape.size();
+        this->storage_space = new Data[gamma];
+        for (int zeta = 0; zeta < gamma; zeta++) {
+            this->storage_space[zeta] = alpha.storage_space[zeta];
+        }
+        return (*this);
+    }
+    /*operator=
+    Enter: 1.value
+    copy the value into the Tensor
+    return this*/
+    template <typename Data>
+    Tensor<Data> Tensor<Data>::operator=(Data const& alpha) {
+        int gamma = this->_shape.size();
+        this->_sum = static_cast<Data>(gamma) * alpha;
+        this->_digits = Basic_Math::Int_Digits(alpha);
+        for (int zeta = 0; zeta < gamma; zeta++) {
+            this->storage_space[zeta] = alpha;
+        }
+        return (*this);
+    }
+    /*flat to Vector
+    Enter: none
+    flat the Tensor into Vector
+    return the Vector*/
+    template <typename Data>
+    Vector<Data> Tensor<Data>::flat() {
+        Vector<Data> temp(this->_shape._size, this->storage_space);
+        return temp;
+    }
+    /*flat to Matrix
+    Enter: 1.dividing line
+    flat the Tensor into Matrix
+    return the Matrix*/
+    template <typename Data>
+    Matrix<Data> Tensor<Data>::flat(int const& alpha) {
+        MaShape gamma = { 1,0 };
+        for (int i = 0; i < alpha; i++)
+            gamma.rows *= this->_shape[i];
+        gamma.lines = this->_shape._size / gamma.rows;
+        Matrix<Data> temp(gamma, this->storage_space);
+        return temp;
+    }
+    /*stand
+    Enter: 1.Vector 2.Teshape
+    stand the Vector into Tensor
+    return if stand successfully*/
+    template <typename Data>
+    bool Tensor<Data>::stand_(Vector<Data>& alpha, bsm::Teshape& beta) {
+        if(alpha.size() != beta._size)
+            return false;
+        if(this->_shape.size())
+            delete[] this->storage_space;
+        this->_shape = beta;
+        this->_sum = alpha.sum();
+        this->_digits = alpha.digits();
+        this->storage_space = new Data[this->_shape._size];
+        for(int i = 0; i < this->_shape._size; i++)
+            this->storage_space[i] = alpha[i];
         return true;
     }
 }

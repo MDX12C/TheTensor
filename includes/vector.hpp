@@ -17,7 +17,6 @@ namespace Linalg
         friend T dot(Vector<T> const&, Vector<T> const&);
     public:
         Vector(int const&, Data* const&);
-        Vector(int const&, Data const&);
         Vector(int const&);
         Vector();
         Vector(Vector const&);

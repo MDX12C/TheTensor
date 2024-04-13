@@ -10,18 +10,19 @@ namespace obj {
     _Float32 random(_Float32 const&);
     int random(int const&);
     Linalg::Matrix<_Float32> initer(Linalg::MaShape const&, bool);
+    Linalg::Vector<_Float32> initer(int const&, bool);
 };
 signed main() {
     srand(time(0));
-    Linalg::MaShape alpha, beta;
-    std::cin >> alpha.rows >> beta.lines;
-    alpha.lines = beta.rows = obj::random(obj::Max_hight);
-    Linalg::Matrix<_Float32> A = obj::initer(alpha, false);
-    Linalg::Matrix<_Float32> B = obj::initer(beta, true);
+    Linalg::MaShape alpha;
+    cin >> alpha.rows >> alpha.lines;
+    show(alpha);
+    Linalg::Matrix<_Float32> A = obj::initer(alpha, true);
     show(A);
+    Linalg::Vector<_Float32> B;
     show(B);
-    Linalg::Matrix<_Float32> C = Linalg::dot(A, B);
-    show(C);
+    B = A.flat();
+    show(B);
     return 0;
 }
 _Float32 obj::random(_Float32 const& alpha) {
@@ -40,4 +41,11 @@ Linalg::Matrix<_Float32> obj::initer(Linalg::MaShape const& alpha, bool) {
 }
 int obj::random(int const& alpha) {
     return (std::rand() % alpha) + 1;
+}
+Linalg::Vector<_Float32> obj::initer(int const& alpha, bool) {
+    Linalg::Vector<_Float32> temp(alpha);
+    for (int i = 0; i < alpha; i++) {
+        temp.endow_(i, obj::random(Float_value));
+    }
+    return temp;
 }
