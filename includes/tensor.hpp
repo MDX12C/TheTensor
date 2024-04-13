@@ -2,6 +2,38 @@
 #define TENSOR_H
 #include "./matrix.hpp"
 namespace bsm=Basic_Math;
+namespace Basic_Math {
+    class Teshape {
+    private:
+        int _dimansion = 1;
+        int _size = 1;
+        int* shape = nullptr;
+        friend std::istream& operator>>(std::istream&, Teshape&);
+        friend std::ostream& operator<<(std::ostream&, Teshape const&);
+        friend bool belongs(Teshape const&, Teshape const&);
+        template <typename Data>
+        friend class Linalg::Tensor;
+    public:
+        Teshape(int const&);
+        Teshape(int const&, int* const&);
+        Teshape(Teshape const&);
+        Teshape();
+        ~Teshape();
+        bool endow_(int const&, int const&);
+        int operator[](int const&);
+        Teshape operator=(Teshape const&);
+        bool operator==(Teshape const&);
+        inline int dimansion() { return this->_dimansion; }
+        inline int size() { return this->_size; }
+        bool reshape_(Teshape const&);
+        void freedom_();
+        int coordinate(Teshape const&);
+        Teshape coordinate(int const&);
+    };
+    std::istream& operator>>(std::istream&, Teshape&);
+    std::ostream& operator<<(std::ostream&, Teshape const&);
+    bool belongs(Teshape const&, Teshape const&);
+}
 namespace Linalg {
     template <typename Data>
     class Tensor {
@@ -19,14 +51,17 @@ namespace Linalg {
         ~Tensor();
         inline bsm::Teshape shape() { return this->_shape; }
         inline Data sum() { return this->_sum; }
+        inline int digits() { return this->_digits; }
         void freedom_();
-        void endow_(bsm::Teshape const&, Data const&);
-        void resize_(bsm::Teshape const&);
-        void reshape_(bsm::Teshape const&);
-        Matrix flat(int const&);
+        bool endow_(bsm::Teshape const&, Data const&);
+        bool resize_(bsm::Teshape const&);
+        bool reshape_(bsm::Teshape const&);
+        Matrix<Data> flat(int const&);
+        Vector<Data> flat();
+        bool stand_(Vector<Data>&,Basic_Math::Teshape&);
         Data operator[](bsm::Teshape const&);
-        void operator=(Tensor const&);
-        void operator=(Data const&);
+        Tensor operator=(Tensor const&);
+        Tensor operator=(Data const&);
     };
 }
 #endif

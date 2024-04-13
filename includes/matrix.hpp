@@ -40,21 +40,24 @@ namespace Linalg
         inline MaShape shape() { return this->_shape; }
         inline Data sum() { return this->_sum; }
         inline int size() { return this->_size; }
+        inline int digits() { return this->_digits; }
         void freedom_();
-        void endow_(MaShape const&, Data const&);
-        void resize_(MaShape const&);
-        void reshape_(MaShape const&);
+        bool endow_(MaShape const&, Data const&);
+        bool resize_(MaShape const&);
+        bool reshape_(MaShape const&);
         Data operator[](MaShape const&);
-        void operator=(Matrix const&);
-        void operator=(Data const&);
-        void operator+=(Matrix const&);
-        void operator+=(Data const&);
-        void operator-=(Matrix const&);
-        void operator-=(Data const&);
-        void operator*=(Matrix const&);
-        void operator*=(Data const&);
-        void operator/=(Data const&);
-        void operator/=(Matrix const&);
+        Vector<Data> flat();
+        bool stand_(Vector<Data>&, MaShape const&);
+        Matrix operator=(Matrix const&);
+        Matrix operator=(Data const&);
+        Matrix operator+=(Matrix const&);
+        Matrix operator+=(Data const&);
+        Matrix operator-=(Matrix const&);
+        Matrix operator-=(Data const&);
+        Matrix operator*=(Matrix const&);
+        Matrix operator*=(Data const&);
+        Matrix operator/=(Matrix const&);
+        Matrix operator/=(Data const&);
         Matrix operator+(Matrix const&);
         Matrix operator+(Data const&);
         Matrix operator-(Matrix const&);

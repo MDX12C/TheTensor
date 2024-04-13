@@ -24,20 +24,21 @@ namespace Linalg
         ~Vector();
         inline int size() { return this->_shape; }
         inline Data sum() { return this->_sum; }
+        inline int digits() { return this->_digits; }
         void freedom_();
-        void endow_(int const&, Data const&);
-        void resize_(int const&);
+        bool endow_(int const&, Data const&);
+        bool resize_(int const&);
         Data operator[](int const&);
-        void operator=(Vector const&);
-        void operator=(Data const&);
-        void operator+=(Vector const&);
-        void operator+=(Data const&);
-        void operator-=(Vector const&);
-        void operator-=(Data const&);
-        void operator*=(Vector const&);
-        void operator*=(Data const&);
-        void operator/=(Vector const&);
-        void operator/=(Data const&);
+        Vector operator=(Vector const&);
+        Vector operator=(Data const&);
+        Vector operator+=(Vector const&);
+        Vector operator+=(Data const&);
+        Vector operator-=(Vector const&);
+        Vector operator-=(Data const&);
+        Vector operator*=(Vector const&);
+        Vector operator*=(Data const&);
+        Vector operator/=(Vector const&);
+        Vector operator/=(Data const&);
         Vector operator+(Vector const&);
         Vector operator+(Data const&);
         Vector operator-(Vector const&);

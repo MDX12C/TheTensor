@@ -1,4 +1,217 @@
 ﻿#include"../includes/tensor.hpp"
+namespace Basic_Math {
+    /*constructor with Dimansion
+    Enter: 1.Dimansion
+    construct a Teshape with the Dimansion but the shape is 1
+    no return*/
+    Teshape::Teshape(int const& alpha) {
+        this->_dimansion = alpha > 0 ? alpha : 1;
+        this->_size = 1;
+        this->shape = new int[this->_dimansion];
+        for (int i = 0; i < this->_dimansion; i++)
+            this->shape[i] = 1;
+        return;
+    }
+    /*constructor with inited shape
+    Enter: 1.Dimansion 2.inited shape array
+    construct a Teshape with the Dimansion and the inited shape
+    no return*/
+    Teshape::Teshape(int const& alpha, int* const& beta) {
+        this->_dimansion = alpha > 0 ? alpha : 1;
+        this->shape = new int[this->_dimansion];
+        this->_size = 1;
+        for (int i = 0; i < this->_dimansion; i++) {
+            this->shape[i] = beta[i] > 0 ? beta[i] : 1;
+            this->_size *= this->shape[i];
+        }
+        return;
+    }
+    /*copy constructor
+    Enter: 1.Teshape
+    copy the Teshape
+    no return*/
+    Teshape::Teshape(Teshape const& alpha) {
+        this->_dimansion = alpha._dimansion;
+        this->_size = alpha._size;
+        this->shape = new int[this->_dimansion];
+        for (int i = 0; i < this->_dimansion; i++)
+            this->shape[i] = alpha.shape[i];
+        return;
+    }
+    /*defult constructor
+    Enter: none
+    construct a Teshape with the Dimansion is 1 and the shape is 1
+    no return*/
+    Teshape::Teshape() {
+        this->_dimansion = 1;
+        this->_size = 1;
+        this->shape = new int[1];
+        this->shape[0] = 1;
+        return;
+    }
+    /*destructor
+    Enter: none
+    destruct the Teshape
+    no return*/
+    Teshape::~Teshape() {
+        delete[] this->shape;
+        return;
+    }
+    /*endow    Warning!!!
+    Enter: 1.coordinate 2.value
+    endow the value at the coordinate
+    return if endow is successful*/
+    bool Teshape::endow_(int const& alpha, int const& beta) {
+        if (alpha < 0 || alpha >= this->_dimansion)
+            return false;
+        this->_size /= this->shape[alpha];
+        this->shape[alpha] = beta > 0 ? beta : 1;
+        this->_size *= this->shape[alpha];
+        return true;
+    }
+    /*operator[]
+    Enter: 1.coordinate
+    do nothing
+    return the data in the coordinate*/
+    int Teshape::operator[](int const& alpha) {
+        if (alpha < 0 || alpha >= this->_dimansion)
+            return 0;
+        return this->shape[alpha];
+    }
+    /*operator=
+    Enter: 1.Teshape
+    copy the Teshape
+    return this*/
+    Teshape Teshape::operator=(Teshape const& alpha) {
+        if (this->_dimansion)
+            delete[] this->shape;
+        this->_dimansion = alpha._dimansion;
+        this->_size = alpha._size;
+        this->shape = new int[this->_dimansion];
+        for (int i = 0; i < this->_dimansion; i++)
+            this->shape[i] = alpha.shape[i];
+        return (*this);
+    }
+    /*operator==
+    Enter: 1.Teshape 2.Teshape
+    compare the Teshape
+    return true if they are equal*/
+    bool Teshape::operator==(Teshape const& alpha) {
+        if (this->_dimansion != alpha._dimansion)
+            return false;
+        for (int i = 0; i < this->_dimansion; i++)
+            if (this->shape[i] != alpha.shape[i])
+                return false;
+        return true;
+    }
+    /*reshape
+    Enter: 1.Teshape
+    reshape this through the Teshape
+    return true if the shape is reshaped*/
+    bool Teshape::reshape_(Teshape const& alpha) {
+        if (this->_size != alpha._size)
+            return false;
+        if ((*this) == alpha)
+            return true;
+        if (this->_dimansion)
+            delete[] this->shape;
+        this->_dimansion = alpha._dimansion;
+        this->shape = new int[this->_dimansion];
+        for (int i = 0; i < this->_dimansion; i++)
+            this->shape[i] = alpha.shape[i];
+        return true;
+    }
+    /*freedom
+    Enter: none
+    free the space of the Teshape and set the shape to 1
+    no return*/
+    void Teshape::freedom_() {
+        delete[] this->shape;
+        this->_dimansion = 1;
+        this->_size = 1;
+        this->shape = new int[1];
+        this->shape[0] = 1;
+        return;
+    }
+    /*coordinate
+    Enter: 1.coordinate
+    count the steps of the coordinate
+    return the steps*/
+    int Teshape::coordinate(Teshape const& alpha) {
+        if (belongs(alpha, (*this)))
+            return 0;
+        int temp = 0;
+        for (int i = 0; i < this->_dimansion - 1; i++) {
+            temp += alpha.shape[i];
+            temp *= this->shape[i + 1];
+        }
+        temp += this->shape[this->_dimansion - 1];
+        return temp;
+    }
+    /*coordinate
+    Enter: 1.sequence
+    count the steps of any dimansion
+    return the steps*/
+    Teshape Teshape::coordinate(int const& alpha) {
+        Teshape temp(this->_dimansion);
+        for (int i = 0; i < this->_dimansion; i++)
+            temp.shape[i] = 0;
+        if (alpha < 0 || alpha >= this->_size)
+            return temp;
+        int gamma = alpha;
+        for (int i = this->_dimansion - 1; i >= 0; i--) {
+            temp.shape[i] = gamma % this->shape[i];
+            gamma /= this->shape[i];
+            if (gamma == 0)
+                break;
+        }
+        return temp;
+    }
+    /*operator>>
+    Enter: 1.istream 2.Teshape
+    read the Teshape from the istream
+    return the istream*/
+    std::istream& operator>>(std::istream& alpha, Teshape& beta) {
+        int gamma;
+        if (beta._dimansion)
+            delete[] beta.shape;
+        alpha >> gamma;
+        beta._dimansion = gamma > 0 ? gamma : 1;
+        beta._size = 1;
+        beta.shape = new int[beta._dimansion];
+        for (int i = 0; i < beta._dimansion; i++) {
+            alpha >> gamma;
+            beta.shape[i] = gamma > 0 ? gamma : 1;
+            beta._size *= beta.shape[i];
+        }
+        return alpha;
+    }
+    /*operator<<
+    Enter: 1.ostream 2.Teshape
+    print the Teshape in the ostream
+    return the ostream*/
+    std::ostream& operator<<(std::ostream& alpha, Teshape const& beta) {
+        alpha << beta._dimansion << " : ";
+        for (int i = 0; i < beta._dimansion; i++) {
+            alpha << beta.shape[i] << ' ';
+        }
+        alpha << "= " << beta._size << '\n';
+        return alpha;
+    }
+    /*belongs
+    Enter: 1.coordinate 2.Teshape
+    check if the coordinate is in the Teshape
+    return true if it is*/
+    bool belongs(Teshape const& alpha, Teshape const& beta) {
+        if (alpha._dimansion != beta._dimansion)
+            return false;
+        for (int i = 0; i < alpha._dimansion; i++) {
+            if ((alpha.shape[i] < 0) || (alpha.shape[i] >= beta.shape[i]))
+                return false;
+        }
+        return true;
+    }
+}
 namespace Linalg {
     /*Constructor Datas
     Enter: 1.Teshape 2.Data pointer
@@ -109,24 +322,44 @@ namespace Linalg {
     /*endow
     Enter: 1.coordinate 2.value
     endow the value at the coordinate
-    no return*/
+    return if endow is successful*/
     template <typename Data>
-    void Tensor<Data>::endow_(bsm::Teshape const& alpha, Data const& beta) {
+    bool Tensor<Data>::endow_(bsm::Teshape const& alpha, Data const& beta) {
         if (!(bsm::belongs(alpha, this->_shape)))
-            return;
+            return false;
         this->_sum += beta - this->storage_space[alpha];
         this->storage_space[alpha] = beta;
         this->_digits = 1;
         for (int i = 0; i < this->_shape.size(); i++)
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
-        return;
+        return true;
     }
     /*resize
     Enter: 1.Teshape
     resize the Tensor，the beyond data will be fill with 0
-    no return*/
+    return if resize successfully*/
     template <typename Data>
-    void Tensor<Data>::resize_(bsm::Teshape const& alpha) {
-        //
+    bool Tensor<Data>::resize_(bsm::Teshape const& alpha) {
+        if (this->_shape._dimansion != alpha._dimansion)
+            return false;
+        Tensor<Data> temp(*this);
+        Data gamma = static_cast<Data>(0);
+        delete[] this->storage_space;
+        this->_shape = alpha;
+        this->_sum = gamma;
+        this->_digits = 1;
+        bsm::Teshape omega(this->_shape._dimansion);
+        this->storage_space = new Data[this->_shape._size];
+        for (int i = 0; i < this->_shape._size; i++) {
+            omega=this->_shape.coordinate(i);
+            if(bsm::belongs(omega,temp._shape)){
+                this->storage_space[i] = temp[omega];
+                this->_sum += this->storage_space[i];
+                this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
+            }else{
+                this->storage_space[i] = gamma;
+            }
+        }
+        return true;
     }
 }

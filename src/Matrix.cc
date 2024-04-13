@@ -157,25 +157,53 @@ namespace Linalg
     /*endow_
     Enter: 1.coordinate 2.value
     endow the value at the coordinate
-    no return*/
+    return if endow is successful*/
     template <typename Data>
-    void Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
+    bool Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
         if (!belongs(alpha, this->_shape)) {
-            return;
+            return false;
         }
         this->_sum -= this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
         this->_sum += this->storage_space[alpha.rows * this->_shape.lines + alpha.lines] = beta;
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++)
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
-        return;
+        return true;
+    }
+    /*flat
+    Enter: none
+    flat the Matrix into Vector
+    return the Vector*/
+    template <typename Data>
+    Vector<Data> Matrix<Data>::flat() {
+        Vector<Data> temp(this->_size, this->storage_space);
+        return temp;
+    }
+    /*stand
+    Enter: none
+    stand the Vector into Matrix
+    return if stand is successful*/
+    template <typename Data>
+    bool Matrix<Data>::stand_(Vector<Data>& alpha, MaShape const& beta) {
+        if (alpha.size() != (beta.rows * beta.lines))
+            return false;
+        if (this->_size)
+            delete[] this->storage_space;
+        this->_shape = beta;
+        this->_size = beta.rows * beta.lines;
+        this->storage_space = new Data[this->_size];
+        this->_sum = alpha.sum();
+        this->_digits = alpha.digits();
+        for (int i = 0; i < this->_size; i++)
+            this->storage_space[i] = alpha[i];
+        return true;
     }
     /*operator=
     Enter: 1.Matrix 2.Matrix
     copy the second Matrix to the first
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator=(Matrix const& alpha)
+    Matrix<Data> Matrix<Data>::operator=(Matrix const& alpha)
     {
         this->_shape = alpha._shape;
         this->_size = alpha._size;
@@ -186,14 +214,14 @@ namespace Linalg
         this->storage_space = new Data[this->_size];
         for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = alpha.storage_space[i];
-        return;
+        return (*this);
     }
     /*operator=
     Enter: 1.Matrix 2.value
     let the Matrix fulled with the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator=(Data const& alpha)
+    Matrix<Data> Matrix<Data>::operator=(Data const& alpha)
     {
         if (this->storage_space == nullptr)
             this->resize_(MaShape{ 1, 1 });
@@ -201,7 +229,7 @@ namespace Linalg
             this->storage_space[i] = alpha;
         this->_sum = static_cast<Data>(this->_size) * alpha;
         this->_digits = Basic_Math::Int_Digits(alpha);
-        return;
+        return (*this);
     }
     /*operator+
     Enter: 1.Matrix 2.Matrix
@@ -344,71 +372,71 @@ namespace Linalg
     /*operator+=
     Enter: 1.Matrix 2.Matrix
     add elements in the second Matrix into the first Matrix
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator+=(Matrix const& alpha) {
+    Matrix<Data> Matrix<Data>::operator+=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
-            return;
+            return (*this);
         this->_digits = 1;
         for (int i = 0; i < alpha._size; i++) {
             this->storage_space[i] += alpha.storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += alpha._sum;
-        return;
+        return (*this);
     }
     /*operator+=
     Enter: 1.Matrix 2.value
     add the value into the Matrix
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator+=(Data const& alpha) {
+    Matrix<Data> Matrix<Data>::operator+=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] += alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += static_cast<Data>(this->_size) * alpha;
-        return;
+        return (*this);
     }
     /*operator-=
     Enter: 1.Matrix 2.Matrix
     subtract elements in the second Matrix from the first Matrix
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator-=(Matrix const& alpha) {
+    Matrix<Data> Matrix<Data>::operator-=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
-            return;
+            return (*this);
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] -= alpha.storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= alpha._sum;
-        return;
+        return (*this);
     }
     /*operator-=
     Enter: 1.Matrix 2.value
     subtract every element in the Matrix by the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator-=(Data const& alpha) {
+    Matrix<Data> Matrix<Data>::operator-=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] -= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= static_cast<Data>(this->_size) * alpha;
-        return;
+        return (*this);
     }
     /*operator*=
     Enter: 1.Matrix 2.Matrix
     multiply every in the first Matrix by the second Matrix
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator*=(Matrix const& alpha) {
+    Matrix<Data> Matrix<Data>::operator*=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
-            return;
+            return (*this);
         this->_digits = 1;
         this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_size; i++) {
@@ -416,61 +444,61 @@ namespace Linalg
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
             this->_sum += this->storage_space[i];
         }
-        return;
+        return (*this);
     }
     /*operator*=
     Enter: 1.Matrix 2.value
     mutiply every element in the Matrix by the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator*=(Data const& alpha) {
+    Matrix<Data> Matrix<Data>::operator*=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] *= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum *= alpha;
-        return;
+        return (*this);
     }
     /*operator/=
     Enter: 1.Matrix 2.Matrix
     divide every element in the first Matrix by the elements in the second Matrix
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator/=(Matrix const& alpha) {
+    Matrix<Data> Matrix<Data>::operator/=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
-            return;
+            return (*this);
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] /= alpha.storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
             this->_sum += this->storage_space[i];
         }
-        return;
+        return (*this);
     }
     /*operator/=
     Enter: 1.Matrix 2.value
     divide every elements in the Matrix by the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Matrix<Data>::operator/=(Data const& alpha) {
+    Matrix<Data> Matrix<Data>::operator/=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] /= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum /= alpha;
-        return;
+        return (*this);
     }
     /*resize
     Enter: 1.Mashape
     resize the Matrix into the shape, and the beyond's elements will be filled with 0
-    no return*/
+    return if resize successfully*/
     template <typename Data>
-    void Matrix<Data>::resize_(MaShape const& alpha)
+    bool Matrix<Data>::resize_(MaShape const& alpha)
     {
-        if (this->_shape == alpha) return;
-        if (alpha.lines <= 0 || alpha.rows <= 0) return;
+        if (this->_shape == alpha) return true;
+        if (alpha.lines <= 0 || alpha.rows <= 0) return false;
         Linalg::MaShape beta;
         Matrix<Data> temp(*this);
         Data value = static_cast<Data>(0);
@@ -492,21 +520,21 @@ namespace Linalg
                 }
             }
         }
-        return;
+        return true;
     }
     /*reshape
     Enter: 1.MaShape
     reshape the Matrix into the shape, and the number of elements must be the same
-    no return*/
+    return if reshape successfully*/
     template <typename Data>
-    void Matrix<Data>::reshape_(MaShape const& alpha) {
-        if (this->_shape == alpha) return;
-        if (alpha.lines <= 0 || alpha.rows <= 0) return;
+    bool Matrix<Data>::reshape_(MaShape const& alpha) {
+        if (this->_shape == alpha) return true;
+        if (alpha.lines <= 0 || alpha.rows <= 0) return false;
         if ((alpha.rows * alpha.lines) != this->_size)
-            return;
+            return false;
         this->_shape.lines = alpha.lines;
         this->_shape.rows = alpha.rows;
-        return;
+        return true;
     }
     /*freedom
     Enter: none

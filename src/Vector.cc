@@ -108,28 +108,28 @@ namespace Linalg {
     /*endow
     Enter: 1.coordinate 2.value
     endow the value at the coordinate
-    no return*/
+    return if endow successfully*/
     template <typename Data>
-    void Vector<Data>::endow_(int const& alpha, Data const& beta) {
+    bool Vector<Data>::endow_(int const& alpha, Data const& beta) {
         if (alpha < 0 || alpha >= this->_shape)
-            return;
+            return false;
         this->_sum += beta - this->storage_space[alpha];
         this->storage_space[alpha] = beta;
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++)
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
-        return;
+        return true;
     }
     /*resize
     Enter: 1.new size
     resize the vector. the beyond data will be deleted
-    no return*/
+    return if resize successfully*/
     template <typename Data>
-    void Vector<Data>::resize_(int const& alpha) {
+    bool Vector<Data>::resize_(int const& alpha) {
         if (alpha <= 0)
-            return;
+            return false;
         if (alpha == this->_shape)
-            return;
+            return true;
         Vector<Data> temp(*this);
         if (this->_shape)
             delete[] this->storage_space;
@@ -148,7 +148,7 @@ namespace Linalg {
                 this->storage_space[i] = gamma;
             }
         }
-        return;
+        return true;
     }
     /*operator[]
     Enter: 1.coordinate
@@ -163,9 +163,9 @@ namespace Linalg {
     /*operator= Vector
     Enter: 1.vector 2.vector
     copy the second vector into the first one
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator=(Vector<Data> const& alpha) {
+    Vector<Data> Vector<Data>::operator=(Vector<Data> const& alpha) {
         if (this->_shape)
             delete[] this->storage_space;
         this->_shape = alpha._shape;
@@ -174,19 +174,19 @@ namespace Linalg {
         this->storage_space = new Data[this->_shape];
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha.storage_space[i];
-        return;
+        return (*this);
     }
     /*operator= value
     Enter: 1.vector 2.value
     copy the value into the vector
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator=(Data const& alpha) {
+    Vector<Data> Vector<Data>::operator=(Data const& alpha) {
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha;
         this->_sum = static_cast<Data>(this->_shape) * alpha;
         this->_digits = Basic_Math::Int_Digits(alpha);
-        return;
+        return (*this);
     }
     /*operator+ Vector
     Enter: 1.vector 2.vector
@@ -321,71 +321,71 @@ namespace Linalg {
     /*operator+= vector
     Enter: 1.vector 2.vector
     add the second vector into the first one
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator+=(Vector<Data> const& alpha) {
+    Vector<Data> Vector<Data>::operator+=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
-            return;
+            return (*this);
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] += alpha.storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += alpha._sum;
-        return;
+        return (*this);
     }
     /*operator+= value
     Enter: 1.vector 2.value
     add the value into the vector
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator+=(Data const& alpha) {
+    Vector<Data> Vector<Data>::operator+=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] += alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += static_cast<Data>(this->_shape) * alpha;
-        return;
+        return (*this);
     }
     /*operator-= vector
     Enter: 1.vector 2.vector
     subtract the second vector from the first one
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator-=(Vector<Data> const& alpha) {
+    Vector<Data> Vector<Data>::operator-=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
-            return;
+            return (*this);
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] -= alpha.storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= alpha._sum;
-        return;
+        return (*this);
     }
     /*operator-= value
     Enter: 1.vector 2.value
     subtract the value from the vector
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator-=(Data const& alpha) {
+    Vector<Data> Vector<Data>::operator-=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] -= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= static_cast<Data>(this->_shape) * alpha;
-        return;
+        return (*this);
     }
     /*operator*= vector
     Enter: 1.vector 2.vector
     multiply every element in the second vector into the first one
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator*=(Vector<Data> const& alpha) {
+    Vector<Data> Vector<Data>::operator*=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
-            return;
+            return (*this);
         this->_digits = 1;
         this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
@@ -393,30 +393,30 @@ namespace Linalg {
             this->_sum += this->storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
-        return;
+        return (*this);
     }
     /*operator*= value
     Enter: 1.vector 2.value
     multiply every element in the vector with the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator*=(Data const& alpha) {
+    Vector<Data> Vector<Data>::operator*=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] *= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum *= alpha;
-        return;
+        return (*this);
     }
     /*operator/= vector
     Enter: 1.vector 2.vector
     divide every element in the first vector by the second vector
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator/=(Vector<Data> const& alpha) {
+    Vector<Data> Vector<Data>::operator/=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
-            return;
+            return (*this);
         this->_digits = 1;
         this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
@@ -424,21 +424,21 @@ namespace Linalg {
             this->_sum += this->storage_space[i];
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
-        return;
+        return (*this);
     }
     /*operator/= value
     Enter: 1.vector 2.value
     divide every element in the vector by the value
-    no return*/
+    return this*/
     template <typename Data>
-    void Vector<Data>::operator/=(Data const& alpha) {
+    Vector<Data> Vector<Data>::operator/=(Data const& alpha) {
         this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] /= alpha;
             this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum /= alpha;
-        return;
+        return (*this);
     }
     /*freedom
     Enter: none
