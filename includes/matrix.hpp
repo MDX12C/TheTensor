@@ -3,14 +3,6 @@
 #include"./vector.hpp"
 namespace Linalg
 {
-    typedef struct
-    {
-        int rows = 1;
-        int lines = 1;
-    } MaShape;
-    bool operator==(MaShape const&, MaShape const&);
-    bool belongs(MaShape const&, MaShape const&);
-    std::ostream& operator<<(std::ostream&, MaShape const&);
     template <typename Data>
     class Matrix
     {
