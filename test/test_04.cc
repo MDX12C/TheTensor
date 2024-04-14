@@ -17,12 +17,12 @@ signed main() {
     Linalg::MaShape alpha;
     cin >> alpha.rows >> alpha.lines;
     show(alpha);
-    Linalg::Matrix<_Float32> A = obj::initer(alpha, true);
+    Linalg::Matrix<_Float32> A;
     show(A);
-    Linalg::Vector<_Float32> B;
+    Linalg::Vector<_Float32> B = obj::initer(alpha.rows * alpha.lines, false);
     show(B);
-    B = A.flat();
-    show(B);
+    A.stand_(B, alpha);
+    show(A);
     return 0;
 }
 _Float32 obj::random(_Float32 const& alpha) {

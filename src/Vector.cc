@@ -469,10 +469,7 @@ namespace Linalg {
 }
 template class Linalg::Vector<int32_t>;
 template class Linalg::Vector<_Float32>;
-template class Linalg::Vector<bool>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<int32_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<_Float32> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<bool> const&);
 template int32_t Linalg::dot(Linalg::Vector<int32_t> const&, Linalg::Vector<int32_t> const&);
 template _Float32 Linalg::dot(Linalg::Vector<_Float32> const&, Linalg::Vector<_Float32> const&);
-template bool Linalg::dot(Linalg::Vector<bool> const&, Linalg::Vector<bool> const&);

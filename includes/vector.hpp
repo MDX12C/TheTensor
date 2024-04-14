@@ -15,6 +15,12 @@ namespace Linalg
         friend std::ostream& operator<<(std::ostream&, Vector<T> const&);
         template <typename T>
         friend T dot(Vector<T> const&, Vector<T> const&);
+        template <typename T>
+        friend void AddLine_(Matrix<T>&, Vector<T> const&);
+        template <typename T>
+        friend void AddRow_(Matrix<T>&, Vector<T> const&);
+        friend class Linalg::Matrix<Data>;
+        friend class Linalg::Tensor<Data>;
     public:
         Vector(int const&, Data* const&);
         Vector(int const&);

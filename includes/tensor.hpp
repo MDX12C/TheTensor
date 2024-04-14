@@ -2,10 +2,6 @@
 #define TENSOR_H
 #include "./matrix.hpp"
 namespace bsm=Basic_Math;
-namespace Linalg {
-    template <typename Data>
-    class Tensor;
-}
 namespace Basic_Math {
     class Teshape {
     private:
@@ -46,6 +42,9 @@ namespace Linalg {
         Data _sum;
         bsm::Teshape _shape;
         int _digits;
+
+        friend class Linalg::Matrix<Data>;
+        friend class Linalg::Vector<Data>;
     public:
         Tensor(bsm::Teshape const&, Data* const&);
         Tensor(bsm::Teshape const&);
@@ -53,15 +52,13 @@ namespace Linalg {
         Tensor(Tensor const&);
         ~Tensor();
         inline bsm::Teshape shape() { return this->_shape; }
-        inline Data sum() { return this->_sum; }
-        inline int digits() { return this->_digits; }
         void freedom_();
         bool endow_(bsm::Teshape const&, Data const&);
         bool resize_(bsm::Teshape const&);
         bool reshape_(bsm::Teshape const&);
         Matrix<Data> flat(int const&);
         Vector<Data> flat();
-        bool stand_(Vector<Data>&,Basic_Math::Teshape&);
+        bool stand_(Vector<Data> const&,Basic_Math::Teshape const&);
         Data operator[](bsm::Teshape const&);
         Tensor operator=(Tensor const&);
         Tensor operator=(Data const&);
