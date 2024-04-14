@@ -16,4 +16,3 @@ namespace Basic_Math {
 }
 template int Basic_Math::Int_Digits(int32_t const&);
 template int Basic_Math::Int_Digits(_Float32 const&);
-template int Basic_Math::Int_Digits(bool const&);

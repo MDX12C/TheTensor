@@ -167,18 +167,18 @@ namespace Linalg
     stand the Vector into Matrix
     return if stand is successful*/
     template <typename Data>
-    bool Matrix<Data>::stand_(Vector<Data>& alpha, MaShape const& beta) {
-        if (alpha.size() != (beta.rows * beta.lines))
+    bool Matrix<Data>::stand_(Vector<Data> const& alpha, MaShape const& beta) {
+        if (alpha._shape != (beta.rows * beta.lines))
             return false;
         if (this->_size)
             delete[] this->storage_space;
         this->_shape = beta;
         this->_size = beta.rows * beta.lines;
         this->storage_space = new Data[this->_size];
-        this->_sum = alpha.sum();
-        this->_digits = alpha.digits();
+        this->_sum = alpha._sum;
+        this->_digits = alpha._digits;
         for (int i = 0; i < this->_size; i++)
-            this->storage_space[i] = alpha[i];
+            this->storage_space[i] = alpha.storage_space[i];
         return true;
     }
     /*operator=
@@ -595,7 +595,7 @@ namespace Linalg
         int gamma = alpha._shape.lines;
         alpha.resize_(MaShape{ alpha._shape.rows, alpha._shape.lines + 1 });
         for (int theta = 0; theta < beta._shape; theta++) {
-            alpha.storage_space[alpha._shape.lines * theta + gamma] = beta[theta];
+            alpha.storage_space[alpha._shape.lines * theta + gamma] = beta.storage_space[theta];
         }
         alpha._sum += beta._sum;
         alpha._digits = std::max(alpha._digits, beta._digits);
@@ -612,7 +612,7 @@ namespace Linalg
         int gamma = alpha._shape.rows;
         alpha.resize_(MaShape{ alpha._shape.rows + 1, alpha._shape.lines });
         for (int theta = 0; theta < beta._shape; theta++) {
-            alpha.storage_space[alpha._shape.lines * gamma + theta] = beta[theta];
+            alpha.storage_space[alpha._shape.lines * gamma + theta] = beta.storage_space[theta];
         }
         alpha._sum += beta._sum;
         alpha._digits = std::max(alpha._digits, beta._digits);
@@ -621,10 +621,11 @@ namespace Linalg
 }
 template class Linalg::Matrix<int32_t>;
 template class Linalg::Matrix<_Float32>;
-template class Linalg::Matrix<bool>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float32> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<bool> const&);
 template Linalg::Matrix<int32_t> Linalg::dot(Linalg::Matrix<int32_t> const&, Linalg::Matrix<int32_t> const&);
 template Linalg::Matrix<_Float32> Linalg::dot(Linalg::Matrix<_Float32> const&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<bool> Linalg::dot(Linalg::Matrix<bool> const&, Linalg::Matrix<bool> const&);
+template void Linalg::AddLine_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t> const&);
+template void Linalg::AddLine_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
+template void Linalg::AddRow_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t> const&);
+template void Linalg::AddRow_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
