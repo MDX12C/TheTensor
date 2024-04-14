@@ -467,9 +467,25 @@ namespace Linalg {
         return gamma;
     }
 }
+namespace Basic_Math {
+    /*random Vector
+    Enter: 1.Vector size 2.min value 3.max value
+    random a vector
+    return the vector*/
+    template <typename Data>
+    Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
+        Linalg::Vector<Data> temp(gamma);
+        for (int i = 0; i < gamma; i++) {
+            temp.endow_(i, random(alpha, beta));
+        }
+        return temp;
+    }
+}
 template class Linalg::Vector<int32_t>;
 template class Linalg::Vector<_Float32>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<int32_t> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<_Float32> const&);
 template int32_t Linalg::dot(Linalg::Vector<int32_t> const&, Linalg::Vector<int32_t> const&);
 template _Float32 Linalg::dot(Linalg::Vector<_Float32> const&, Linalg::Vector<_Float32> const&);
+template Linalg::Vector<int32_t> Basic_Math::random(int const&, int32_t const&, int32_t const&);
+template Linalg::Vector<_Float32> Basic_Math::random(int const&, _Float32 const&, _Float32 const&);

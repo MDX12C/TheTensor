@@ -58,4 +58,8 @@ namespace Linalg
     template <typename Data>
     Data dot(Vector<Data> const&, Vector<Data> const&);
 }
+namespace Basic_Math{
+    template <typename Data>
+    Linalg::Vector<Data> random(int const&, Data const&, Data const&);
+}
 #endif

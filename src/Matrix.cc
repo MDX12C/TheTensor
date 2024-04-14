@@ -619,6 +619,23 @@ namespace Linalg
         return;
     }
 }
+namespace Basic_Math{
+    /*random Matrix
+    Enter: 1.Matrix shape 2.min vlaue 3.max value
+    random a matrix
+    return the matrix*/
+    template <typename Data>
+    Linalg::Matrix<Data> random(Linalg::MaShape const& gamma, Data const& alpha, Data const& beta) {
+        Linalg::Matrix<Data> temp(gamma);
+        Linalg::MaShape omega;
+        for (omega.rows = 0; omega.rows < gamma.rows; omega.rows++) {
+            for (omega.lines = 0; omega.lines < gamma.lines; omega.lines++) {
+                temp.endow_(omega, random(alpha, beta));
+            }
+        }
+        return temp;
+    }
+}
 template class Linalg::Matrix<int32_t>;
 template class Linalg::Matrix<_Float32>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
@@ -629,3 +646,5 @@ template void Linalg::AddLine_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t>
 template void Linalg::AddLine_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
 template void Linalg::AddRow_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t> const&);
 template void Linalg::AddRow_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
+template Linalg::Matrix<int32_t> Basic_Math::random(Linalg::MaShape const&, int32_t const&, int32_t const&);
+template Linalg::Matrix<_Float32> Basic_Math::random(Linalg::MaShape const&, _Float32 const&, _Float32 const&);

@@ -33,7 +33,7 @@ namespace Basic_Math {
     std::istream& operator>>(std::istream&, Teshape&);
     std::ostream& operator<<(std::ostream&, Teshape const&);
     bool belongs(Teshape const&, Teshape const&);
-}
+};
 namespace Linalg {
     template <typename Data>
     class Tensor {
