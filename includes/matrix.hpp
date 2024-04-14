@@ -65,9 +65,9 @@ namespace Linalg
     std::ostream& operator<<(std::ostream&, Matrix<Data> const&);
     template <typename Data>
     Matrix<Data> dot(Matrix<Data> const&, Matrix<Data> const&);
-    // template <typename Data>
-    // void AddLine_(Matrix<Data>&, Vector<Data> const&);
-    // template <typename Data>
-    // void AddRow_(Matrix<Data>&, Vector<Data> const&);
-};
+}
+namespace Basic_Math {
+    template <typename Data>
+    Linalg::Matrix<Data> random(Linalg::MaShape const&, Data const&, Data const&);
+}
 #endif

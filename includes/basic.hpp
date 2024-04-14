@@ -44,10 +44,4 @@ namespace Linalg {
     template <typename Data>
     void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
-namespace Basic_Math {
-    template <typename Data>
-    Linalg::Vector<Data> random(int const&, Data const&, Data const&);
-    template <typename Data>
-    Linalg::Matrix<Data> random(Linalg::MaShape const&, Data const&, Data const&);
-}
 #endif
