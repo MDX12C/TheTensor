@@ -15,9 +15,8 @@ namespace Basic_Math {
     constexpr int Float32_Accuracy = 7;
     constexpr int Float64_Accuracy = 15;
     constexpr int terminal_width = 144;
-    #ifdef DEBUG_MODE
     constexpr _Float32 Float_value = static_cast<_Float32>(100);
-    #endif
+    constexpr int32_t Int_value = static_cast<int32_t>(100);
     static bool set_seed = false;
     template <typename Data>
     int Int_Digits(Data const&);

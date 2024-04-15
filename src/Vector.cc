@@ -139,8 +139,9 @@ namespace Linalg {
         this->_shape = alpha._shape;
         this->_sum = alpha._sum;
         this->storage_space = new Data[this->_shape];
-        for (int i = 0; i < this->_shape; i++)
+        for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] = alpha.storage_space[i];
+        }
         return (*this);
     }
     /*operator= value
