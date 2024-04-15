@@ -10,7 +10,6 @@ namespace Linalg
         Data* storage_space;
         Data _sum;
         MaShape _shape;
-        int _digits;
         int _size;
 
         template <typename T>
@@ -33,7 +32,6 @@ namespace Linalg
         inline MaShape shape() { return this->_shape; }
         inline Data sum() { return this->_sum; }
         inline int size() { return this->_size; }
-        inline int digits() { return this->_digits; }
         void freedom_();
         bool endow_(MaShape const&, Data const&);
         bool resize_(MaShape const&);

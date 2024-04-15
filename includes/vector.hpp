@@ -10,7 +10,6 @@ namespace Linalg
         Data* storage_space;
         Data _sum;
         int _shape;
-        int _digits;
         template <typename T>
         friend std::ostream& operator<<(std::ostream&, Vector<T> const&);
         template <typename T>
@@ -29,7 +28,6 @@ namespace Linalg
         ~Vector();
         inline int size() { return this->_shape; }
         inline Data sum() { return this->_sum; }
-        inline int digits() { return this->_digits; }
         void freedom_();
         bool endow_(int const&, Data const&);
         bool resize_(int const&);

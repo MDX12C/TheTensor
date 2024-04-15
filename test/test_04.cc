@@ -3,19 +3,19 @@
 #include<cstdlib>
 #include<ctime>
 using namespace std;
-#define show(x) { cout << #x << ':' << '\n' << x << '\n'; }
-
+#define show(x) { cout << '\n' << #x << ':' << '\n' << x << '\n'; }
+namespace bsm = Basic_Math;
 signed main() {
     srand(time(0));
-    Linalg::MaShape alpha;
-    cin >> alpha.rows >> alpha.lines;
+    Linalg::MaShape alpha, beta;
+    cin >> alpha.rows >> beta.lines;
+    alpha.lines = beta.rows = Basic_Math::random(1, 15);
     show(alpha);
-    Linalg::Matrix<_Float32> A;
+    show(beta);
+    Linalg::Matrix<_Float32> A = bsm::random(alpha, bsm::Float_value * (-1), bsm::Float_value);
+    Linalg::Matrix<_Float32> B = bsm::random(beta, bsm::Float_value * (-1), bsm::Float_value);
     show(A);
-    Linalg::Vector<_Float32> B;
-    B = Basic_Math::random(alpha.lines * alpha.rows, Basic_Math::Float_value * (-1), Basic_Math::Float_value);
     show(B);
-    A.stand_(B, alpha);
-    show(A);
+    show(Linalg::dot(A, B));
     return 0;
 }
