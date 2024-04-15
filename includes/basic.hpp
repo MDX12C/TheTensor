@@ -1,4 +1,3 @@
-﻿
 #ifndef BASIC_H
 #define BASIC_H
 #pragma loop_opt(on)
@@ -10,6 +9,7 @@
 #include<cstdlib>
 #include<ctime>
 #include<climits>
+
 namespace Basic_Math {
     constexpr int Float16_Accuracy = 3;
     constexpr int Float32_Accuracy = 7;
@@ -23,6 +23,7 @@ namespace Basic_Math {
     int32_t random(int32_t const&, int32_t const&);
     _Float32 random(_Float32 const&, _Float32 const&);
 }
+
 namespace Linalg {
     typedef struct
     {
