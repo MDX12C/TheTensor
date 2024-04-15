@@ -1,37 +1,48 @@
-﻿#include <cmath>
-#include <float.h>
-#include <iomanip>
-#include <iostream>
 #ifndef BASIC_H
 #define BASIC_H
-namespace Basic_Math {
-constexpr int Float16_Accuracy = 3;
-constexpr int Float32_Accuracy = 7;
-template <typename Data> int Int_Digits(Data const &);
-class Teshape {
-private:
-  int _dimension = 1;
-  int *shape = nullptr;
-  friend std::istream &operator>>(std::istream &, Teshape &);
-  friend std::ostream &operator<<(std::ostream &, Teshape const &);
-  friend bool belongs(Teshape const &, Teshape const &);
+#pragma loop_opt(on)
+#define DEBUG_MODE
+#include<iostream>
+#include<iomanip>
+#include<cfloat>
+#include<cmath>
+#include<cstdlib>
+#include<ctime>
+#include<climits>
 
-public:
-  Teshape(int const &);
-  Teshape(int const &, int *const &);
-  Teshape(Teshape const &);
-  Teshape();
-  ~Teshape();
-  void endow_(int const &, int const &);
-  int operator[](int const &);
-  void operator=(Teshape const &);
-  bool operator==(Teshape const &);
-  inline int dimension() { return this->_dimension; }
-  int size();
-  bool reshape_(Teshape &);
-};
-std::istream &operator>>(std::istream &, Teshape &);
-std::ostream &operator<<(std::ostream &, Teshape const &);
-bool belongs(Teshape const &, Teshape const &);
-} // namespace Basic_Math
+namespace Basic_Math {
+    constexpr int Float16_Accuracy = 3;
+    constexpr int Float32_Accuracy = 7;
+    constexpr int Float64_Accuracy = 15;
+    constexpr int terminal_width = 144;
+    #ifdef DEBUG_MODE
+    constexpr _Float32 Float_value = static_cast<_Float32>(100);
+    #endif
+    static bool set_seed = false;
+    template <typename Data>
+    int Int_Digits(Data const&);
+    int32_t random(int32_t const&, int32_t const&);
+    _Float32 random(_Float32 const&, _Float32 const&);
+}
+
+namespace Linalg {
+    typedef struct
+    {
+        int rows = 1;
+        int lines = 1;
+    } MaShape;
+    bool operator==(MaShape const&, MaShape const&);
+    bool belongs(MaShape const&, MaShape const&);
+    std::ostream& operator<<(std::ostream&, MaShape const&);
+    template <typename Data>
+    class Vector;
+    template <typename Data>
+    class Matrix;
+    template <typename Data>
+    class Tensor;
+    template <typename Data>
+    void AddLine_(Matrix<Data>&, Vector<Data> const&);
+    template <typename Data>
+    void AddRow_(Matrix<Data>&, Vector<Data> const&);
+}
 #endif
