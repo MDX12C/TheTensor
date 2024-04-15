@@ -1,4 +1,4 @@
-﻿#include"../includes/basic.hpp"
+﻿#include "../includes/basic.hpp"
 namespace Basic_Math {
     /*Interface Digits
     Enter: 1.value
