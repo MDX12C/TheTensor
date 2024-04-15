@@ -12,17 +12,14 @@ namespace Linalg {
             this->storage_space = new Data[1];
             this->storage_space[0] = static_cast<Data>(0);
             this->_sum = this->storage_space[0];
-            this->_digits = 1;
             return;
         }
         this->_shape = alpha;
         this->_sum = static_cast<Data>(0);
         this->storage_space = new Data[alpha];
-        this->_digits = 1;
         for (int i = 0; i < alpha; i++) {
             this->storage_space[i] = beta[i];
             this->_sum += this->storage_space[i];
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         return;
     }
@@ -37,7 +34,6 @@ namespace Linalg {
             this->storage_space = new Data[1];
             this->_sum = static_cast<Data>(0);
             this->storage_space[0] = static_cast<Data>(0);
-            this->_digits = 1;
             return;
         }
         this->_shape = alpha;
@@ -45,7 +41,6 @@ namespace Linalg {
         for (int i = 0; i < alpha; i++)
             this->storage_space[i] = static_cast<Data>(0);
         this->_sum = this->storage_space[0];
-        this->_digits = 1;
         return;
     }
     /*defult constructor
@@ -58,7 +53,6 @@ namespace Linalg {
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
         this->_sum = this->storage_space[0];
-        this->_digits = 1;
         return;
     }
     /*copy constructor
@@ -69,7 +63,6 @@ namespace Linalg {
     Vector<Data>::Vector(Vector<Data> const& alpha) {
         this->_shape = alpha._shape;
         this->_sum = alpha._sum;
-        this->_digits = alpha._digits;
         this->storage_space = new Data[this->_shape];
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha.storage_space[i];
@@ -95,9 +88,6 @@ namespace Linalg {
             return false;
         this->_sum += beta - this->storage_space[alpha];
         this->storage_space[alpha] = beta;
-        this->_digits = 1;
-        for (int i = 0; i < this->_shape; i++)
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         return true;
     }
     /*resize
@@ -116,13 +106,11 @@ namespace Linalg {
         this->_shape = alpha;
         Data gamma = static_cast<Data>(0);
         this->_sum = gamma;
-        this->_digits = 1;
         this->storage_space = new Data[this->_shape];
         for (int i = 0; i < this->_shape; i++) {
             if (i < temp._shape) {
                 this->storage_space[i] = temp.storage_space[i];
                 this->_sum += this->storage_space[i];
-                this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
             }
             else {
                 this->storage_space[i] = gamma;
@@ -150,7 +138,6 @@ namespace Linalg {
             delete[] this->storage_space;
         this->_shape = alpha._shape;
         this->_sum = alpha._sum;
-        this->_digits = alpha._digits;
         this->storage_space = new Data[this->_shape];
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha.storage_space[i];
@@ -165,7 +152,6 @@ namespace Linalg {
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha;
         this->_sum = static_cast<Data>(this->_shape) * alpha;
-        this->_digits = Basic_Math::Int_Digits(alpha);
         return (*this);
     }
     /*operator+ Vector
@@ -177,10 +163,8 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] += alpha.storage_space[i];
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum += alpha._sum;
         return temp;
@@ -192,10 +176,8 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator+(Data const& alpha) {
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] += alpha;
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum += static_cast<Data>(temp._shape) * alpha;
         return temp;
@@ -209,10 +191,8 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] -= alpha.storage_space[i];
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum -= alpha._sum;
         return temp;
@@ -224,10 +204,8 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator-(Data const& alpha) {
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] -= alpha;
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum -= static_cast<Data>(temp._shape) * alpha;
         return temp;
@@ -241,12 +219,10 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        temp._digits = 1;
         temp._sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] *= alpha.storage_space[i];
             temp._sum += temp.storage_space[i];
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         return temp;
     }
@@ -257,10 +233,8 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator*(Data const& alpha) {
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] *= alpha;
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum *= alpha;
         return temp;
@@ -274,12 +248,10 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        temp._digits = 1;
         temp._sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] /= alpha.storage_space[i];
             temp._sum += temp.storage_space[i];
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         return temp;
     }
@@ -290,10 +262,8 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator/(Data const& alpha) {
         Vector<Data> temp(*this);
-        temp._digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             temp.storage_space[i] /= alpha;
-            temp._digits = std::max(temp._digits, Basic_Math::Int_Digits(temp.storage_space[i]));
         }
         temp._sum /= alpha;
         return temp;
@@ -306,10 +276,8 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator+=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] += alpha.storage_space[i];
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += alpha._sum;
         return (*this);
@@ -320,10 +288,8 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator+=(Data const& alpha) {
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] += alpha;
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum += static_cast<Data>(this->_shape) * alpha;
         return (*this);
@@ -336,10 +302,8 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator-=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] -= alpha.storage_space[i];
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= alpha._sum;
         return (*this);
@@ -350,10 +314,8 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator-=(Data const& alpha) {
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] -= alpha;
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum -= static_cast<Data>(this->_shape) * alpha;
         return (*this);
@@ -366,12 +328,10 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator*=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        this->_digits = 1;
         this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] *= alpha.storage_space[i];
             this->_sum += this->storage_space[i];
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         return (*this);
     }
@@ -381,10 +341,8 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator*=(Data const& alpha) {
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] *= alpha;
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum *= alpha;
         return (*this);
@@ -397,12 +355,10 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator/=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        this->_digits = 1;
         this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] /= alpha.storage_space[i];
             this->_sum += this->storage_space[i];
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         return (*this);
     }
@@ -412,10 +368,8 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator/=(Data const& alpha) {
-        this->_digits = 1;
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] /= alpha;
-            this->_digits = std::max(this->_digits, Basic_Math::Int_Digits(this->storage_space[i]));
         }
         this->_sum /= alpha;
         return (*this);
@@ -431,7 +385,6 @@ namespace Linalg {
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
         this->_sum = static_cast<Data>(0);
-        this->_digits = 1;
         return;
     }
     /*operator<<
@@ -440,12 +393,16 @@ namespace Linalg {
     return the ostream*/
     template <typename Data>
     std::ostream& operator<<(std::ostream& beta, Vector<Data> const& alpha) {
+        int digits = 1;
+        for (int gamma = 0; gamma < alpha._shape; gamma++) {
+            digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
+        }
         beta << std::noshowpos << "size: " << alpha._shape << " total: " << alpha._sum << '\n';
         for (int i = 0; i < alpha._shape; i++) {
             beta << std::setprecision(Basic_Math::Float16_Accuracy) \
                 << std::fixed << std::setfill(' ') << std::showpoint \
                 << std::showpos << std::internal \
-                << std::setw(Basic_Math::Float16_Accuracy + alpha._digits + 2) \
+                << std::setw(Basic_Math::Float16_Accuracy + digits + 2) \
                 << alpha.storage_space[i];
             if (i != alpha._shape - 1)
                 beta << ' ';
