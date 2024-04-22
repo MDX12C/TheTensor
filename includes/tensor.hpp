@@ -1,7 +1,7 @@
 ﻿#ifndef TENSOR_H
 #define TENSOR_H
 #include "./matrix.hpp"
-namespace bsm=Basic_Math;
+namespace bsm = Basic_Math;
 namespace Basic_Math {
     class Teshape {
     private:
@@ -58,7 +58,7 @@ namespace Linalg {
         bool reshape_(bsm::Teshape const&);
         Matrix<Data> flat(int const&);
         Vector<Data> flat();
-        bool stand_(Vector<Data> const&,Basic_Math::Teshape const&);
+        bool stand_(Vector<Data> const&, Basic_Math::Teshape const&);
         Data operator[](bsm::Teshape const&);
         Tensor operator=(Tensor const&);
         Tensor operator=(Data const&);
