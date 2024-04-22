@@ -1,4 +1,3 @@
-﻿
 #ifndef BASIC_H
 #define BASIC_H
 #pragma loop_opt(on)
@@ -26,6 +25,7 @@ namespace Basic_Math {
     int32_t random(int32_t const&, int32_t const&);
     _Float32 random(_Float32 const&, _Float32 const&);
 }
+
 namespace Linalg {
     typedef struct
     {
