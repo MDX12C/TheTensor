@@ -2,7 +2,7 @@
 #ifndef BASIC_H
 #define BASIC_H
 #pragma loop_opt(on)
-#define DEBUG_MODE
+#define _DEBUG_MODE_
 #include<iostream>
 #include<iomanip>
 #include<cfloat>
@@ -10,6 +10,9 @@
 #include<cstdlib>
 #include<ctime>
 #include<climits>
+#include<type_traits>
+#define _SIMD_MODE_
+#define _SIMD2_MODE_
 namespace Basic_Math {
     constexpr int Float16_Accuracy = 3;
     constexpr int Float32_Accuracy = 7;
