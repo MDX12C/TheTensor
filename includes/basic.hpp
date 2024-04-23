@@ -1,4 +1,4 @@
-#ifndef BASIC_H
+﻿#ifndef BASIC_H
 #define BASIC_H
 #pragma loop_opt(on)
 #define _DEBUG_MODE_
@@ -10,8 +10,13 @@
 #include<ctime>
 #include<climits>
 #include<type_traits>
-#define _SIMD_MODE_
-#define _SIMD2_MODE_
+#include<chrono>
+#include<thread>
+#include<atomic>
+#include<mutex>
+#include<functional>
+// #define _SIMD_MODE_
+// #define _SIMD2_MODE_
 namespace Basic_Math {
     constexpr int Float16_Accuracy = 3;
     constexpr int Float32_Accuracy = 7;

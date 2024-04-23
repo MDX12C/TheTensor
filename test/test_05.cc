@@ -4,6 +4,8 @@
 #define _Float32 float
 namespace bsm = Basic_Math;
 using namespace std;
+#define _SIMD_MODE_
+#define _SIMD2_MODE_
 #define _TEST_MODE_
 #ifdef _TEST_MODE_
 constexpr int TEST_TIMES = 50;
