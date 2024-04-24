@@ -6,7 +6,7 @@ TARGET = theTensor.out
 
 # Define the source files
 SRCS = $(shell find src -name "*.cc")
-MAINFILE = test/test_03.cc
+MAINFILE = test/test_02.cc
 
 OBJS = $(SRCS:.cc=.o)
 
