@@ -1,5 +1,8 @@
 #include "../includes/math.hpp"
 #include <iostream>
+
+#define float _Float32
+
 #define show(x)                                                                \
   { std::cout << #x << ':' << '\n' << x << '\n'; }
 const int Max_hight = 10;
