@@ -9,26 +9,44 @@
 #include<cstdlib>
 #include<ctime>
 #include<climits>
+#include<utility>
+#define _SIMD_MODE_
+//#define _AVX02_WILL_BE_USED_ON_
+#ifdef _SIMD_MODE_
 #include<type_traits>
 #include<chrono>
 #include<thread>
 #include<atomic>
 #include<mutex>
 #include<functional>
-// #define _SIMD_MODE_
-// #define _SIMD2_MODE_
+#include<immintrin.h>
+#include<x86intrin.h>
+#ifdef _AVX02_WILL_BE_USED_ON_
+#define _SIMD_02_
+#else 
+#define _SIMD_01_
+#endif
+#else
+#undef _AVX02_WILL_BE_USED_ON_
+#endif
 namespace Basic_Math {
     constexpr int Float16_Accuracy = 3;
     constexpr int Float32_Accuracy = 7;
     constexpr int Float64_Accuracy = 15;
     constexpr int terminal_width = 144;
-    constexpr _Float32 Float_value = static_cast<_Float32>(100);
-    constexpr int32_t Int_value = static_cast<int32_t>(100);
+    constexpr int terminal_height = 40;
+#if defined(_SIMD_01_)
+    constexpr int vec_len = 4;
+#elif defined(_SIMD_02_)
+    constexpr int vec_len = 8;
+#endif
+    constexpr float Float_value = static_cast<float>(100);
+    constexpr int Int_value = static_cast<int>(100);
     static bool set_seed = false;
     template <typename Data>
     int Int_Digits(Data const&);
-    int32_t random(int32_t const&, int32_t const&);
-    _Float32 random(_Float32 const&, _Float32 const&);
+    int random(int const&, int const&);
+    float random(float const&, float const&);
 }
 
 namespace Linalg {

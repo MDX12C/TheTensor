@@ -4,14 +4,14 @@
 #define _Float32 float
 namespace bsm = Basic_Math;
 using namespace std;
-#define _SIMD_MODE_
-#define _SIMD2_MODE_
+#define _SIMD_01_
+#define _SIMD_02_
 #define _TEST_MODE_
 #ifdef _TEST_MODE_
 constexpr int TEST_TIMES = 50;
 #endif
-#ifdef _SIMD2_MODE_
-#undef _SIMD_MODE_
+#ifdef _SIMD_02_
+#undef _SIMD_01_
 #endif
 clock_t t1, t2;
 #define flag(){ t2 = clock();cout<<"t:"<<1000*(double(t2-t1)/CLOCKS_PER_SEC)<<'\n';t1 = clock() ; }
@@ -22,12 +22,12 @@ void show(_Float32*);
 signed main() {
     if (len % 8 != 0) { cout << "error\n"; return 1; }
     _Float32* A, * B, * C;
-#if defined(_SIMD_MODE_)
+#if defined(_SIMD_01_)
     __m128 vecA, vecB, vecC;
-#elif defined(_SIMD2_MODE_)
+#elif defined(_SIMD_02_)
     __m256 vecA, vecB, vecC;
 #endif
-#if defined(_SIMD_MODE_) || defined(_SIMD2_MODE_)
+#if defined(_SIMD_01_) || defined(_SIMD_02_)
     A = (_Float32*) _mm_malloc(len * sizeof(_Float32), 32);
     B = (_Float32*) _mm_malloc(len * sizeof(_Float32), 32);
     C = (_Float32*) _mm_malloc(len * sizeof(_Float32), 32);
@@ -43,7 +43,7 @@ signed main() {
     //show(A);
     //show(B);
     flag();
-#if defined(_SIMD_MODE_)
+#if defined(_SIMD_01_)
     cout << "SIMD\n";
 #ifdef _TEST_MODE_
     for (int times = 0; times < TEST_TIMES; times++) {
@@ -58,7 +58,7 @@ signed main() {
 #ifdef _TEST_MODE_
     }
 #endif
-#elif defined(_SIMD2_MODE_) 
+#elif defined(_SIMD_02_) 
     cout << "SIMD2\n";
 #ifdef _TEST_MODE_
     for (int times = 0; times < TEST_TIMES; times++) {
@@ -87,7 +87,7 @@ signed main() {
 #endif
     flag();
     //show(C);
-#if defined(_SIMD_MODE_) || defined(_SIMD2_MODE_)
+#if defined(_SIMD_01_) || defined(_SIMD_02_)
     _mm_free(A);
     _mm_free(B);
     _mm_free(C);

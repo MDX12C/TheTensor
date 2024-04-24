@@ -17,7 +17,7 @@ namespace Basic_Math {
     Enter: 1.min value 2.max value
     random a number in the range
     return the number*/
-    int32_t random(int32_t const& alpha, int32_t const& beta) {
+    int random(int const& alpha, int const& beta) {
         if (!set_seed) {
             std::srand(int(std::time(0)));
             set_seed = true;
@@ -27,18 +27,18 @@ namespace Basic_Math {
         if (range < 0) {
             range *= -1;
             ans %= range;
-            return static_cast<int32_t>(beta + ans);
+            return static_cast<int>(beta + ans);
         }
         else {
             ans %= range;
-            return static_cast<int32_t>(alpha + ans);
+            return static_cast<int>(alpha + ans);
         }
     }
     /*random float
     Enter: 1.min value 2.max value
     random a number in the range
     return the number*/
-    _Float32 random(_Float32 const& alpha, _Float32 const& beta) {
+    float random(float const& alpha, float const& beta) {
         if (!set_seed) {
             std::srand(int(std::time(0)));
             set_seed = true;
@@ -48,13 +48,13 @@ namespace Basic_Math {
         if (range < 0) {
             range *= -1;
             floating *= range;
-            return static_cast<_Float32>(beta + floating);
+            return static_cast<float>(beta + floating);
         }
         else {
             floating *= range;
-            return static_cast<_Float32>(alpha + floating);
+            return static_cast<float>(alpha + floating);
         }
     }
 }
-template int Basic_Math::Int_Digits(int32_t const&);
-template int Basic_Math::Int_Digits(_Float32 const&);
+template int Basic_Math::Int_Digits(int const&);
+template int Basic_Math::Int_Digits(float const&);

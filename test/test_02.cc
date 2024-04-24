@@ -4,7 +4,8 @@
 #include<immintrin.h>
 using std::cout;
 using std::cin;
-//#define DEBUG
+//#define SIMD
+#define DEBUG
 #ifdef DEBUG
 #define sv(x){    \
     std::cout<<#x<<':'<<'\n';\
@@ -34,7 +35,18 @@ public:
     vector operator+(vector const&);
     vector operator+(int const&);
 };
+constexpr int vec_len = 4;
 void show(vector const&);
+#ifdef SIMD
+inline void add(int const* a, int const* b, int* c) {
+    __m128i vecA, vecB, vecC;
+    vecA = _mm_load_epi32(a);
+    vecB = _mm_load_epi32(b);
+    vecC = _mm_add_epi32(vecA, vecB);
+    _mm_store_epi32(c, vecC);
+    return;
+}
+#endif
 /*below are definations*/
 //constructor size
 vector::vector(unsigned int const& alpha) {
@@ -42,7 +54,7 @@ vector::vector(unsigned int const& alpha) {
     this->real_size = this->size / 4;
     this->real_size += this->size % 4 ? 1 : 0;
     this->real_size *= 4;
-    this->storage_space = (int*) malloc(this->real_size * sizeof(int));
+    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = 0;
     }
@@ -51,7 +63,7 @@ vector::vector(unsigned int const& alpha) {
 vector::vector() {
     this->size = 1;
     this->real_size = 4;
-    this->storage_space = (int*) malloc(this->real_size * sizeof(int));
+    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = 0;
     }
@@ -60,7 +72,7 @@ vector::vector() {
 vector::vector(vector const& alpha) {
     this->size = alpha.size;
     this->real_size = alpha.real_size;
-    this->storage_space = (int*) malloc(this->real_size * sizeof(int));
+    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = alpha.storage_space[i];
     }
@@ -74,8 +86,14 @@ void vector::operator+=(int const& alpha) {
 void vector::operator+=(vector const& alpha) {
     if (this->size != alpha.size)
         return;
+#ifndef SIMD
     for (int i = 0; i < this->size; i++)
         this->storage_space[i] += alpha.storage_space[i];
+#else
+    for (int i = 0; i < this->real_size; i += vec_len) {
+        add(&alpha.storage_space[i], &this->storage_space[i], &this->storage_space[i]);
+    }
+#endif
     return;
 }
 vector::~vector() {
@@ -102,9 +120,6 @@ void vector::operator=(vector const& alpha) {
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = alpha.storage_space[i];
     }
-#ifdef DEBUG
-    printf("operator= function ended\n");
-#endif
     return;
 }
 void vector::operator=(int const& alpha) {
@@ -116,9 +131,6 @@ vector vector::operator+(int const& alpha) {
     vector temp(*this);
     for (int i = 0; i < this->size; i++)
         temp.storage_space[i] += alpha;
-#ifdef DEBUG
-    printf("operator+ function ended\n");
-#endif
     return temp;
 }
 vector vector::operator+(vector const& alpha) {
@@ -127,9 +139,6 @@ vector vector::operator+(vector const& alpha) {
     vector temp(*this);
     for (int i = 0; i < this->size; i++)
         temp.storage_space[i] += alpha.storage_space[i];
-#ifdef DEBUG
-    printf("operator+ function ended\n");
-#endif
     return temp;
 }
 void show(vector const& alpha) {
@@ -143,10 +152,12 @@ signed main() {
     int size = 10, times = 8;
     //cin >> size;
     vector a(size);
-    //vector b(size);
-    for (int i = 0; i < size; i++)
+    vector b(size);
+    for (int i = 0; i < size; i++) {
         a[i] = i + 1;
+        b[i] = 1;
+    }
     sv(a);
-    show(a);
+    sv(b);
     return 0;
 }

@@ -589,15 +589,15 @@ namespace Basic_Math {
         return temp;
     }
 }
-template class Linalg::Matrix<int32_t>;
-template class Linalg::Matrix<_Float32>;
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int32_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<_Float32> const&);
-template Linalg::Matrix<int32_t> Linalg::dot(Linalg::Matrix<int32_t> const&, Linalg::Matrix<int32_t> const&);
-template Linalg::Matrix<_Float32> Linalg::dot(Linalg::Matrix<_Float32> const&, Linalg::Matrix<_Float32> const&);
-template void Linalg::AddLine_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t> const&);
-template void Linalg::AddLine_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
-template void Linalg::AddRow_(Linalg::Matrix<int32_t>&, Linalg::Vector<int32_t> const&);
-template void Linalg::AddRow_(Linalg::Matrix<_Float32>&, Linalg::Vector<_Float32> const&);
-template Linalg::Matrix<int32_t> Basic_Math::random(Linalg::MaShape const&, int32_t const&, int32_t const&);
-template Linalg::Matrix<_Float32> Basic_Math::random(Linalg::MaShape const&, _Float32 const&, _Float32 const&);
+template class Linalg::Matrix<int>;
+template class Linalg::Matrix<float>;
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int> const&);
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<float> const&);
+template Linalg::Matrix<int> Linalg::dot(Linalg::Matrix<int> const&, Linalg::Matrix<int> const&);
+template Linalg::Matrix<float> Linalg::dot(Linalg::Matrix<float> const&, Linalg::Matrix<float> const&);
+template void Linalg::AddLine_(Linalg::Matrix<int>&, Linalg::Vector<int> const&);
+template void Linalg::AddLine_(Linalg::Matrix<float>&, Linalg::Vector<float> const&);
+template void Linalg::AddRow_(Linalg::Matrix<int>&, Linalg::Vector<int> const&);
+template void Linalg::AddRow_(Linalg::Matrix<float>&, Linalg::Vector<float> const&);
+template Linalg::Matrix<int> Basic_Math::random(Linalg::MaShape const&, int const&, int const&);
+template Linalg::Matrix<float> Basic_Math::random(Linalg::MaShape const&, float const&, float const&);
