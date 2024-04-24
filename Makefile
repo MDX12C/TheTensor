@@ -2,7 +2,7 @@ SHELL = /bin/bash
 CXX = g++
 CXXFLAGS = -Wall -g -mavx2
 
-TARGET = theTensor
+TARGET = theTensor.out
 
 # Define the source files
 SRCS = $(shell find src -name "*.cc")
