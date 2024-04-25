@@ -15,7 +15,11 @@ OBJS = $(SRCS:.cc=.o)
 
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(FileName) $(TARGET) $(OBJS) $(MAINFILE)
+	@if [ ! -d "dist" ]; then \
+		echo "creating dist/ folder"; \
+		mkdir dist; \
+	fi
+	$(CXX) $(CXXFLAGS) -o $(FileName) dist/$(TARGET) $(OBJS) $(MAINFILE)
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
