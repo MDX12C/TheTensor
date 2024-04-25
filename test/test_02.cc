@@ -4,7 +4,7 @@
 #include<immintrin.h>
 using std::cout;
 using std::cin;
-//#define SIMD
+#define SIMD
 #define DEBUG
 #ifdef DEBUG
 #define sv(x){    \
@@ -17,7 +17,7 @@ using std::cin;
 /*below are declaration*/
 class vector {
 private:
-    int* storage_space = nullptr;
+    float* storage_space = nullptr;
     unsigned int size;
     unsigned int real_size;
 
@@ -27,23 +27,23 @@ public:
     vector();
     vector(vector const&);
     ~vector();
-    int& operator[](unsigned int const&);
+    float& operator[](unsigned int const&);
     void operator=(vector const&);
-    void operator=(int const&);
-    void operator+=(int const&);
+    void operator=(float const&);
+    void operator+=(float const&);
     void operator+=(vector const&);
     vector operator+(vector const&);
-    vector operator+(int const&);
+    vector operator+(float const&);
 };
 constexpr int vec_len = 4;
 void show(vector const&);
 #ifdef SIMD
-inline void add(int const* a, int const* b, int* c) {
-    __m128i vecA, vecB, vecC;
-    vecA = _mm_load_epi32(a);
-    vecB = _mm_load_epi32(b);
-    vecC = _mm_add_epi32(vecA, vecB);
-    _mm_store_epi32(c, vecC);
+inline void add(float* a, float* b, float* c) {
+    __m128 vecA, vecB, vecC;
+    vecA = _mm_load_ps(a);
+    vecB = _mm_load_ps(b);
+    vecC = _mm_add_ps(vecA, vecB);
+    _mm_store_ps(c, vecC);
     return;
 }
 #endif
@@ -54,7 +54,7 @@ vector::vector(unsigned int const& alpha) {
     this->real_size = this->size / 4;
     this->real_size += this->size % 4 ? 1 : 0;
     this->real_size *= 4;
-    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
+    this->storage_space = (float*) _mm_malloc(this->real_size * sizeof(float), 16);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = 0;
     }
@@ -63,7 +63,7 @@ vector::vector(unsigned int const& alpha) {
 vector::vector() {
     this->size = 1;
     this->real_size = 4;
-    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
+    this->storage_space = (float*) _mm_malloc(this->real_size * sizeof(float), 16);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = 0;
     }
@@ -72,13 +72,13 @@ vector::vector() {
 vector::vector(vector const& alpha) {
     this->size = alpha.size;
     this->real_size = alpha.real_size;
-    this->storage_space = (int*) _mm_malloc(this->real_size * sizeof(int), 32);
+    this->storage_space = (float*) _mm_malloc(this->real_size * sizeof(float), 16);
     for (int i = 0; i < this->real_size; i++) {
         this->storage_space[i] = alpha.storage_space[i];
     }
     return;
 }
-void vector::operator+=(int const& alpha) {
+void vector::operator+=(float const& alpha) {
     for (int i = 0; i < this->size; i++)
         this->storage_space[i] += alpha;
     return;
@@ -101,7 +101,7 @@ vector::~vector() {
         free(this->storage_space);
     return;
 }
-int& vector::operator[](unsigned int const& alpha) {
+float& vector::operator[](unsigned int const& alpha) {
     if (alpha >= this->size)
         return this->storage_space[0];
     return this->storage_space[alpha];
@@ -113,7 +113,7 @@ void vector::operator=(vector const& alpha) {
         if (this->real_size) {
             free(this->storage_space);
         }
-        this->storage_space = (int*) malloc(this->real_size * sizeof(int));
+        this->storage_space = (float*) _mm_malloc(this->real_size * sizeof(float), 16);
         this->size = alpha.size;
         this->real_size = alpha.real_size;
     }
@@ -122,12 +122,12 @@ void vector::operator=(vector const& alpha) {
     }
     return;
 }
-void vector::operator=(int const& alpha) {
+void vector::operator=(float const& alpha) {
     for (int i = 0; i < this->size; i++)
         this->storage_space[i] = alpha;
     return;
 }
-vector vector::operator+(int const& alpha) {
+vector vector::operator+(float const& alpha) {
     vector temp(*this);
     for (int i = 0; i < this->size; i++)
         temp.storage_space[i] += alpha;
@@ -149,7 +149,7 @@ void show(vector const& alpha) {
     cout << '\n';
 }
 signed main() {
-    int size = 10, times = 8;
+    int size = 10;
     //cin >> size;
     vector a(size);
     vector b(size);
@@ -159,5 +159,7 @@ signed main() {
     }
     sv(a);
     sv(b);
+    a += b;
+    sv(a);
     return 0;
 }
