@@ -439,11 +439,11 @@ namespace Basic_Math {
         return temp;
     }
 }
-template class Linalg::Vector<int32_t>;
-template class Linalg::Vector<_Float32>;
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<int32_t> const&);
-template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<_Float32> const&);
-template int32_t Linalg::dot(Linalg::Vector<int32_t> const&, Linalg::Vector<int32_t> const&);
-template _Float32 Linalg::dot(Linalg::Vector<_Float32> const&, Linalg::Vector<_Float32> const&);
-template Linalg::Vector<int32_t> Basic_Math::random(int const&, int32_t const&, int32_t const&);
-template Linalg::Vector<_Float32> Basic_Math::random(int const&, _Float32 const&, _Float32 const&);
+template class Linalg::Vector<int>;
+template class Linalg::Vector<float>;
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<int> const&);
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<float> const&);
+template int Linalg::dot(Linalg::Vector<int> const&, Linalg::Vector<int> const&);
+template float Linalg::dot(Linalg::Vector<float> const&, Linalg::Vector<float> const&);
+template Linalg::Vector<int> Basic_Math::random(int const&, int const&, int const&);
+template Linalg::Vector<float> Basic_Math::random(int const&, float const&, float const&);

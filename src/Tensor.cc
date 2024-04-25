@@ -417,8 +417,8 @@ namespace Linalg {
         return true;
     }
 }
-template class Linalg::Tensor<int32_t>;
+template class Linalg::Tensor<int>;
 //template class Linalg::Tensor<int64_t>;
-template class Linalg::Tensor<_Float32>;
+template class Linalg::Tensor<float>;
 //template class Linalg::Tensor<_Float64>;
 //template class Linalg::Tensor<__fp16>;
