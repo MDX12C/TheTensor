@@ -278,8 +278,30 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        for (int i = 0; i < this->_shape; i++) {
-            temp.storage_space[i] += alpha.storage_space[i];
+        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
+#ifdef _SIMD_01_
+            __m128 vecA, vecB, vecC;
+#else //_SIMD_02_
+            __m256 vecA, vecB, vecC;
+#endif //_SIMD_01_
+            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
+#ifdef _SIMD_01_
+                vecA = _mm_load_ps(&this->storage_space[i]);
+                vecB = _mm_load_ps(&alpha.storage_space[i]);
+                vecC = _mm_add_ps(vecA, vecB);
+                _mm_store_ps(&temp.storage_space[i], vecC);
+#else //_SIMD_02_
+                vecA = _mm256_load_ps(&this->storage_space[i]);
+                vecB = _mm256_load_ps(&alpha.storage_space[i]);
+                vecC = _mm256_add_ps(vecA, vecB);
+                _mm256_store_ps(&temp.storage_space[i], vecC);
+#endif //_SIMD_01_
+            }
+        }
+        else {
+            for (int i = 0; i < this->_shape; i++) {
+                temp.storage_space[i] += alpha.storage_space[i];
+            }
         }
         temp._sum += alpha._sum;
         return temp;
@@ -291,8 +313,30 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator+(Data const& alpha) {
         Vector<Data> temp(*this);
-        for (int i = 0; i < this->_shape; i++) {
-            temp.storage_space[i] += alpha;
+        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
+#ifdef _SIMD_01_
+            __m128 vecA, vecB, vecC;
+#else //_SIMD_02_
+            __m256 vecA, vecB, vecC;
+#endif //_SIMD_01_
+            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
+#ifdef _SIMD_01_
+                vecA = _mm_load_ps(&this->storage_space[i]);
+                vecB = _mm_set1_ps(alpha);
+                vecC = _mm_add_ps(vecA, vecB);
+                _mm_store_ps(&temp.storage_space[i], vecC);
+#else //_SIMD_02_
+                vecA = _mm256_load_ps(&this->storage_space[i]);
+                vecB = _mm256_set1_ps(alpha);
+                vecC = _mm256_add_ps(vecA, vecB);
+                _mm256_store_ps(&temp.storage_space[i], vecC);
+#endif //_SIMD_01_
+            }
+        }
+        else {
+            for (int i = 0; i < this->_shape; i++) {
+                temp.storage_space[i] += alpha;
+            }
         }
         temp._sum += static_cast<Data>(temp._shape) * alpha;
         return temp;
