@@ -1,8 +1,9 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
-#define _DEBUG_MODE_
-#define _THREAD_MODE_
-#define _SIMD_MODE_
+//#define _DEBUG_MODE_
+#define _THREAD_MODE_ //open thread mode
+#define _SIMD_MODE_ //open SIMD mode
+//#define _AVX02_WILL_BE_USED_ON_
 #include<iostream>
 #include<iomanip>
 #include<cfloat>
@@ -18,7 +19,6 @@
 #include<mutex>
 #include<functional>
 #endif //_THREAD_MODE_
-//#define _AVX02_WILL_BE_USED_ON_
 #ifdef _SIMD_MODE_
 #include<type_traits>
 #include<immintrin.h>
@@ -41,18 +41,17 @@ namespace Basic_Math {
     constexpr int vec_len = 4;
 #elif defined(_SIMD_02_)
     constexpr int vec_len = 8;
-#endif
-    constexpr float Float_value = static_cast<float>(100);
-    constexpr int Int_value = static_cast<int>(100);
+#endif //_SIMD_00_
+    constexpr float float_value_max = static_cast<float>(100);
+    constexpr float float_value_min = (-1) * float_value_max;
+    constexpr int int_value_max = static_cast<int>(100);
+    constexpr int int_value_min = (-1) * int_value_max;
     static bool set_seed = false;
     template <typename Data>
     int Int_Digits(Data const&);
     template <typename Data>
-    Data random(Data const&,Data const&);
-    int random(int const&, int const&);
-    float random(float const&, float const&);
+    Data random(Data const&, Data const&);
 }
-
 namespace Linalg {
     typedef struct
     {
@@ -73,4 +72,4 @@ namespace Linalg {
     template <typename Data>
     void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
-#endif
+#endif //BASIC_H

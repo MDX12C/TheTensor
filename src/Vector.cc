@@ -434,16 +434,20 @@ namespace Basic_Math {
     Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
         Linalg::Vector<Data> temp(gamma);
         for (int i = 0; i < gamma; i++) {
-            temp.endow_(i, random(alpha, beta));
+            temp.endow_(i, Basic_Math::random(alpha, beta));
         }
         return temp;
     }
 }
 template class Linalg::Vector<int>;
 template class Linalg::Vector<float>;
+template class Linalg::Vector<bool>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<int> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<float> const&);
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Vector<bool> const&);
 template int Linalg::dot(Linalg::Vector<int> const&, Linalg::Vector<int> const&);
 template float Linalg::dot(Linalg::Vector<float> const&, Linalg::Vector<float> const&);
+template bool Linalg::dot(Linalg::Vector<bool> const&, Linalg::Vector<bool> const&);
 template Linalg::Vector<int> Basic_Math::random(int const&, int const&, int const&);
 template Linalg::Vector<float> Basic_Math::random(int const&, float const&, float const&);
+template Linalg::Vector<bool> Basic_Math::random(int const&, bool const&, bool const&);

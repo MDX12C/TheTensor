@@ -13,58 +13,62 @@ namespace Basic_Math {
             return (std::floor(std::log10(alpha)) + 1);
         }
     }
-    /*random int
-    Enter: 1.min value 2.max value
-    random a number in the range
-    return the number*/
-    int random(int const& alpha, int const& beta) {
-        if (!set_seed) {
-            std::srand(int(std::time(0)));
-            set_seed = true;
-        }
-        int64_t range = static_cast<int64_t>(beta) - static_cast<int64_t>(alpha) + 1;
-        int64_t ans = static_cast<int64_t>(std::rand()) * 2;
-        if (range < 0) {
-            range *= -1;
-            ans %= range;
-            return static_cast<int>(beta + ans);
-        }
-        else {
-            ans %= range;
-            return static_cast<int>(alpha + ans);
-        }
-    }
-    /*random float
-    Enter: 1.min value 2.max value
-    random a number in the range
-    return the number*/
-    float random(float const& alpha, float const& beta) {
-        if (!set_seed) {
-            std::srand(int(std::time(0)));
-            set_seed = true;
-        }
-        _Float64 range = static_cast<_Float64>(beta) - static_cast<_Float64>(alpha) + 1;
-        _Float64 floating = static_cast<_Float64>(std::rand()) / RAND_MAX;
-        if (range < 0) {
-            range *= -1;
-            floating *= range;
-            return static_cast<float>(beta + floating);
-        }
-        else {
-            floating *= range;
-            return static_cast<float>(alpha + floating);
-        }
-    }
     /*random
     Enter: 1.min value 2.max value
     random a number in the range
     return the number*/
     template <typename Data>
-    Data random(Data const& alpha,Data const& beta){
-        if constexpr(std::is_same_v<Data,int>){
-            
+    Data random(Data const& alpha, Data const& beta) {
+        if (!set_seed) {
+            std::srand(int(std::time(0)));
+            set_seed = true;
+        }
+        if constexpr (std::is_same_v<Data, int>) {
+#ifdef _DEBUG_MODE_
+            printf("int random\n");
+#endif
+            long long range = static_cast<long long>(beta) - static_cast<long long>(alpha) + 1;
+            long long ans = static_cast<long long>(std::rand()) * 2;
+            if (range < 0) {
+                range *= -1;
+                ans %= range;
+                return static_cast<int>(beta + ans);
+            }
+            else {
+                ans %= range;
+                return static_cast<int>(alpha + ans);
+            }
+        }
+        else if constexpr (std::is_same_v<Data, float>) {
+#ifdef _DEBUG_MODE_
+            printf("float random\n");
+#endif
+            long double range = static_cast<long double>(beta) - static_cast<long double>(alpha) + 1;
+            long double floating = static_cast<long double>(std::rand()) / RAND_MAX;
+            if (range < 0) {
+                range *= -1;
+                floating *= range;
+                return static_cast<float>(beta + floating);
+            }
+            else {
+                floating *= range;
+                return static_cast<float>(alpha + floating);
+            }
+        }
+        else if constexpr (std::is_same_v<Data, bool>) {
+#ifdef _DEBUG_MODE_
+            printf("bool random\n");
+#endif
+            return static_cast<bool>(std::rand() % 2);
+        }
+        else {
+            Data range = beta - alpha + 1;
+            return alpha + (std::rand() % range);
         }
     }
 }
 template int Basic_Math::Int_Digits(int const&);
 template int Basic_Math::Int_Digits(float const&);
+template int Basic_Math::random(int const&, int const&);
+template float Basic_Math::random(float const&, float const&);
+template bool Basic_Math::random(bool const&, bool const&);
