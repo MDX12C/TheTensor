@@ -1,7 +1,8 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
-#pragma loop_opt(on)
 #define _DEBUG_MODE_
+#define _THREAD_MODE_
+#define _SIMD_MODE_
 #include<iostream>
 #include<iomanip>
 #include<cfloat>
@@ -10,25 +11,26 @@
 #include<ctime>
 #include<climits>
 #include<utility>
-#define _SIMD_MODE_
-//#define _AVX02_WILL_BE_USED_ON_
-#ifdef _SIMD_MODE_
-#include<type_traits>
+#ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
 #include<atomic>
 #include<mutex>
 #include<functional>
+#endif //_THREAD_MODE_
+//#define _AVX02_WILL_BE_USED_ON_
+#ifdef _SIMD_MODE_
+#include<type_traits>
 #include<immintrin.h>
 #include<x86intrin.h>
 #ifdef _AVX02_WILL_BE_USED_ON_
 #define _SIMD_02_
-#else 
+#else //_AVX02_WILL_BE_USED_ON_
 #define _SIMD_01_
-#endif
-#else
+#endif //_AVX02_WILL_BE_USED_ON_
+#else //_SIMD_MODE_
 #undef _AVX02_WILL_BE_USED_ON_
-#endif
+#endif //_SIMD_MODE_
 namespace Basic_Math {
     constexpr int Float16_Accuracy = 3;
     constexpr int Float32_Accuracy = 7;
@@ -45,6 +47,8 @@ namespace Basic_Math {
     static bool set_seed = false;
     template <typename Data>
     int Int_Digits(Data const&);
+    template <typename Data>
+    Data random(Data const&,Data const&);
     int random(int const&, int const&);
     float random(float const&, float const&);
 }

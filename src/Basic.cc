@@ -55,6 +55,16 @@ namespace Basic_Math {
             return static_cast<float>(alpha + floating);
         }
     }
+    /*random
+    Enter: 1.min value 2.max value
+    random a number in the range
+    return the number*/
+    template <typename Data>
+    Data random(Data const& alpha,Data const& beta){
+        if constexpr(std::is_same_v<Data,int>){
+            
+        }
+    }
 }
 template int Basic_Math::Int_Digits(int const&);
 template int Basic_Math::Int_Digits(float const&);
