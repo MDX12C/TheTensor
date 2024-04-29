@@ -10,6 +10,7 @@ namespace Linalg
         Data* storage_space;
         Data _sum;
         int _shape;
+        int _real_shape;
         template <typename T>
         friend std::ostream& operator<<(std::ostream&, Vector<T> const&);
         template <typename T>
@@ -56,8 +57,8 @@ namespace Linalg
     template <typename Data>
     Data dot(Vector<Data> const&, Vector<Data> const&);
 }
-namespace Basic_Math{
+namespace Basic_Math {
     template <typename Data>
     Linalg::Vector<Data> random(int const&, Data const&, Data const&);
 }
-#endif
+#endif //BASIC_H
