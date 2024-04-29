@@ -12,6 +12,9 @@
 #include<ctime>
 #include<climits>
 #include<utility>
+#ifdef _SIMD_MODE_
+#define _THREAD_MODE_
+#endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
@@ -42,6 +45,11 @@ namespace Basic_Math {
 #elif defined(_SIMD_02_)
     constexpr int vec_len = 8;
 #endif //_SIMD_00_
+#ifdef _SIMD_MODE_
+    constexpr bool SIMD_ON = true;
+#else
+    constexpr bool SIMD_ON = false;
+#endif //_SIMD_MODE_
     constexpr float float_value_max = static_cast<float>(100);
     constexpr float float_value_min = (-1) * float_value_max;
     constexpr int int_value_max = static_cast<int>(100);
