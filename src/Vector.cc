@@ -225,7 +225,7 @@ namespace Linalg {
     template <typename Data>
     Data Vector<Data>::operator[](int const& alpha) {
         if (alpha < 0 || alpha >= this->_shape)
-            return this->storage_space[0];
+            return static_cast<Data>(0);
         return this->storage_space[alpha];
     }
     /*operator= Vector
@@ -234,15 +234,29 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator=(Vector<Data> const& alpha) {
-        if (this->_shape)
-            delete[] this->storage_space;
-        this->_shape = alpha._shape;
-        this->_sum = alpha._sum;
-        this->storage_space = new Data[this->_shape];
-        for (int i = 0; i < this->_shape; i++) {
-            this->storage_space[i] = alpha.storage_space[i];
+        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
+            if (this->_shape)
+                _mm_free(this->storage_space);
+            this->_shape = alpha._shape;
+            this->_real_shape = alpha._real_shape;
+            this->_sum = alpha._sum;
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+            for (int i = 0; i < this->_real_shape; i++) {
+                this->storage_space[i] = alpha.storage_space[i];
+            }
+            return (*this);
         }
-        return (*this);
+        else {
+            if (this->_shape)
+                delete[] this->storage_space;
+            this->_shape = alpha._shape;
+            this->_sum = alpha._sum;
+            this->storage_space = new Data[this->_shape];
+            for (int i = 0; i < this->_shape; i++) {
+                this->storage_space[i] = alpha.storage_space[i];
+            }
+            return (*this);
+        }
     }
     /*operator= value
     Enter: 1.vector 2.value
