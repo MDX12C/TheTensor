@@ -6,11 +6,16 @@ namespace Basic_Math {
     return the number*/
     template <typename Data>
     int Int_Digits(Data const& alpha) {
-        if (alpha < static_cast<Data>(0)) {
-            return (std::floor(std::log10(-alpha)) + 1);
+        if constexpr (std::is_same_v<Data, bool>) {
+            return 1;
         }
         else {
-            return (std::floor(std::log10(alpha)) + 1);
+            if (alpha < static_cast<Data>(0)) {
+                return (std::floor(std::log10(-alpha)) + 1);
+            }
+            else {
+                return (std::floor(std::log10(alpha)) + 1);
+            }
         }
     }
     /*random
@@ -67,22 +72,24 @@ namespace Basic_Math {
         }
     }
     void status() {
-        std::cout << "set_seed:" << set_seed << '\n';
+        std::cout << "\nset_seed:" << set_seed << '\n';
 #ifdef _TREAD_MODE_
         std::cout << "_TREAD_MODE_\n";
 #endif
         if (SIMD_ON) {
             std::cout << "_SIMD_MODE_";
 #ifdef _SIMD_01_
-            std::cout << "01_\n";
+            std::cout << "01_\n\n";
 #else 
-            std::cout << "02_\n";
+            std::cout << "02_\n\n";
 #endif
         }
+        return;
     }
 }
 template int Basic_Math::Int_Digits(int const&);
 template int Basic_Math::Int_Digits(float const&);
+template int Basic_Math::Int_Digits(bool const&);
 template int Basic_Math::random(int const&, int const&);
 template float Basic_Math::random(float const&, float const&);
 template bool Basic_Math::random(bool const&, bool const&);

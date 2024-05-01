@@ -7,8 +7,6 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(int const& alpha, Data* const& beta) {
-        if constexpr (std::is_same_v<Data, bool>)
-            int t = 0;
         if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
             if (alpha <= 0) {
                 this->_shape = 1;
@@ -282,8 +280,8 @@ namespace Linalg {
         else {
             for (int i = 0; i < this->_shape; i++)
                 this->storage_space[i] = alpha;
-            return (*this);
         }
+        return (*this);
     }
     /*operator+ Vector
     Enter: 1.vector 2.vector
@@ -944,21 +942,53 @@ namespace Linalg {
     return the ostream*/
     template <typename Data>
     std::ostream& operator<<(std::ostream& beta, Vector<Data> const& alpha) {
-        int digits = 1;
-        Data sum = static_cast<Data>(0);
-        for (int gamma = 0; gamma < alpha._shape; gamma++) {
-            digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
-            sum += alpha.storage_space[gamma];
+        if constexpr (std::is_same_v<Data, bool>) {
+            int t = 0;
+            for (int i = 0; i < alpha._shape; i++) {
+                t += alpha.storage_space[i] ? 1 : -1;
+            }
+            t = t > 0 ? 1 : 0;
+            beta << "size: " << alpha._shape << " total: " << t << '\n';
+            for (int i = 0; i < alpha._shape; i++) {
+                beta << alpha.storage_space[i];
+                if (i != alpha._shape - 1)
+                    beta << ' ';
+            }
         }
-        beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
-        for (int i = 0; i < alpha._shape; i++) {
-            beta << std::setprecision(Basic_Math::Float16_Accuracy) \
-                << std::fixed << std::setfill(' ') << std::showpoint \
-                << std::showpos << std::internal \
-                << std::setw(Basic_Math::Float16_Accuracy + digits + 2) \
-                << alpha.storage_space[i];
-            if (i != alpha._shape - 1)
-                beta << ' ';
+        else if constexpr (std::is_same_v<Data, float>) {
+            int digits = 1;
+            Data sum = static_cast<Data>(0);
+            for (int gamma = 0; gamma < alpha._shape; gamma++) {
+                digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
+                sum += alpha.storage_space[gamma];
+            }
+            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
+            for (int i = 0; i < alpha._shape; i++) {
+                beta << std::setprecision(Basic_Math::Float16_Accuracy) \
+                    << std::fixed << std::setfill(' ') << std::showpoint \
+                    << std::showpos << std::internal \
+                    << std::setw(Basic_Math::Float16_Accuracy + digits + 2) \
+                    << alpha.storage_space[i];
+                if (i != alpha._shape - 1)
+                    beta << ' ';
+            }
+        }
+        else {
+            int digits = 1;
+            Data sum = static_cast<Data>(0);
+            for (int gamma = 0; gamma < alpha._shape; gamma++) {
+                digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
+                sum += alpha.storage_space[gamma];
+            }
+            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
+            for (int i = 0; i < alpha._shape; i++) {
+                beta << std::setfill(' ') \
+                    << std::showpos << std::internal \
+                    << std::setw(digits + 1) \
+                    << alpha.storage_space[i];
+                if (i != alpha._shape - 1)
+                    beta << ' ';
+            }
         }
         beta << '\n';
         return beta;
@@ -984,15 +1014,15 @@ namespace Linalg {
                 vecA = _mm_load_ps(&beta.storage_space[i]);
                 vecB = _mm_load_ps(&alpha.storage_space[i]);
                 vecC = _mm_mul_ps(vecA, vecB);
-                _mm_store_ps(temp[i], vecC);
+                _mm_store_ps(&temp[i], vecC);
 #else //_SIMD_02_
                 vecA = _mm256_load_ps(&beta.storage_space[i]);
                 vecB = _mm256_load_ps(&alpha.storage_space[i]);
                 vecC = _mm256_mul_ps(vecA, vecB);
-                _mm256_store_ps(temp[i], vecC);
+                _mm256_store_ps(&temp[i], vecC);
 #endif //_SIMD_01_
             }
-            for (int i = 0; i < beta._real_shape)
+            for (int i = 0; i < beta._real_shape; i++)
                 gamma += temp[i];
             _mm_free(temp);
         }
