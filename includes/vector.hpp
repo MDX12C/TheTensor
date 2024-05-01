@@ -8,7 +8,6 @@ namespace Linalg
     {
     private:
         Data* storage_space;
-        Data _sum;
         int _shape;
         int _real_shape;
         template <typename T>
@@ -28,11 +27,11 @@ namespace Linalg
         Vector(Vector const&);
         ~Vector();
         inline int size() { return this->_shape; }
-        inline Data sum() { return this->_sum; }
+        Data sum();
         void freedom_();
         bool endow_(int const&, Data const&);
         bool resize_(int const&);
-        Data operator[](int const&);
+        Data& operator[](int const&);
         Vector operator=(Vector const&);
         Vector operator=(Data const&);
         Vector operator+=(Vector const&);
