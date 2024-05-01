@@ -59,6 +59,7 @@ namespace Basic_Math {
     int Int_Digits(Data const&);
     template <typename Data>
     Data random(Data const&, Data const&);
+    void status();
 }
 namespace Linalg {
     typedef struct

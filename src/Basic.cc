@@ -66,6 +66,20 @@ namespace Basic_Math {
             return alpha + (std::rand() % range);
         }
     }
+    void status() {
+        std::cout << "set_seed:" << set_seed << '\n';
+#ifdef _TREAD_MODE_
+        std::cout << "_TREAD_MODE_\n";
+#endif
+        if (SIMD_ON) {
+            std::cout << "_SIMD_MODE_";
+#ifdef _SIMD_01_
+            std::cout << "01_\n";
+#else 
+            std::cout << "02_\n";
+#endif
+        }
+    }
 }
 template int Basic_Math::Int_Digits(int const&);
 template int Basic_Math::Int_Digits(float const&);
