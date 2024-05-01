@@ -923,11 +923,19 @@ namespace Linalg {
     no return*/
     template <typename Data>
     void Vector<Data>::freedom_() {
-        delete[] this->storage_space;
         this->_shape = 1;
-        this->storage_space = new Data[1];
-        this->storage_space[0] = static_cast<Data>(0);
-        this->_sum = static_cast<Data>(0);
+        if constexpr ((std::is_same_v<Data, float>) && Basic_Math::SIMD_ON) {
+            _mm_free(this->storage_space);
+            this->_real_shape = Basic_Math::vec_len;
+            this->storage_space = (Data*) _mm_malloc(Basic_Math::vec_len * sizeof(Data), 16);
+            for (int i = 0; i < this->_real_shape; i++)
+                this->storage_space[i] = static_cast<Data>(0);
+        }
+        else {
+            delete[] this->storage_space;
+            this->storage_space = new Data[1];
+            this->storage_space[0] = static_cast<Data>(0);
+        }
         return;
     }
     /*operator<<
@@ -937,10 +945,12 @@ namespace Linalg {
     template <typename Data>
     std::ostream& operator<<(std::ostream& beta, Vector<Data> const& alpha) {
         int digits = 1;
+        Data sum = static_cast<Data>(0);
         for (int gamma = 0; gamma < alpha._shape; gamma++) {
             digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
+            sum += alpha.storage_space[gamma];
         }
-        beta << std::noshowpos << "size: " << alpha._shape << " total: " << alpha._sum << '\n';
+        beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
         for (int i = 0; i < alpha._shape; i++) {
             beta << std::setprecision(Basic_Math::Float16_Accuracy) \
                 << std::fixed << std::setfill(' ') << std::showpoint \
@@ -962,8 +972,42 @@ namespace Linalg {
         if (beta._shape != alpha._shape)
             return static_cast<Data>(0);
         Data gamma = static_cast<Data>(0);
-        for (int i = 0; i < beta._shape; i++)
-            gamma += beta.storage_space[i] * alpha.storage_space[i];
+        if constexpr ((std::is_same_v<Data, float>) && Basic_Math::SIMD_ON) {
+            Data* temp = (Data*) _mm_malloc(sizeof(Data) * beta._real_shape, 16);
+#ifdef _SIMD_01_
+            __m128 vecA, vecB, vecC;
+#else //_SIMD_02_
+            __m256 vecA, vecB, vecC;
+#endif //_SIMD_01_
+            for (int i = 0; i < beta._real_shape; i += Basic_Math::vec_len) {
+#ifdef _SIMD_01_
+                vecA = _mm_load_ps(&beta.storage_space[i]);
+                vecB = _mm_load_ps(&alpha.storage_space[i]);
+                vecC = _mm_mul_ps(vecA, vecB);
+                _mm_store_ps(temp[i], vecC);
+#else //_SIMD_02_
+                vecA = _mm256_load_ps(&beta.storage_space[i]);
+                vecB = _mm256_load_ps(&alpha.storage_space[i]);
+                vecC = _mm256_mul_ps(vecA, vecB);
+                _mm256_store_ps(temp[i], vecC);
+#endif //_SIMD_01_
+            }
+            for (int i = 0; i < beta._real_shape)
+                gamma += temp[i];
+            _mm_free(temp);
+        }
+        else if constexpr (std::is_same_v<Data, bool>) {
+            int t = 0;
+            for (int i = 0; i < beta._shape; i++) {
+                t += (beta.storage_space[i] && alpha.storage_space[i]) ? 1 : -1;
+            }
+            gamma = (t > 0) ? true : false;
+        }
+        else {
+            for (int i = 0; i < beta._shape; i++) {
+                gamma += beta.storage_space[i] * alpha.storage_space[i];
+            }
+        }
         return gamma;
     }
 }
@@ -977,7 +1021,7 @@ namespace Basic_Math {
     Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
         Linalg::Vector<Data> temp(gamma);
         for (int i = 0; i < gamma; i++) {
-            temp.endow_(i, Basic_Math::random(alpha, beta));
+            temp[i] = Basic_Math::random(alpha, beta);
         }
         return temp;
     }
