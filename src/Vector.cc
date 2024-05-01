@@ -7,40 +7,39 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(int const& alpha, Data* const& beta) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            if (alpha <= 0) {
-                this->_shape = 1;
-                this->_real_shape = Basic_Math::vec_len;
-                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-                for (int i = 0; i < this->_real_shape; i++) {
-                    this->storage_space[i] = static_cast<Data>(0);
-                }
-                return;
-            }
-            this->_shape = alpha;
-            this->_real_shape = this->_shape / Basic_Math::vec_len;
-            this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
-            this->_real_shape *= Basic_Math::vec_len;
+        if (alpha <= 0) {
+            this->_shape = 1;
+#ifdef _THREAD_MODE_
+            this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = beta[i];
+            for (int i = 0; i < this->_real_shape; i++) {
+                this->storage_space[i] = static_cast<Data>(0);
             }
+#else
+            this->storage_space = new Data[1];
+            this->storage_space[0] = static_cast<Data>(0);
+#endif
             return;
         }
-        else {
-            if (alpha <= 0) {
-                this->_shape = 1;
-                this->storage_space = new Data[1];
-                this->storage_space[0] = static_cast<Data>(0);
-                return;
-            }
-            this->_shape = alpha;
-            this->storage_space = new Data[alpha];
-            for (int i = 0; i < alpha; i++) {
-                this->storage_space[i] = beta[i];
-            }
-            return;
+        this->_shape = alpha;
+#ifdef _THREAD_MODE_
+        this->_real_shape = this->_shape / Basic_Math::vec_len;
+        this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
+        this->_real_shape *= Basic_Math::vec_len;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        for (int i = 0; i < this->_shape; i++) {
+            this->storage_space[i] = beta[i];
         }
+        for (int j = this->_shape; j < this->_real_shape; j++) {
+            this->storage_space[j] = static_cast<Data>(0);
+        }
+#else
+        this->storage_space = new Data[this->_shape];
+        for (int i = 0; i < this->_shape; i++) {
+            this->storage_space[i] = beta[i];
+        }
+#endif
+        return;
     }
     /*constructor only size
     Enter: 1.size
@@ -48,38 +47,34 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(int const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            if (alpha <= 0) {
-                this->_shape = 1;
-                this->_real_shape = Basic_Math::vec_len;
-                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-                for (int i = 0; i < this->_real_shape; i++) {
-                    this->storage_space[i] = static_cast<Data>(0);
-                }
-                return;
-            }
-            this->_shape = alpha;
-            this->_real_shape = this->_shape / Basic_Math::vec_len;
-            this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
-            this->_real_shape *= Basic_Math::vec_len;
+        if (alpha <= 0) {
+            this->_shape = 1;
+#ifdef _THREAD_MODE_
+            this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            for (int i = 0; i < this->_real_shape; i++)
+            for (int i = 0; i < this->_real_shape; i++) {
                 this->storage_space[i] = static_cast<Data>(0);
-            return;
-        }
-        else {
-            if (alpha <= 0) {
-                this->_shape = 1;
-                this->storage_space = new Data[1];
-                this->storage_space[0] = static_cast<Data>(0);
-                return;
             }
-            this->_shape = alpha;
-            this->storage_space = new Data[alpha];
-            for (int i = 0; i < alpha; i++)
-                this->storage_space[i] = static_cast<Data>(0);
+#else
+            this->storage_space = new Data[1];
+            this->storage_space[0] = static_cast<Data>(0);
+#endif
             return;
         }
+        this->_shape = alpha;
+#ifdef _THREAD_MODE_
+        this->_real_shape = this->_shape / Basic_Math::vec_len;
+        this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
+        this->_real_shape *= Basic_Math::vec_len;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        for (int i = 0; i < this->_real_shape; i++)
+            this->storage_space[i] = static_cast<Data>(0);
+#else
+        this->storage_space = new Data[this->_shape];
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] = static_cast<Data>(0);
+#endif
+        return;
     }
     /*defult constructor
     Enter: none
@@ -87,21 +82,18 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector() {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            this->_shape = 1;
-            this->_real_shape = Basic_Math::vec_len;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            for (int i = 0; i < this->_real_shape; i++) {
-                this->storage_space[i] = static_cast<Data>(0);
-            }
-            return;
+        this->_shape = 1;
+#ifdef _THREAD_MODE_
+        this->_real_shape = Basic_Math::vec_len;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        for (int i = 0; i < this->_real_shape; i++) {
+            this->storage_space[i] = static_cast<Data>(0);
         }
-        else {
-            this->_shape = 1;
-            this->storage_space = new Data[1];
-            this->storage_space[0] = static_cast<Data>(0);
-            return;
-        }
+#else
+        this->storage_space = new Data[1];
+        this->storage_space[0] = static_cast<Data>(0);
+#endif
+        return;
     }
     /*copy constructor
     Enter: 1.vector
@@ -109,23 +101,20 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(Vector<Data> const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            this->_shape = alpha._shape;
-            this->_real_shape = alpha._real_shape;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            for (int i = 0; i < this->_real_shape; i++) {
-                this->storage_space[i] = alpha.storage_space[i];
-            }
-            return;
+        this->_shape = alpha._shape;
+#ifdef _THREAD_MODE_
+        this->_real_shape = alpha._real_shape;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        for (int i = 0; i < this->_real_shape; i++) {
+            this->storage_space[i] = alpha.storage_space[i];
         }
-        else {
-            this->_shape = alpha._shape;
-            this->storage_space = new Data[this->_shape];
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = alpha.storage_space[i];
-            }
-            return;
+#else
+        this->storage_space = new Data[this->_shape];
+        for (int i = 0; i < this->_shape; i++) {
+            this->storage_space[i] = alpha.storage_space[i];
         }
+#endif
+        return;
     }
     /*destructor
     Enter: none
@@ -133,14 +122,12 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::~Vector() {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            _mm_free(this->storage_space);
-            return;
-        }
-        else {
-            delete[] this->storage_space;
-            return;
-        }
+#ifdef _THREAD_MODE_
+        _mm_free(this->storage_space);
+#else
+        delete[] this->storage_space;
+#endif
+        return;
     }
     /*endow
     Enter: 1.coordinate 2.value
@@ -185,39 +172,38 @@ namespace Linalg {
         if (alpha == this->_shape)
             return true;
         Vector<Data> temp(*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            if (this->_shape)
-                _mm_free(this->storage_space);
-            this->_shape = alpha;
-            this->_real_shape = this->_shape / Basic_Math::vec_len;
-            this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
-            this->_real_shape *= Basic_Math::vec_len;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            Data gamma = static_cast<Data>(0);
-            for (int i = 0; i < this->_real_shape; i++) {
-                if (i < temp._shape) {
-                    this->storage_space[i] = temp.storage_space[i];
-                }
-                else {
-                    this->storage_space[i] = gamma;
-                }
+#ifdef _THREAD_MODE_
+        if (this->_shape)
+            _mm_free(this->storage_space);
+        this->_shape = alpha;
+        this->_real_shape = this->_shape / Basic_Math::vec_len;
+        this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
+        this->_real_shape *= Basic_Math::vec_len;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        Data gamma = static_cast<Data>(0);
+        for (int i = 0; i < this->_real_shape; i++) {
+            if (i < temp._shape) {
+                this->storage_space[i] = temp.storage_space[i];
+            }
+            else {
+                this->storage_space[i] = gamma;
             }
         }
-        else {
-            if (this->_shape)
-                delete[] this->storage_space;
-            this->_shape = alpha;
-            this->storage_space = new Data[this->_shape];
-            Data gamma = static_cast<Data>(0);
-            for (int i = 0; i < this->_shape; i++) {
-                if (i < temp._shape) {
-                    this->storage_space[i] = temp.storage_space[i];
-                }
-                else {
-                    this->storage_space[i] = gamma;
-                }
+#else
+        if (this->_shape)
+            delete[] this->storage_space;
+        this->_shape = alpha;
+        this->storage_space = new Data[this->_shape];
+        Data gamma = static_cast<Data>(0);
+        for (int i = 0; i < this->_shape; i++) {
+            if (i < temp._shape) {
+                this->storage_space[i] = temp.storage_space[i];
+            }
+            else {
+                this->storage_space[i] = gamma;
             }
         }
+#endif
         return true;
     }
     /*operator[]
@@ -236,31 +222,25 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator=(Vector<Data> const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            if (this->_shape)
-                _mm_free(this->storage_space);
-            this->_shape = alpha._shape;
-            this->_real_shape = alpha._real_shape;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                _mm_store_ps(&this->storage_space[i], _mm_load_ps(&alpha.storage_space[i]));
-#else //_SIMD_02_
-                _mm256_store_ps(&this->storage_space[i], _mm256_load_ps(&alpha.storage_space[i]));
-#endif //_SIMD_01_/_SIMD_02_
-            }
-            return (*this);
+#ifdef _THREAD_MODE_
+        if (this->_shape)
+            _mm_free(this->storage_space);
+        this->_shape = alpha._shape;
+        this->_real_shape = alpha._real_shape;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), 16);
+        for (int i = 0; i < this->_real_shape; i++) {
+            this->storage_space[i] = alpha.storage_space[i];
         }
-        else {
-            if (this->_shape)
-                delete[] this->storage_space;
-            this->_shape = alpha._shape;
-            this->storage_space = new Data[this->_shape];
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = alpha.storage_space[i];
-            }
-            return (*this);
-        }
+        return (*this);
+#else
+        if (this->_shape)
+            delete[] this->storage_space;
+        this->_shape = alpha._shape;
+        this->storage_space = new Data[this->_shape];
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] = alpha.storage_space[i];
+        return (*this);
+#endif
     }
     /*operator= value
     Enter: 1.vector 2.value
@@ -268,19 +248,8 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator=(Data const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                _mm_store_ps(&this->storage_space[i], _mm_set1_ps(alpha));
-#else //_SIMD_02_
-                _mm256_store_ps(&this->storage_space[i], _mm256_set1_ps(alpha));
-#endif //_SIMD_01_
-            }
-        }
-        else {
-            for (int i = 0; i < this->_shape; i++)
-                this->storage_space[i] = alpha;
-        }
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] = alpha;
         return (*this);
     }
     /*operator+ Vector
@@ -292,36 +261,18 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_add_ps(vecA, vecB);
-                _mm_store_ps(&temp.storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_add_ps(vecA, vecB);
-                _mm256_store_ps(&temp.storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_add, std::ref(this->storage_space[i]), std::ref(alpha.storage_space[i]), std::ref(temp.storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] = this->storage_space[i] || alpha.storage_space[i];
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] += alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)4
+            temp.storage_space[i] = this->storage_space[i] + alpha.storage_space[i];
+#endif
         return temp;
     }
     /*operator+ value
