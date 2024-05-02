@@ -87,9 +87,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
@@ -108,9 +108,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_add_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
         }
@@ -129,9 +129,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_sub(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
@@ -150,9 +150,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_sub_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
         }
@@ -171,9 +171,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_sub_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_sub_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_sub_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
@@ -192,9 +192,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_mul(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
@@ -213,9 +213,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_mul_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
         }
@@ -234,9 +234,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_div(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
@@ -255,9 +255,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_div_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
         }
@@ -276,9 +276,9 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_div_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
-#ifdef _SIMD_01_
+#if defined(_SIMD_01_)
             _mm_store_ps(gamma, _mm_div_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
-#else
+#elif defined(_SIMD_02_)
             _mm256_store_ps(gamma, _mm256_div_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
 #endif
         }
