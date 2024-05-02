@@ -60,9 +60,9 @@ namespace Basic_Math {
     constexpr bool THREAD_ON = false;
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
-    constexpr float float_value_max = static_cast<float>(100);
+    constexpr float float_value_max = static_cast<float>(200);
     constexpr float float_value_min = (-1) * float_value_max;
-    constexpr int int_value_max = static_cast<int>(100);
+    constexpr int int_value_max = static_cast<int>(200);
     constexpr int int_value_min = (-1) * int_value_max;
     static bool set_seed = false;
     template <typename Data>
