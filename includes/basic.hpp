@@ -84,6 +84,7 @@ namespace Basic_Math {
         }
         return;
     }
+#ifdef _THREAD_MODE_
     template <typename Data>
     inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -294,6 +295,7 @@ namespace Basic_Math {
         }
         return;
     }
+#endif
 }
 namespace Linalg {
     typedef struct

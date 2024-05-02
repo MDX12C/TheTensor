@@ -264,7 +264,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_arry[j] = std::thread(Basic_Math::tuple_add, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&temp.storage_space[i]));
+            run_arry[j] = std::thread(Basic_Math::tuple_add, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_arry[i].join();
@@ -285,7 +285,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_arry[j] = std::thread(Basic_Math::tuple_add_s_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&temp.storage_space[i]));
+            run_arry[j] = std::thread(Basic_Math::tuple_add_s_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_arry[i].join();
@@ -308,7 +308,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_sub, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_sub, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -329,7 +329,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_sub_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_sub_sb_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&temp.storage_space[i]));
         }
 #else
         for (int i = 0; i < this->_shape; i++)
@@ -349,7 +349,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_mul, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_mul, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -370,7 +370,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_mul_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_mul_s_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -393,7 +393,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_div, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_div, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -414,7 +414,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -436,7 +436,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_add, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_add, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -456,7 +456,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -478,7 +478,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_sub, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_sub, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -498,7 +498,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_sub_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_sub_sb_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -520,7 +520,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_mul, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_mul, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -540,7 +540,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_mul_s_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_mul_s_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -562,7 +562,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_div, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_div, std::cref(&this->storage_space[i]), std::cref(&alpha.storage_space[i]), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -582,7 +582,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::cref(&this->storage_space[i]), std::cref(alpha), std::cref(&this->storage_space[i]));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
@@ -683,7 +683,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         std::thread run_array[temp._real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < temp._real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::ref(&alpha.storage_space[i]), std::ref(&beta.storage_space[i]), std::ref(&temp.storage_space[i]));
+            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::cref(&alpha.storage_space[i]), std::cref(&beta.storage_space[i]), std::cref(&temp.storage_space[i]));
         }
         for (int i = 0; i < temp._real_shape / Basic_Math::vec_len; i++) {
             run_array[i].join();
