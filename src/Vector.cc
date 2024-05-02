@@ -390,36 +390,18 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_div_ps(vecA, vecB);
-                _mm_store_ps(&temp.storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_div_ps(vecA, vecB);
-                _mm256_store_ps(&temp.storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_div, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&temp.storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] = (this->storage_space[i] || alpha.storage_space[i]) && (!(this->storage_space[i] && alpha.storage_space[i]));
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] /= alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] / alpha.storage_space[i];
+#endif
         return temp;
     }
     /*operator/ value
@@ -429,36 +411,18 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator/(Data const& alpha) {
         Vector<Data> temp(*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_set1_ps(alpha);
-                vecC = _mm_div_ps(vecA, vecB);
-                _mm_store_ps(&temp.storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_set1_ps(alpha);
-                vecC = _mm256_div_ps(vecA, vecB);
-                _mm256_store_ps(&temp.storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&temp.storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] = (this->storage_space[i] || alpha) && (!(this->storage_space[i] && alpha));
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                temp.storage_space[i] /= alpha;
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] / alpha;
+#endif
         return temp;
     }
     /*operator+= vector
@@ -469,36 +433,18 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator+=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_add_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_add_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_add, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] || alpha.storage_space[i];
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] += alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] += alpha.storage_space[i];
+#endif
         return (*this);
     }
     /*operator+= value
@@ -507,36 +453,18 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator+=(Data const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_set1_ps(alpha);
-                vecC = _mm_add_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_set1_ps(alpha);
-                vecC = _mm256_add_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] || alpha;
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] += alpha;
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] += alpha;
+#endif
         return (*this);
     }
     /*operator-= vector
@@ -547,36 +475,18 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator-=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_sub_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_sub_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sub, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] && (!alpha.storage_space[i]);
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] -= alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] -= alpha.storage_space[i];
+#endif
         return (*this);
     }
     /*operator-= value
@@ -585,36 +495,18 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator-=(Data const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_set1_ps(alpha);
-                vecC = _mm_sub_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_set1_ps(alpha);
-                vecC = _mm256_sub_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sub_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] && (!alpha);
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] -= alpha;
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] -= alpha;
+#endif
         return (*this);
     }
     /*operator*= vector
@@ -625,36 +517,18 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator*=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_mul_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_mul_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_mul, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] && alpha.storage_space[i];
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] *= alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] *= alpha.storage_space[i];
+#endif
         return (*this);
     }
     /*operator*= value
@@ -663,36 +537,18 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator*=(Data const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_set1_ps(alpha);
-                vecC = _mm_mul_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_set1_ps(alpha);
-                vecC = _mm256_mul_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_mul_s_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = this->storage_space[i] && alpha;
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] *= alpha;
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] *= alpha;
+#endif
         return (*this);
     }
     /*operator/= vector
@@ -703,36 +559,18 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator/=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_div_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_div_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_div, std::ref(&this->storage_space[i]), std::ref(&alpha.storage_space[i]), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = (this->storage_space[i] || alpha.storage_space[i]) && (!(this->storage_space[i] && alpha.storage_space[i]));
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] /= alpha.storage_space[i];
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] /= alpha.storage_space[i];
+#endif
         return (*this);
     }
     /*operator/= value
@@ -741,36 +579,18 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator/=(Data const& alpha) {
-        if constexpr ((std::is_same_v < Data, float>) && (Basic_Math::SIMD_ON)) {
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < this->_real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&this->storage_space[i]);
-                vecB = _mm_set1_ps(alpha);
-                vecC = _mm_div_ps(vecA, vecB);
-                _mm_store_ps(&this->storage_space[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&this->storage_space[i]);
-                vecB = _mm256_set1_ps(alpha);
-                vecC = _mm256_div_ps(vecA, vecB);
-                _mm256_store_ps(&this->storage_space[i], vecC);
-#endif //_SIMD_01_
-            }
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_div_sb_, std::ref(&this->storage_space[i]), std::ref(alpha), std::ref(&this->storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] = (this->storage_space[i] || alpha) && (!(this->storage_space[i] && alpha));
-            }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
         }
-        else {
-            for (int i = 0; i < this->_shape; i++) {
-                this->storage_space[i] /= alpha;
-            }
-        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            this->storage_space[i] /= alpha;
+#endif
         return (*this);
     }
     /*freedom
@@ -780,18 +600,17 @@ namespace Linalg {
     template <typename Data>
     void Vector<Data>::freedom_() {
         this->_shape = 1;
-        if constexpr ((std::is_same_v<Data, float>) && Basic_Math::SIMD_ON) {
-            _mm_free(this->storage_space);
-            this->_real_shape = Basic_Math::vec_len;
-            this->storage_space = (Data*) _mm_malloc(Basic_Math::vec_len * sizeof(Data), 16);
-            for (int i = 0; i < this->_real_shape; i++)
-                this->storage_space[i] = static_cast<Data>(0);
-        }
-        else {
-            delete[] this->storage_space;
-            this->storage_space = new Data[1];
-            this->storage_space[0] = static_cast<Data>(0);
-        }
+#ifdef _THREAD_MODE_
+        this->_real_shape = Basic_Math::vec_len;
+        _mm_free(this->storage_space);
+        this->storage_space = (Data*) _mm_malloc(sizeof(Data) * this->_real_shape, 16);
+        for (int i = 0; i < this->_real_shape; i++)
+            this->storage_space[i] = 0;
+#else
+        delete[] this->storage_space;
+        this->storage_space = new Data[1];
+        this->storage_space[0] = 0;
+#endif
         return;
     }
     /*operator<<
@@ -860,40 +679,30 @@ namespace Linalg {
         if (beta._shape != alpha._shape)
             return static_cast<Data>(0);
         Data gamma = static_cast<Data>(0);
-        if constexpr ((std::is_same_v<Data, float>) && Basic_Math::SIMD_ON) {
-            Data* temp = (Data*) _mm_malloc(sizeof(Data) * beta._real_shape, 16);
-#ifdef _SIMD_01_
-            __m128 vecA, vecB, vecC;
-#else //_SIMD_02_
-            __m256 vecA, vecB, vecC;
-#endif //_SIMD_01_
-            for (int i = 0; i < beta._real_shape; i += Basic_Math::vec_len) {
-#ifdef _SIMD_01_
-                vecA = _mm_load_ps(&beta.storage_space[i]);
-                vecB = _mm_load_ps(&alpha.storage_space[i]);
-                vecC = _mm_mul_ps(vecA, vecB);
-                _mm_store_ps(&temp[i], vecC);
-#else //_SIMD_02_
-                vecA = _mm256_load_ps(&beta.storage_space[i]);
-                vecB = _mm256_load_ps(&alpha.storage_space[i]);
-                vecC = _mm256_mul_ps(vecA, vecB);
-                _mm256_store_ps(&temp[i], vecC);
-#endif //_SIMD_01_
-            }
-            for (int i = 0; i < beta._real_shape; i++)
-                gamma += temp[i];
-            _mm_free(temp);
+        Vector<Data> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[temp._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < temp._real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_add_s_, std::ref(&alpha.storage_space[i]), std::ref(&beta.storage_space[i]), std::ref(&temp.storage_space[i]));
         }
-        else if constexpr (std::is_same_v<Data, bool>) {
+        for (int i = 0; i < temp._real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha.storage_space[i] * beta.storage_space[i];
+        }
+#endif
+        if constexpr (std::is_same_v<Data, bool>) {
             int t = 0;
-            for (int i = 0; i < beta._shape; i++) {
-                t += (beta.storage_space[i] && alpha.storage_space[i]) ? 1 : -1;
+            for (int i = 0; i < temp._shape; i++) {
+                t += temp.storage_space[i] ? 1 : -1;
             }
-            gamma = (t > 0) ? true : false;
+            gamma = t > 0 ? 1 : 0;
         }
         else {
-            for (int i = 0; i < beta._shape; i++) {
-                gamma += beta.storage_space[i] * alpha.storage_space[i];
+            for (int i = 0; i < temp._shape; i++) {
+                gamma += temp.storage_space[i];
             }
         }
         return gamma;
