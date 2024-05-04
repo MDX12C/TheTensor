@@ -6,11 +6,16 @@ namespace Basic_Math {
     return the number*/
     template <typename Data>
     int Int_Digits(Data const& alpha) {
-        if (alpha < static_cast<Data>(0)) {
-            return (std::floor(std::log10(-alpha)) + 1);
+        if constexpr (std::is_same_v<Data, bool>) {
+            return 1;
         }
         else {
-            return (std::floor(std::log10(alpha)) + 1);
+            if (alpha < static_cast<Data>(0)) {
+                return (std::floor(std::log10(-alpha)) + 1);
+            }
+            else {
+                return (std::floor(std::log10(alpha)) + 1);
+            }
         }
     }
     /*random
@@ -69,6 +74,7 @@ namespace Basic_Math {
 }
 template int Basic_Math::Int_Digits(int const&);
 template int Basic_Math::Int_Digits(float const&);
+template int Basic_Math::Int_Digits(bool const&);
 template int Basic_Math::random(int const&, int const&);
 template float Basic_Math::random(float const&, float const&);
 template bool Basic_Math::random(bool const&, bool const&);
