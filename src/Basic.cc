@@ -24,9 +24,9 @@ namespace Basic_Math {
     return the number*/
     template <typename Data>
     Data random(Data const& alpha, Data const& beta) {
-        if (!set_seed) {
+        if (!static_cast<bool>(set_seed.load())) {
             std::srand(int(std::time(0)));
-            set_seed = true;
+            set_seed.store(true);
         }
         if constexpr (std::is_same_v<Data, int>) {
 #ifdef _DEBUG_MODE_

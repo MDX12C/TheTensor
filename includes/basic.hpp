@@ -64,13 +64,18 @@ namespace Basic_Math {
     constexpr float float_value_min = (-1) * float_value_max;
     constexpr int int_value_max = static_cast<int>(200);
     constexpr int int_value_min = (-1) * int_value_max;
-    static bool set_seed = false;
+    static std::atomic<bool> set_seed(false);
     template <typename Data>
     int Int_Digits(Data const&);
     template <typename Data>
     Data random(Data const&, Data const&);
     inline void status() {
-        std::cout << "\nset_seed:" << set_seed << '\n';
+        if (set_seed.load()) {
+            std::cout << "have set seed\n";
+        }
+        else {
+            std::cout << "no set seed\n";
+        }
 #ifdef _TREAD_MODE_
         std::cout << "_TREAD_MODE_\n";
 #endif

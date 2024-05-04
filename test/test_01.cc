@@ -14,6 +14,7 @@ signed main() {
   Linalg::Vector<float> beta = Basic_Math::random(size, Basic_Math::float_value_min, Basic_Math::float_value_max);
   show(alpha);
   show(beta);
+  Basic_Math::status();
   Linalg::Vector<float> gamma = alpha + beta;
   show(gamma);
   return 0;
