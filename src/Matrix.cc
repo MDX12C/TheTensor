@@ -18,14 +18,21 @@ namespace Linalg
         beta << std::noshowpos << "rows: " << alpha.rows << " lines: " << alpha.lines << '\n';
         return beta;
     }
-    /*belong
-    Enter: 1.coordinate 2.MaShape
-    check if the coordinate is in the MaShape
-    return true if it is*/
-    bool belongs(MaShape const& alpha, MaShape const& beta) {
-        if (alpha.lines < 0 || alpha.rows < 0)
-            return false;
-        return (alpha.lines < beta.lines) && (alpha.rows < beta.rows);
+    /*MaShape operator<
+    Enter: 1.MaShape 2.MaShape
+    compare two MaShape
+    return true if the first one is smaller than the second one */
+    bool operator<(MaShape const& alpha, MaShape const& beta)
+    {
+        return (alpha.lines < beta.lines) && (alpha.rows < beta.rows) && (alpha.lines > 0) && (alpha.rows > 0);
+    }
+    /*MaShape operator<=
+    Enter: 1.MaShape 2.MaShape
+    compare two MaShape
+    return true if the first one is smaller than or equal to the second one */
+    bool operator<=(MaShape const& alpha, MaShape const& beta)
+    {
+        return (alpha.lines <= beta.lines) && (alpha.rows <= beta.rows) && (alpha.lines > 0) && (alpha.rows > 0);
     }
     /*Constructor_Datas
     Enter 1.Matrix_shape 2.pointer to init datas
@@ -38,16 +45,13 @@ namespace Linalg
         if (this->_shape.rows <= 0 || this->_shape.lines <= 0) {
             this->_shape.lines = this->_shape.rows = this->_size = 1;
             this->storage_space = new Data[1];
-            this->_sum = static_cast<Data>(0);
             this->storage_space[0] = static_cast<Data>(0);
             return;
         }
-        this->_sum = static_cast<Data>(0);
         this->_size = this->_shape.lines * this->_shape.rows;
         this->storage_space = new Data[this->_size];
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] = alpha[i];
-            this->_sum += alpha[i];
         }
         return;
     }
@@ -61,7 +65,6 @@ namespace Linalg
         this->_shape.rows = alpha.rows > 0 ? alpha.rows : 1;
         this->_size = this->_shape.lines * this->_shape.rows;
         this->storage_space = new Data[this->_size];
-        this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = static_cast<Data>(0);
         return;
@@ -75,7 +78,6 @@ namespace Linalg
         this->_shape.rows = this->_shape.lines = this->_size = 1;
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
-        this->_sum = static_cast<Data>(0);
         return;
     }
     /*Copy constructor
@@ -86,7 +88,6 @@ namespace Linalg
     Matrix<Data>::Matrix(const Matrix& alpha) {
         this->_shape = alpha._shape;
         this->_size = alpha._size;
-        this->_sum = alpha._sum;
         this->storage_space = new Data[this->_size];
         for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = alpha.storage_space[i];
@@ -110,7 +111,7 @@ namespace Linalg
     template <typename Data>
     Data Matrix<Data>::operator[](MaShape const& alpha)
     {
-        if (belongs(alpha, this->_shape))
+        if (alpha < this->_shape)
             return this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
         return static_cast<Data>(0);
     }
@@ -127,7 +128,6 @@ namespace Linalg
             for (int j = 0; j < this->_shape.lines; j++)
                 temp.storage_space[j * temp._shape.lines + i] = this->storage_space[i * this->_shape.lines + j];
         }
-        temp._sum = this->_sum;
         return temp;
     }
     /*endow_
@@ -136,11 +136,9 @@ namespace Linalg
     return if endow is successful*/
     template <typename Data>
     bool Matrix<Data>::endow_(MaShape const& alpha, Data const& beta) {
-        if (!belongs(alpha, this->_shape)) {
+        if ((alpha < this->_shape)) {
             return false;
         }
-        this->_sum -= this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
-        this->_sum += this->storage_space[alpha.rows * this->_shape.lines + alpha.lines] = beta;
         return true;
     }
     /*flat
@@ -165,7 +163,6 @@ namespace Linalg
         this->_shape = beta;
         this->_size = beta.rows * beta.lines;
         this->storage_space = new Data[this->_size];
-        this->_sum = alpha._sum;
         for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = alpha.storage_space[i];
         return true;
@@ -179,7 +176,6 @@ namespace Linalg
     {
         this->_shape = alpha._shape;
         this->_size = alpha._size;
-        this->_sum = alpha._sum;
         if (storage_space != nullptr)
             delete[] storage_space;
         this->storage_space = new Data[this->_size];
@@ -198,7 +194,6 @@ namespace Linalg
             this->resize_(MaShape{ 1, 1 });
         for (int i = 0; i < this->_size; i++)
             this->storage_space[i] = alpha;
-        this->_sum = static_cast<Data>(this->_size) * alpha;
         return (*this);
     }
     /*operator+
@@ -214,7 +209,6 @@ namespace Linalg
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] += alpha.storage_space[i];
         }
-        temp._sum += alpha._sum;
         return temp;
     }
     /*operator+
@@ -228,7 +222,6 @@ namespace Linalg
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] += alpha;
         }
-        temp._sum += static_cast<Data>(temp._size) * alpha;
         return temp;
     }
     /*operator-
@@ -244,7 +237,6 @@ namespace Linalg
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] -= alpha.storage_space[i];
         }
-        temp._sum -= alpha._sum;
         return temp;
     }
     /*operator-
@@ -258,7 +250,6 @@ namespace Linalg
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] -= alpha;
         }
-        temp._sum -= static_cast<Data>(temp._size) * alpha;
         return temp;
     }
     /*operator*
@@ -271,10 +262,8 @@ namespace Linalg
         if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        temp._sum = static_cast<Data>(0);
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] *= alpha.storage_space[i];
-            temp._sum += temp.storage_space[i];
         }
         return temp;
     }
@@ -289,7 +278,6 @@ namespace Linalg
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] *= alpha;
         }
-        temp._sum *= alpha;
         return temp;
     }
     /*operator/
@@ -301,10 +289,8 @@ namespace Linalg
         if (!(this->_shape == alpha._shape))
             return *this;
         Matrix<Data> temp(*this);
-        temp._sum = static_cast<Data>(0);
         for (int i = 0; i < temp._size; i++) {
             temp.storage_space[i] /= alpha.storage_space[i];
-            temp._sum += temp.storage_space[i];
         }
         return temp;
     }
@@ -320,7 +306,6 @@ namespace Linalg
         {
             temp.storage_space[i] /= alpha;
         }
-        temp._sum /= alpha;
         return temp;
     }
     /*operator+=
@@ -334,7 +319,6 @@ namespace Linalg
         for (int i = 0; i < alpha._size; i++) {
             this->storage_space[i] += alpha.storage_space[i];
         }
-        this->_sum += alpha._sum;
         return (*this);
     }
     /*operator+=
@@ -346,7 +330,6 @@ namespace Linalg
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] += alpha;
         }
-        this->_sum += static_cast<Data>(this->_size) * alpha;
         return (*this);
     }
     /*operator-=
@@ -360,7 +343,6 @@ namespace Linalg
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] -= alpha.storage_space[i];
         }
-        this->_sum -= alpha._sum;
         return (*this);
     }
     /*operator-=
@@ -372,7 +354,6 @@ namespace Linalg
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] -= alpha;
         }
-        this->_sum -= static_cast<Data>(this->_size) * alpha;
         return (*this);
     }
     /*operator*=
@@ -383,10 +364,8 @@ namespace Linalg
     Matrix<Data> Matrix<Data>::operator*=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
             return (*this);
-        this->_sum = static_cast<Data>(0);
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] *= alpha.storage_space[i];
-            this->_sum += this->storage_space[i];
         }
         return (*this);
     }
@@ -399,7 +378,6 @@ namespace Linalg
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] *= alpha;
         }
-        this->_sum *= alpha;
         return (*this);
     }
     /*operator/=
@@ -412,7 +390,6 @@ namespace Linalg
             return (*this);
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] /= alpha.storage_space[i];
-            this->_sum += this->storage_space[i];
         }
         return (*this);
     }
@@ -425,7 +402,6 @@ namespace Linalg
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] /= alpha;
         }
-        this->_sum /= alpha;
         return (*this);
     }
     /*resize
@@ -443,13 +419,11 @@ namespace Linalg
         delete[] this->storage_space;
         this->_shape = alpha;
         this->_size = this->_shape.rows * this->_shape.lines;
-        this->_sum = value;
         this->storage_space = new Data[this->_size];
         for (beta.rows = 0; beta.rows < this->_shape.rows; beta.rows++) {
             for (beta.lines = 0; beta.lines < this->_shape.lines; beta.lines++) {
-                if (Linalg::belongs(beta, temp._shape)) {
+                if (beta < temp._shape) {
                     this->storage_space[this->_shape.lines * beta.rows + beta.lines] = temp[beta];
-                    this->_sum += this->storage_space[this->_shape.lines * beta.rows + beta.lines];
                 }
                 else {
                     this->storage_space[this->_shape.lines * beta.rows + beta.lines] = value;
@@ -484,7 +458,6 @@ namespace Linalg
         this->storage_space = new Data[1];
         this->storage_space[0] = static_cast<Data>(0);
         this->_size = 1;
-        this->_sum = static_cast<Data>(0);
         return;
     }
 
@@ -505,7 +478,6 @@ namespace Linalg
             {
                 for (int l = 0; l < n; l++) {
                     temp.storage_space[i * temp._shape.lines + j] += beta.storage_space[i * beta._shape.lines + l] * alpha.storage_space[l * alpha._shape.lines + j];
-                    temp._sum += temp.storage_space[i * temp._shape.lines + j];
                 }
             }
         }
@@ -522,7 +494,7 @@ namespace Linalg
         for (int gamma = 0; gamma < alpha._size; gamma++) {
             digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
         }
-        beta << alpha._shape << "size: " << alpha._size << " sum: " << alpha._sum << '\n';
+        beta << alpha._shape << "size: " << alpha._size << '\n';
         for (int i = 0; i < alpha._shape.rows; i++)
         {
             for (int j = 0; j < alpha._shape.lines; j++)
@@ -552,7 +524,6 @@ namespace Linalg
         for (int theta = 0; theta < beta._shape; theta++) {
             alpha.storage_space[alpha._shape.lines * theta + gamma] = beta.storage_space[theta];
         }
-        alpha._sum += beta._sum;
         return;
     }
     /*Add Row
@@ -568,7 +539,6 @@ namespace Linalg
         for (int theta = 0; theta < beta._shape; theta++) {
             alpha.storage_space[alpha._shape.lines * gamma + theta] = beta.storage_space[theta];
         }
-        alpha._sum += beta._sum;
         return;
     }
 }

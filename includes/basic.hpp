@@ -12,6 +12,7 @@
 #include<ctime>
 #include<climits>
 #include<utility>
+#include<type_traits>
 #ifdef _SIMD_MODE_
 #define _THREAD_MODE_
 #endif //_SIMD_MODE_
@@ -23,7 +24,6 @@
 #include<functional>
 #endif //_THREAD_MODE_
 #ifdef _SIMD_MODE_
-#include<type_traits>
 #include<immintrin.h>
 #include<x86intrin.h>
 #ifdef _AVX02_WILL_BE_USED_ON_
@@ -60,33 +60,43 @@ namespace Basic_Math {
     constexpr bool THREAD_ON = false;
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
+#ifdef _THREAD_MODE_
+    constexpr int align_size = 16;
+#endif //_THREAD_MODE_
     constexpr float float_value_max = static_cast<float>(200);
     constexpr float float_value_min = (-1) * float_value_max;
     constexpr int int_value_max = static_cast<int>(200);
     constexpr int int_value_min = (-1) * int_value_max;
-    static std::atomic<bool> set_seed(false);
+    extern std::atomic<bool> set_seed;
+    extern std::atomic<unsigned long long> memory_heap;
     template <typename Data>
     int Int_Digits(Data const&);
     template <typename Data>
     Data random(Data const&, Data const&);
     inline void status() {
+        std::cout << '\n';
+        for (int i = 0; i < terminal_width; i++) std::cout << "-";
+        std::cout << '\n';
         if (set_seed.load()) {
             std::cout << "have set seed\n";
         }
         else {
             std::cout << "no set seed\n";
         }
-#ifdef _TREAD_MODE_
-        std::cout << "_TREAD_MODE_\n";
+#ifdef _THREAD_MODE_
+        std::cout << "_TREAD_MODE_\nalign_size: " << std::noshowpos << align_size << '\n';
 #endif
         if (SIMD_ON) {
             std::cout << "_SIMD_MODE_";
 #ifdef _SIMD_01_
-            std::cout << "01_\n\n";
+            std::cout << "01_\n";
 #else 
-            std::cout << "02_\n\n";
+            std::cout << "02_\n";
 #endif
         }
+        std::cout<<"memory heap: " << std::noshowpos << memory_heap.load() << '\n';
+        for (int i = 0; i < terminal_width; i++) std::cout << "-";
+        std::cout << "\n\n";
         return;
     }
 #ifdef _THREAD_MODE_
@@ -309,7 +319,8 @@ namespace Linalg {
         int lines = 1;
     } MaShape;
     bool operator==(MaShape const&, MaShape const&);
-    bool belongs(MaShape const&, MaShape const&);
+    bool operator<(MaShape const&, MaShape const&);
+    bool operator<=(MaShape const&, MaShape const&);
     std::ostream& operator<<(std::ostream&, MaShape const&);
     template <typename Data>
     class Vector;

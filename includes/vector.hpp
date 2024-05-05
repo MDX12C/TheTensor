@@ -18,6 +18,14 @@ namespace Linalg
         friend void AddLine_(Matrix<T>&, Vector<T> const&);
         template <typename T>
         friend void AddRow_(Matrix<T>&, Vector<T> const&);
+        template <typename op_pls>
+        Vector<op_pls> friend operator+(op_pls const&, Vector<op_pls> const&);
+        template <typename op_mns>
+        Vector<op_mns> friend operator-(op_mns const&, Vector<op_mns> const&);
+        template <typename op_mul>
+        Vector<op_mul> friend operator*(op_mul const&, Vector<op_mul> const&);
+        template <typename op_div>
+        Vector<op_div> friend operator/(op_div const&, Vector<op_div> const&);
         friend class Linalg::Matrix<Data>;
         friend class Linalg::Tensor<Data>;
     public:
@@ -55,6 +63,14 @@ namespace Linalg
     std::ostream& operator<<(std::ostream&, Vector<Data> const&);
     template <typename Data>
     Data dot(Vector<Data> const&, Vector<Data> const&);
+    template <typename op_pls>
+    Vector<op_pls> operator+(op_pls const&, Vector<op_pls> const&);
+    template <typename op_mns>
+    Vector<op_mns> operator-(op_mns const&, Vector<op_mns> const&);
+    template <typename op_mul>
+    Vector<op_mul> operator*(op_mul const&, Vector<op_mul> const&);
+    template <typename op_div>
+    Vector<op_div> operator/(op_div const&, Vector<op_div> const&);
 }
 namespace Basic_Math {
     template <typename Data>
