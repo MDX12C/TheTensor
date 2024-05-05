@@ -26,6 +26,18 @@ namespace Linalg
         Vector<op_mul> friend operator*(op_mul const&, Vector<op_mul> const&);
         template <typename op_div>
         Vector<op_div> friend operator/(op_div const&, Vector<op_div> const&);
+        template <typename T>
+        friend Vector<bool> operator==(T const&, Vector<T> const&);
+        template <typename T>
+        friend Vector<bool> operator!=(T const&, Vector<T> const&);
+        template <typename T>
+        friend Vector<bool> operator>(T const&, Vector<T> const&);
+        template <typename T>
+        friend Vector<bool> operator<(T const&, Vector<T> const&);
+        template <typename T>
+        friend Vector<bool> operator>=(T const&, Vector<T> const&);
+        template <typename T>
+        friend Vector<bool> operator<=(T const&, Vector<T> const&);
         friend class Linalg::Matrix<Data>;
         friend class Linalg::Tensor<Data>;
     public:
@@ -41,23 +53,35 @@ namespace Linalg
         bool resize_(int const&);
         Data& operator[](int const&);
         Vector operator=(Vector const&);
-        Vector operator=(Data const&);
         Vector operator+=(Vector const&);
-        Vector operator+=(Data const&);
         Vector operator-=(Vector const&);
-        Vector operator-=(Data const&);
         Vector operator*=(Vector const&);
-        Vector operator*=(Data const&);
         Vector operator/=(Vector const&);
-        Vector operator/=(Data const&);
         Vector operator+(Vector const&);
-        Vector operator+(Data const&);
         Vector operator-(Vector const&);
-        Vector operator-(Data const&);
         Vector operator*(Vector const&);
-        Vector operator*(Data const&);
         Vector operator/(Vector const&);
+        Vector operator=(Data const&);
+        Vector operator+=(Data const&);
+        Vector operator-=(Data const&);
+        Vector operator*=(Data const&);
+        Vector operator/=(Data const&);
+        Vector operator+(Data const&);
+        Vector operator-(Data const&);
+        Vector operator*(Data const&);
         Vector operator/(Data const&);
+        Vector<bool> operator==(Vector const&);
+        Vector<bool> operator<(Vector const&);
+        Vector<bool> operator<=(Vector const&);
+        Vector<bool> operator>(Vector const&);
+        Vector<bool> operator>=(Vector const&);
+        Vector<bool> operator!=(Vector const&);
+        Vector<bool> operator==(Data const&);
+        Vector<bool> operator<(Data const&);
+        Vector<bool> operator<=(Data const&);
+        Vector<bool> operator>(Data const&);
+        Vector<bool> operator>=(Data const&);
+        Vector<bool> operator!=(Data const&);
     };
     template <typename Data>
     std::ostream& operator<<(std::ostream&, Vector<Data> const&);
@@ -71,6 +95,18 @@ namespace Linalg
     Vector<op_mul> operator*(op_mul const&, Vector<op_mul> const&);
     template <typename op_div>
     Vector<op_div> operator/(op_div const&, Vector<op_div> const&);
+    template <typename Data>
+    Vector<bool> operator==(Data const&, Vector<Data> const&);
+    template <typename Data>
+    Vector<bool> operator<(Data const&, Vector<Data> const&);
+    template <typename Data>
+    Vector<bool> operator<=(Data const&, Vector<Data> const&);
+    template <typename Data>
+    Vector<bool> operator>(Data const&, Vector<Data> const&);
+    template <typename Data>
+    Vector<bool> operator>=(Data const&, Vector<Data> const&);
+    template <typename Data>
+    Vector<bool> operator!=(Data const&, Vector<Data> const&);
 }
 namespace Basic_Math {
     template <typename Data>

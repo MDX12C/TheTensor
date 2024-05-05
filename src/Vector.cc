@@ -755,6 +755,90 @@ namespace Linalg {
 #endif
         return;
     }
+    /*operator==
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator==(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_eq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] == alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator== value back
+    Enter: 1.Vector 2.value
+    compare the value with every element in the vector
+    return the bool Vector meaning equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator==(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_eq_s<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] == alpha;
+#endif
+        return temp;
+    }
+    /*operator==
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning unequal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator!=(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_ne_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] != alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator== value back
+    Enter: 1.Vector 2.value
+    compare each element in the vector and the value
+    return the bool Vector meaning unequal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator!=(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_ne_s<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else 
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] != alpha;
+#endif
+        return temp;
+    }
     /*operator<<
     Enter: 1.ostream 2.vector
     print every element in the vector
@@ -1004,3 +1088,4 @@ template Linalg::Vector<float> Linalg::operator*(float const&, Linalg::Vector<fl
 template Linalg::Vector<bool> Linalg::operator*(bool const&, Linalg::Vector<bool> const&);
 template Linalg::Vector<int> Linalg::operator/(int const&, Linalg::Vector<int> const&);
 template Linalg::Vector<float> Linalg::operator/(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator/(bool const&, Linalg::Vector<bool> const&);
