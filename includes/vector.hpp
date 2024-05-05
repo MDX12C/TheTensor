@@ -1,6 +1,12 @@
 ﻿#ifndef VECTOR_H
 #define VECTOR_H
 #include"./basic.hpp"
+namespace Basic_Math {
+    template <typename Data>
+    Linalg::Vector<Data> random(int const&, Data const&, Data const&);
+    template <typename Data>
+    Linalg::Vector<Data> absolute(Linalg::Vector<Data> const&);
+}
 namespace Linalg
 {
     template <typename Data>
@@ -40,6 +46,12 @@ namespace Linalg
         friend Vector<bool> operator<=(T const&, Vector<T> const&);
         friend class Linalg::Matrix<Data>;
         friend class Linalg::Tensor<Data>;
+        template <typename T>
+        friend class Linalg::Vector;
+        template <typename T>
+        friend Vector<T> Basic_Math::random(int const&, T const&, T const&);
+        template <typename T>
+        friend Vector<T> Basic_Math::absolute(Vector<T> const&);
     public:
         Vector(int const&, Data* const&);
         Vector(int const&);
@@ -107,9 +119,5 @@ namespace Linalg
     Vector<bool> operator>=(Data const&, Vector<Data> const&);
     template <typename Data>
     Vector<bool> operator!=(Data const&, Vector<Data> const&);
-}
-namespace Basic_Math {
-    template <typename Data>
-    Linalg::Vector<Data> random(int const&, Data const&, Data const&);
 }
 #endif //BASIC_H

@@ -236,7 +236,7 @@ namespace Linalg {
             return this->storage_space[0];
         return this->storage_space[alpha];
     }
-    /*operator= Vector
+    /*operator=
     Enter: 1.vector 2.vector
     copy the second vector into the first one
     return this*/
@@ -278,7 +278,7 @@ namespace Linalg {
             this->storage_space[i] = alpha;
         return (*this);
     }
-    /*operator+ Vector
+    /*operator+
     Enter: 1.vector 2.vector
     add the two vector
     return the result*/
@@ -308,7 +308,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator+ value
+    /*operator+ value back
     Enter: 1.vector 2.value
     add the vector and the value
     return the result*/
@@ -336,7 +336,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator- Vector
+    /*operator-
     Enter: 1.vector 2.vector
     subtract the first vector from the second
     return the result*/
@@ -366,7 +366,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator- vlaue
+    /*operator- vlaue back
     Enter: 1.vector 2.value
     subtract the value from the vector
     return the result*/
@@ -391,7 +391,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator* Vector
+    /*operator*
     Enter: 1.vector 2.vector
     multiply every element in the two vector
     return the result*/
@@ -421,7 +421,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator* value
+    /*operator* value back
     Enter: 1.vector 2.value
     multiply every element in the vector and the value
     return the result*/
@@ -449,7 +449,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator/ Vector
+    /*operator/
     Enter: 1.vector 2.vector
     divide every element in the first vector by the second vector
     return the result*/
@@ -479,7 +479,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator/ value
+    /*operator/ value back
     Enter: 1.vector 2.value
     divide every element in the vector by the value
     return the result*/
@@ -507,7 +507,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator+= vector
+    /*operator+=
     Enter: 1.vector 2.vector
     add the second vector into the first one
     return this*/
@@ -563,7 +563,7 @@ namespace Linalg {
 #endif
         return (*this);
     }
-    /*operator-= vector
+    /*operator-=
     Enter: 1.vector 2.vector
     subtract the second vector from the first one
     return this*/
@@ -619,7 +619,7 @@ namespace Linalg {
 #endif
         return (*this);
     }
-    /*operator*= vector
+    /*operator*=
     Enter: 1.vector 2.vector
     multiply every element in the second vector into the first one
     return this*/
@@ -675,7 +675,7 @@ namespace Linalg {
 #endif
         return (*this);
     }
-    /*operator/= vector
+    /*operator/=
     Enter: 1.vector 2.vector
     divide every element in the first vector by the second vector
     return this*/
@@ -839,6 +839,174 @@ namespace Linalg {
 #endif
         return temp;
     }
+    /*operator>
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning larger*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator>(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_bg_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] > alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator> value back
+    Enter: 1.Vector 2.value
+    compare each element in the vector and the value
+    return the bool Vector meaning larger*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator>(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_bg_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] > alpha;
+#endif
+        return temp;
+    }
+    /*operator>=
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning larger or equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator>=(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_bq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] >= alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator>= value back
+    Enter: 1.Vector 2.value
+    compare each element in the vector and the value
+    return the bool Vector meaning larger or equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator>=(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_bq_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] >= alpha;
+#endif
+        return temp;
+    }
+    /*operator<
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning smaller*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator<(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sm_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] < alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator< value back
+    Enter: 1.Vector 2.value
+    compare each element in the vector and the value
+    return the bool Vector meaning smaller*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator<(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sm_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] < alpha;
+#endif
+        return temp;
+    }
+    /*operator<=
+    Enter: 1.Vector 2.Vector
+    compare each element in two vector
+    return the bool Vector meaning smaller or equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator<=(Vector<Data> const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_ 
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] <= alpha.storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator<= value back
+    Enter: 1.Vector 2.value
+    compare each element in the vector and the value
+    return the bool Vector meaning smaller or equal*/
+    template <typename Data>
+    Vector<bool> Vector<Data>::operator<=(Data const& alpha) {
+        Vector<bool> temp(this->_shape);
+#ifdef _THREAD_MODE_
+        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_sq_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_array[i].join();
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = this->storage_space[i] <= alpha;
+#endif
+        return temp;
+    }
     /*operator<<
     Enter: 1.ostream 2.vector
     print every element in the vector
@@ -933,7 +1101,7 @@ namespace Linalg {
         }
         return gamma;
     }
-    /*operator+
+    /*operator+ value front
     Enter: 1.value 2.Vector
     add the value into the vector
     return the answer vector*/
@@ -962,7 +1130,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator-
+    /*operator- value front
     Enter: 1.value 2.Vector
     minus the Vector from the value
     return the answer vector*/
@@ -991,7 +1159,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator*
+    /*operator* value front
     Enter: 1.value 2.Vector
     mutiply the value and the Vector
     return the answer vector*/
@@ -1020,7 +1188,7 @@ namespace Linalg {
 #endif
         return temp;
     }
-    /*operator/
+    /*operator/ value front
     Enter: 1.value 2.Vector
     divide the Vector from the value
     return the answer vector*/
@@ -1049,8 +1217,139 @@ namespace Linalg {
 #endif
         return temp;
     }
+    /*operator== value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning equal*/
+    template <typename Data>
+    Vector<bool> operator==(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_eq_s<Data>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha == beta.storage_space[i];
+        }
+#endif
+        return temp;
+    }
+    /*operator!= value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning unequal*/
+    template <typename Data>
+    Vector<bool> operator!=(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_ne_s<Data>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha != beta.storage_space[i];
+        }
+#endif 
+        return temp;
+    }
+    /*operator> value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning greater*/
+    template <typename Data>
+    Vector<bool> operator>(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_bg_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha > beta.storage_space[i];
+        }
+#endif 
+        return temp;
+    }
+    /*operator>= value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning greater or equal*/
+    template <typename Data>
+    Vector<bool> operator>=(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_bq_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha >= beta.storage_space[i];
+        }
+#endif
+        return temp;
+    }
+    /*operator< value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning less*/
+    template <typename Data>
+    Vector<bool> operator<(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_sm_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha < beta.storage_space[i];
+        }
+#endif
+        return temp;
+    }
+    /*operator<= value front
+    Enter: 1.value 2.Vector
+    compare each element in the vector and the value
+    return the answer vector meaning less or equal*/
+    template <typename Data>
+    Vector<bool> operator<=(Data const& alpha, Vector<Data> const& beta) {
+        Vector<bool> temp(beta._shape);
+#ifdef _THREAD_MODE_
+        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_sq_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+        }
+        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            temp.storage_space[i] = alpha <= beta.storage_space[i];
+        }
+#endif
+        return temp;
+    }
 }
-
 namespace Basic_Math {
     /*random Vector
     Enter: 1.Vector size 2.min value 3.max value
@@ -1060,9 +1359,26 @@ namespace Basic_Math {
     Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
         Linalg::Vector<Data> temp(gamma);
         for (int i = 0; i < gamma; i++) {
-            temp[i] = Basic_Math::random(alpha, beta);
+            temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
         return temp;
+    }
+    /*absolute
+    Enter: 1.Vector
+    check each element in the vector
+    return the vector with the absolute value*/
+    template <typename Data>
+    Linalg::Vector<Data> absolute(Linalg::Vector<Data> const& alpha) {
+        Linalg::Vector<Data> temp(alpha._shape);
+        if constexpr (std::is_same_v<Data, bool>) {
+            return temp;
+        }
+        else {
+            for (int i = 0; i < temp._shape; i++) {
+                temp.storage_space[i] = std::abs(alpha.storage_space[i]);
+            }
+            return temp;
+        }
     }
 }
 template class Linalg::Vector<int>;
@@ -1089,3 +1405,24 @@ template Linalg::Vector<bool> Linalg::operator*(bool const&, Linalg::Vector<bool
 template Linalg::Vector<int> Linalg::operator/(int const&, Linalg::Vector<int> const&);
 template Linalg::Vector<float> Linalg::operator/(float const&, Linalg::Vector<float> const&);
 template Linalg::Vector<bool> Linalg::operator/(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator==(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator==(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator==(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator!=(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator!=(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator!=(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator<=(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator<=(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator<=(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator>=(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator>=(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator>=(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator>(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator>(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator>(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<bool> Linalg::operator<(int const&, Linalg::Vector<int> const&);
+template Linalg::Vector<bool> Linalg::operator<(float const&, Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Linalg::operator<(bool const&, Linalg::Vector<bool> const&);
+template Linalg::Vector<int> Basic_Math::absolute(Linalg::Vector<int> const&);
+template Linalg::Vector<float> Basic_Math::absolute(Linalg::Vector<float> const&);
+template Linalg::Vector<bool> Basic_Math::absolute(Linalg::Vector<bool> const&);

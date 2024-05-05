@@ -10,12 +10,10 @@ namespace bsm = Basic_Math;
 signed main() {
   Basic_Math::status();
   const int size = 20;
-  float beta = 2;
   Linalg::Vector<float> alpha = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
   show(alpha);
-  show(beta);
   Basic_Math::status();
-  Linalg::Vector<float> gamma = beta / alpha;
+  Linalg::Vector<float> gamma = bsm::absolute(alpha);
   Basic_Math::status();
   show(gamma);
   return 0;
