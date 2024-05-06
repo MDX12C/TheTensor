@@ -319,7 +319,7 @@ namespace Basic_Math {
     }
     template <typename Data>
     inline void tuple_eq_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] == beta;
         }
         return;
@@ -333,91 +333,91 @@ namespace Basic_Math {
     }
     template <typename Data>
     inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] != beta;
         }
         return;
     }
     template <typename Data>
     inline void tuple_bg_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] > beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_bg_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] > beta;
         }
         return;
     }
     template <typename Data>
     inline void tuple_bg_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha > beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_bq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] >= beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_bq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] >= beta;
         }
         return;
     }
     template <typename Data>
     inline void tuple_bq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha >= beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_sm_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] < beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_sm_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] < beta;
         }
         return;
     }
     template <typename Data>
     inline void tuple_sm_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha < beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_sq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] <= beta[i];
         }
         return;
     }
     template <typename Data>
     inline void tuple_sq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha[i] <= beta;
         }
         return;
     }
     template <typename Data>
     inline void tuple_sq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for(int i = 0; i < vec_len; i++) {
+        for (int i = 0; i < vec_len; i++) {
             gamma[i] = alpha <= beta[i];
         }
         return;
