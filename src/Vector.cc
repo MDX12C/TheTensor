@@ -1369,14 +1369,29 @@ namespace Basic_Math {
     return the vector with the absolute value*/
     template <typename Data>
     Linalg::Vector<Data> absolute(Linalg::Vector<Data> const& alpha) {
-        Linalg::Vector<Data> temp(alpha._shape);
+        Linalg::Vector<Data> temp(alpha);
         if constexpr (std::is_same_v<Data, bool>) {
             return temp;
         }
         else {
-            for (int i = 0; i < temp._shape; i++) {
-                temp.storage_space[i] = std::abs(alpha.storage_space[i]);
+#ifdef _THREAD_MODE_
+            std::thread run_arry[alpha._real_shape / Basic_Math::vec_len];
+            for (int i = 0, j = 0; i < alpha._real_shape; i += Basic_Math::vec_len, j++) {
+                run_arry[j] = std::thread(Basic_Math::tuple_abs, &alpha.storage_space[i], &temp.storage_space[i]);
             }
+            for (int i = 0; i < alpha._real_shape / Basic_Math::vec_len; i++) {
+                run_arry[i].join();
+            }
+#else
+            for (int i = 0; i < alpha._shape; i++) {
+                if constexpr (std::is_same_v<Data, int>) {
+                    temp._storage_space[i] = std::abs(alpha._storage_space[i]);
+                }
+                else {
+                    temp._storage_space[i] = std::fabs(alpha._storage_space[i]);
+                }
+            }
+#endif
             return temp;
         }
     }
