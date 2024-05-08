@@ -1,9 +1,9 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
-//#define _DEBUG_MODE_
+#define _DEBUG_MODE_
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
-//#define _AVX02_WILL_BE_USED_ON_
+#define _AVX02_WILL_BE_USED_ON_
 #include<iostream>
 #include<iomanip>
 #include<cfloat>
@@ -61,7 +61,13 @@ namespace Basic_Math {
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
+#if defined(_SIMD_01_)
     constexpr int align_size = 16;
+#elif defined(_SIMD_02_)
+    constexpr int align_size = 8;
+#else 
+    constexpr int align_size = 16;
+#endif
 #endif //_THREAD_MODE_
     constexpr float float_value_max = static_cast<float>(200);
     constexpr float float_value_min = (-1) * float_value_max;
@@ -100,6 +106,9 @@ namespace Basic_Math {
         return;
     }
 #ifdef _THREAD_MODE_
+    inline int size_check(int const& alpha) {
+        int gamma = alpha / vec_len; gamma += (alpha % vec_len) ? 1 : 0; gamma *= vec_len; return gamma;
+    }
     template <typename Data>
     inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
         if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -204,12 +213,12 @@ namespace Basic_Math {
         }
         else if constexpr (std::is_same_v<Data, bool>) {
 #if defined(_SIMD_01_)
-            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
+            gamma[0] = alpha[0] || (!beta); gamma[1] = alpha[1] || (!beta); gamma[2] = alpha[2] || (!beta); gamma[3] = alpha[3] || (!beta);
 #elif defined(_SIMD_02_)
-            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
-            gamma[4] = alpha[4] || (!beta[4]); gamma[5] = alpha[5] || (!beta[5]); gamma[6] = alpha[6] || (!beta[6]); gamma[7] = alpha[7] || (!beta[7]);
+            gamma[0] = alpha[0] || (!beta); gamma[1] = alpha[1] || (!beta); gamma[2] = alpha[2] || (!beta); gamma[3] = alpha[3] || (!beta);
+            gamma[4] = alpha[4] || (!beta); gamma[5] = alpha[5] || (!beta); gamma[6] = alpha[6] || (!beta); gamma[7] = alpha[7] || (!beta);
 #else
-            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]);
+            gamma[0] = alpha[0] || (!beta); gamma[1] = alpha[1] || (!beta); gamma[2] = alpha[2] || (!beta);
 #endif
         }
         else {
@@ -615,7 +624,7 @@ namespace Basic_Math {
         return;
     }
     template <typename Data>
-    inline void tuple_abs(Data const& alpha, Data const& gamma) {
+    inline void tuple_abs(Data* const& alpha, Data* const& gamma) {
         if constexpr (std::is_same_v<Data, float>) {
 #if defined(_SIMD_01_)
             gamma[0] = std::fabs(alpha[0]); gamma[1] = std::fabs(alpha[1]); gamma[2] = std::fabs(alpha[2]); gamma[3] = std::fabs(alpha[3]);
@@ -666,6 +675,9 @@ namespace Basic_Math {
     }
     template <typename Data>
     inline void tuple_set(Data const& alpha, Data* const& gamma) {
+#ifdef _DEBUG_MODE_
+        std::cout << "~tuple set~\n";
+#endif
 #if defined(_SIMD_01_)
         if constexpr (std::is_same_v<Data, float>) {
             _mm_store_ps(gamma, _mm_set1_ps(alpha));
@@ -675,17 +687,23 @@ namespace Basic_Math {
         }
 #elif defined(_SIMD_02_)
         if constexpr (std::is_same_v<Data, float>) {
+#ifdef _DEBUG_MODE_
+            __m256 vecA; std::cout << "~vec declare~\n";
+            vecA = _mm256_set1_ps(alpha); std::cout << "~set vec~\n";
+            _mm256_store_ps(gamma, vecA); std::cout << "~store vec~\n";
+#else
             _mm256_store_ps(gamma, _mm256_set1_ps(alpha));
+#endif
         }
         else {
             gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha; gamma[3] = alpha;
             gamma[4] = alpha; gamma[5] = alpha; gamma[6] = alpha; gamma[7] = alpha;
-    }
+        }
 #else
         gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha;
 #endif
         return;
-}
+    }
     template <typename Data>
     inline void tuple_load(Data* const& alpha, Data* const& gamma) {
 #if defined(_SIMD_01_)
@@ -702,7 +720,7 @@ namespace Basic_Math {
         else {
             gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
             gamma[4] = alpha[4]; gamma[5] = alpha[5]; gamma[6] = alpha[6]; gamma[7] = alpha[7];
-    }
+        }
 #else
         gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2];
 #endif
