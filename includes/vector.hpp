@@ -63,6 +63,7 @@ namespace Linalg
         void freedom_();
         bool endow_(int const&, Data const&);
         bool resize_(int const&);
+        bool load_(int const&, Data* const&);
         Data& operator[](int const&);
         Vector operator=(Vector const&);
         Vector operator+=(Vector const&);

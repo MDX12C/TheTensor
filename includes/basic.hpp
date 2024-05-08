@@ -649,6 +649,22 @@ namespace Basic_Math {
         return;
     }
     template <typename Data>
+    inline void tuple_rand(Data* const& gamma, Data const& alpha, Data const& beta) {
+#if defined(_SIMD_01_)
+        gamma[0] = Basic_Math::random(alpha, beta); gamma[1] = Basic_Math::random(alpha, beta);
+        gamma[2] = Basic_Math::random(alpha, beta); gamma[3] = Basic_Math::random(alpha, beta);
+#elif defined(_SIMD_02_)
+        gamma[0] = Basic_Math::random(alpha, beta); gamma[1] = Basic_Math::random(alpha, beta);
+        gamma[2] = Basic_Math::random(alpha, beta); gamma[3] = Basic_Math::random(alpha, beta);
+        gamma[4] = Basic_Math::random(alpha, beta); gamma[5] = Basic_Math::random(alpha, beta);
+        gamma[6] = Basic_Math::random(alpha, beta); gamma[7] = Basic_Math::random(alpha, beta);
+#else
+        gamma[0] = Basic_Math::random(alpha, beta); gamma[1] = Basic_Math::random(alpha, beta);
+        gamma[2] = Basic_Math::random(alpha, beta);
+#endif
+        return;
+    }
+    template <typename Data>
     inline void tuple_set(Data const& alpha, Data* const& gamma) {
 #if defined(_SIMD_01_)
         if constexpr (std::is_same_v<Data, float>) {
@@ -664,12 +680,12 @@ namespace Basic_Math {
         else {
             gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha; gamma[3] = alpha;
             gamma[4] = alpha; gamma[5] = alpha; gamma[6] = alpha; gamma[7] = alpha;
-        }
+    }
 #else
         gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha;
 #endif
         return;
-    }
+}
     template <typename Data>
     inline void tuple_load(Data* const& alpha, Data* const& gamma) {
 #if defined(_SIMD_01_)
@@ -686,7 +702,7 @@ namespace Basic_Math {
         else {
             gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
             gamma[4] = alpha[4]; gamma[5] = alpha[5]; gamma[6] = alpha[6]; gamma[7] = alpha[7];
-        }
+    }
 #else
         gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2];
 #endif

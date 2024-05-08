@@ -13,9 +13,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            for (int i = 0; i < this->_real_shape; i++) {
-                this->storage_space[i] = static_cast<Data>(0);
-            }
+            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -30,11 +28,19 @@ namespace Linalg {
         this->_real_shape *= Basic_Math::vec_len;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        for (int i = 0; i < this->_shape; i++) {
-            this->storage_space[i] = beta[i];
+        int run_num = (this->_real_shape / Basic_Math::vec_len) - 1;
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &beta[i], &this->storage_space[i]);
         }
-        for (int j = this->_shape; j < this->_real_shape; j++) {
-            this->storage_space[j] = static_cast<Data>(0);
+        for (int i = 0; i < run_num; i++) {
+            run_arry[i].join();
+        }
+        for (int j = this->_real_shape - Basic_Math::vec_len; j < this->_real_shape; j++) {
+            if (j < this->_shape)
+                this->storage_space[j] = beta[j];
+            else
+                this->storage_space[j] = static_cast<Data>(0);
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -57,9 +63,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            for (int i = 0; i < this->_real_shape; i++) {
-                this->storage_space[i] = static_cast<Data>(0);
-            }
+            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -74,8 +78,13 @@ namespace Linalg {
         this->_real_shape *= Basic_Math::vec_len;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        for (int i = 0; i < this->_real_shape; i++)
-            this->storage_space[i] = static_cast<Data>(0);
+        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; j < this->_real_shape / Basic_Math::vec_len; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, static_cast<Data>(0), &this->storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -95,9 +104,7 @@ namespace Linalg {
         this->_real_shape = Basic_Math::vec_len;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        for (int i = 0; i < this->_real_shape; i++) {
-            this->storage_space[i] = static_cast<Data>(0);
-        }
+        Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -116,8 +123,12 @@ namespace Linalg {
         this->_real_shape = alpha._real_shape;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        for (int i = 0; i < this->_real_shape; i++) {
-            this->storage_space[i] = alpha.storage_space[i];
+        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -198,13 +209,15 @@ namespace Linalg {
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         Data gamma = static_cast<Data>(0);
-        for (int i = 0; i < this->_real_shape; i++) {
-            if (i < temp._shape) {
-                this->storage_space[i] = temp.storage_space[i];
-            }
-            else {
-                this->storage_space[i] = gamma;
-            }
+        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            if (i < temp._real_shape)
+                run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &temp.storage_space[i], &this->storage_space[i]);
+            else
+                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, gamma, &this->storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
         }
 #else
         if (this->_shape) {
@@ -222,6 +235,42 @@ namespace Linalg {
             else {
                 this->storage_space[i] = gamma;
             }
+        }
+#endif
+        return true;
+    }
+    /*load
+    Enter: 1.size 2.Data pointer
+    load the data into the vector
+    return if load successfully*/
+    template <typename Data>
+    bool Vector<Data>::load_(int const& alpha, Data* const& beta) {
+        if (alpha < 0 || alpha >= this->_shape)
+            return false;
+#ifdef _THREAD_MODE_
+        Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
+        _mm_free(this->storage_space);
+        this->_shape = alpha;
+        this->_real_shape = this->_shape / Basic_Math::vec_len;
+        this->_real_shape += (this->_shape % Basic_Math::vec_len) ? 1 : 0;
+        this->_real_shape *= Basic_Math::vec_len;
+        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &beta[i], &this->storage_space[i]);
+        }
+        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
+        delete[] this->storage_space;
+        this->_shape = alpha;
+        this->storage_space = new Data[this->_shape];
+        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        for (int i = 0; i < this->_shape; i++) {
+            this->storage_space[i] = beta[i];
         }
 #endif
         return true;
@@ -1358,9 +1407,19 @@ namespace Basic_Math {
     template <typename Data>
     Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
         Linalg::Vector<Data> temp(gamma);
-        for (int i = 0; i < gamma; i++) {
+#ifdef _THREAD_MODE_
+        std::thread run_arry[temp._real_shape / Basic_Math::vec_len];
+        for (int i = 0, j = 0; i < temp._real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_rand<Data>, &temp.storage_space[i], alpha, beta);
+        }
+        for (int i = 0; i < temp._real_shape / Basic_Math::vec_len; i++) {
+            run_arry[i].join();
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
+#endif
         return temp;
     }
     /*absolute
@@ -1377,7 +1436,7 @@ namespace Basic_Math {
 #ifdef _THREAD_MODE_
             std::thread run_arry[alpha._real_shape / Basic_Math::vec_len];
             for (int i = 0, j = 0; i < alpha._real_shape; i += Basic_Math::vec_len, j++) {
-                run_arry[j] = std::thread(Basic_Math::tuple_abs, &alpha.storage_space[i], &temp.storage_space[i]);
+                run_arry[j] = std::thread(Basic_Math::tuple_abs<Data>, &alpha.storage_space[i], &temp.storage_space[i]);
             }
             for (int i = 0; i < alpha._real_shape / Basic_Math::vec_len; i++) {
                 run_arry[i].join();
