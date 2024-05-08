@@ -110,14 +110,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] || beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] || beta[0]; gamma[1] = alpha[1] || beta[1]; gamma[2] = alpha[2] || beta[2]; gamma[3] = alpha[3] || beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] || beta[0]; gamma[1] = alpha[1] || beta[1]; gamma[2] = alpha[2] || beta[2]; gamma[3] = alpha[3] || beta[3];
+            gamma[4] = alpha[4] || beta[4]; gamma[5] = alpha[5] || beta[5]; gamma[6] = alpha[6] || beta[6]; gamma[7] = alpha[7] || beta[7];
+#else
+            gamma[0] = alpha[0] || beta[0]; gamma[1] = alpha[1] || beta[1]; gamma[2] = alpha[2] || beta[2];
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] + beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] + beta[0]; gamma[1] = alpha[1] + beta[1]; gamma[2] = alpha[2] + beta[2]; gamma[3] = alpha[3] + beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] + beta[0]; gamma[1] = alpha[1] + beta[1]; gamma[2] = alpha[2] + beta[2]; gamma[3] = alpha[3] + beta[3];
+            gamma[4] = alpha[4] + beta[4]; gamma[5] = alpha[5] + beta[5]; gamma[6] = alpha[6] + beta[6]; gamma[7] = alpha[7] + beta[7];
+#else
+            gamma[0] = alpha[0] + beta[0]; gamma[1] = alpha[1] + beta[1]; gamma[2] = alpha[2] + beta[2];
+#endif
         }
         return;
     }
@@ -131,14 +141,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] || beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] || beta; gamma[1] = alpha[1] || beta; gamma[2] = alpha[2] || beta; gamma[3] = alpha[3] || beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] || beta; gamma[1] = alpha[1] || beta; gamma[2] = alpha[2] || beta; gamma[3] = alpha[3] || beta;
+            gamma[4] = alpha[4] || beta; gamma[5] = alpha[5] || beta; gamma[6] = alpha[6] || beta; gamma[7] = alpha[7] || beta;
+#else
+            gamma[0] = alpha[0] || beta; gamma[1] = alpha[1] || beta; gamma[2] = alpha[2] || beta;
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] + beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] + beta; gamma[1] = alpha[1] + beta; gamma[2] = alpha[2] + beta; gamma[3] = alpha[3] + beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] + beta; gamma[1] = alpha[1] + beta; gamma[2] = alpha[2] + beta; gamma[3] = alpha[3] + beta;
+            gamma[4] = alpha[4] + beta; gamma[5] = alpha[5] + beta; gamma[6] = alpha[6] + beta; gamma[7] = alpha[7] + beta;
+#else
+            gamma[0] = alpha[0] + beta; gamma[1] = alpha[1] + beta; gamma[2] = alpha[2] + beta;
+#endif
         }
         return;
     }
@@ -152,14 +172,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] || (!beta[i]);
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
+            gamma[4] = alpha[4] || (!beta[4]); gamma[5] = alpha[5] || (!beta[5]); gamma[6] = alpha[6] || (!beta[6]); gamma[7] = alpha[7] || (!beta[7]);
+#else
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]);
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] - beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] - beta[0]; gamma[1] = alpha[1] - beta[1]; gamma[2] = alpha[2] - beta[2]; gamma[3] = alpha[3] - beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] - beta[0]; gamma[1] = alpha[1] - beta[1]; gamma[2] = alpha[2] - beta[2]; gamma[3] = alpha[3] - beta[3];
+            gamma[4] = alpha[4] - beta[4]; gamma[5] = alpha[5] - beta[5]; gamma[6] = alpha[6] - beta[6]; gamma[7] = alpha[7] - beta[7];
+#else
+            gamma[0] = alpha[0] - beta[0]; gamma[1] = alpha[1] - beta[1]; gamma[2] = alpha[2] - beta[2];
+#endif
         }
         return;
     }
@@ -173,14 +203,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] || (!beta);
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]); gamma[3] = alpha[3] || (!beta[3]);
+            gamma[4] = alpha[4] || (!beta[4]); gamma[5] = alpha[5] || (!beta[5]); gamma[6] = alpha[6] || (!beta[6]); gamma[7] = alpha[7] || (!beta[7]);
+#else
+            gamma[0] = alpha[0] || (!beta[0]); gamma[1] = alpha[1] || (!beta[1]); gamma[2] = alpha[2] || (!beta[2]);
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] - beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] - beta; gamma[1] = alpha[1] - beta; gamma[2] = alpha[2] - beta; gamma[3] = alpha[3] - beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] - beta; gamma[1] = alpha[1] - beta; gamma[2] = alpha[2] - beta; gamma[3] = alpha[3] - beta;
+            gamma[4] = alpha[4] - beta; gamma[5] = alpha[5] - beta; gamma[6] = alpha[6] - beta; gamma[7] = alpha[7] - beta;
+#else
+            gamma[0] = alpha[0] - beta; gamma[1] = alpha[1] - beta; gamma[2] = alpha[2] - beta;
+#endif
         }
         return;
     }
@@ -194,14 +234,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha || (!beta[i]);
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha || (!beta[0]); gamma[1] = alpha || (!beta[1]); gamma[2] = alpha || (!beta[2]); gamma[3] = alpha || (!beta[3]);
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha || (!beta[0]); gamma[1] = alpha || (!beta[1]); gamma[2] = alpha || (!beta[2]); gamma[3] = alpha || (!beta[3]);
+            gamma[4] = alpha || (!beta[4]); gamma[5] = alpha || (!beta[5]); gamma[6] = alpha || (!beta[6]); gamma[7] = alpha || (!beta[7]);
+#else
+            gamma[0] = alpha || (!beta[0]); gamma[1] = alpha || (!beta[1]); gamma[2] = alpha || (!beta[2]);
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha - beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha - beta[0]; gamma[1] = alpha - beta[1]; gamma[2] = alpha - beta[2]; gamma[3] = alpha - beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha - beta[0]; gamma[1] = alpha - beta[1]; gamma[2] = alpha - beta[2]; gamma[3] = alpha - beta[3];
+            gamma[4] = alpha - beta[4]; gamma[5] = alpha - beta[5]; gamma[6] = alpha - beta[6]; gamma[7] = alpha - beta[7];
+#else
+            gamma[0] = alpha - beta[0]; gamma[1] = alpha - beta[1]; gamma[2] = alpha - beta[2];
+#endif
         }
         return;
     }
@@ -215,14 +265,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] && beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] && beta[0]; gamma[1] = alpha[1] && beta[1]; gamma[2] = alpha[2] && beta[2]; gamma[3] = alpha[3] && beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] && beta[0]; gamma[1] = alpha[1] && beta[1]; gamma[2] = alpha[2] && beta[2]; gamma[3] = alpha[3] && beta[3];
+            gamma[4] = alpha[4] && beta[4]; gamma[5] = alpha[5] && beta[5]; gamma[6] = alpha[6] && beta[6]; gamma[7] = alpha[7] && beta[7];
+#else
+            gamma[0] = alpha[0] && beta[0]; gamma[1] = alpha[1] && beta[1]; gamma[2] = alpha[2] && beta[2];
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] * beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] * beta[0]; gamma[1] = alpha[1] * beta[1]; gamma[2] = alpha[2] * beta[2]; gamma[3] = alpha[3] * beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] * beta[0]; gamma[1] = alpha[1] * beta[1]; gamma[2] = alpha[2] * beta[2]; gamma[3] = alpha[3] * beta[3];
+            gamma[4] = alpha[4] * beta[4]; gamma[5] = alpha[5] * beta[5]; gamma[6] = alpha[6] * beta[6]; gamma[7] = alpha[7] * beta[7];
+#else
+            gamma[0] = alpha[0] * beta[0]; gamma[1] = alpha[1] * beta[1]; gamma[2] = alpha[2] * beta[2];
+#endif
         }
         return;
     }
@@ -236,14 +296,24 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] && beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] && beta; gamma[1] = alpha[1] && beta; gamma[2] = alpha[2] && beta; gamma[3] = alpha[3] && beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] && beta; gamma[1] = alpha[1] && beta; gamma[2] = alpha[2] && beta; gamma[3] = alpha[3] && beta;
+            gamma[4] = alpha[4] && beta; gamma[5] = alpha[5] && beta; gamma[6] = alpha[6] && beta; gamma[7] = alpha[7] && beta;
+#else
+            gamma[0] = alpha[0] && beta; gamma[1] = alpha[1] && beta; gamma[2] = alpha[2] && beta;
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] * beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] * beta; gamma[1] = alpha[1] * beta; gamma[2] = alpha[2] * beta; gamma[3] = alpha[3] * beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] * beta; gamma[1] = alpha[1] * beta; gamma[2] = alpha[2] * beta; gamma[3] = alpha[3] * beta;
+            gamma[4] = alpha[4] * beta; gamma[5] = alpha[5] * beta; gamma[6] = alpha[6] * beta; gamma[7] = alpha[7] * beta;
+#else
+            gamma[0] = alpha[0] * beta; gamma[1] = alpha[1] * beta; gamma[2] = alpha[2] * beta;
+#endif
         }
         return;
     }
@@ -257,14 +327,28 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = (alpha[i] || beta[i]) && (!(alpha[i] && beta[i]));
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = (alpha[0] || beta[0]) && (!(alpha[0] && beta[0])); gamma[1] = (alpha[1] || beta[1]) && (!(alpha[1] && beta[1]));
+            gamma[2] = (alpha[2] || beta[2]) && (!(alpha[2] && beta[2])); gamma[3] = (alpha[3] || beta[3]) && (!(alpha[3] && beta[3]));
+#elif defined(_SIMD_02_)
+            gamma[0] = (alpha[0] || beta[0]) && (!(alpha[0] && beta[0])); gamma[1] = (alpha[1] || beta[1]) && (!(alpha[1] && beta[1]));
+            gamma[2] = (alpha[2] || beta[2]) && (!(alpha[2] && beta[2])); gamma[3] = (alpha[3] || beta[3]) && (!(alpha[3] && beta[3]));
+            gamma[4] = (alpha[4] || beta[4]) && (!(alpha[4] && beta[4])); gamma[5] = (alpha[5] || beta[5]) && (!(alpha[5] && beta[5]));
+            gamma[6] = (alpha[6] || beta[6]) && (!(alpha[6] && beta[6])); gamma[7] = (alpha[7] || beta[7]) && (!(alpha[7] && beta[7]));
+#else
+            gamma[0] = (alpha[0] || beta[0]) && (!(alpha[0] && beta[0])); gamma[1] = (alpha[1] || beta[1]) && (!(alpha[1] && beta[1]));
+            gamma[2] = (alpha[2] || beta[2]) && (!(alpha[2] && beta[2]));
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] / beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] / beta[0]; gamma[1] = alpha[1] / beta[1]; gamma[2] = alpha[2] / beta[2]; gamma[3] = alpha[3] / beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] / beta[0]; gamma[1] = alpha[1] / beta[1]; gamma[2] = alpha[2] / beta[2]; gamma[3] = alpha[3] / beta[3];
+            gamma[4] = alpha[4] / beta[4]; gamma[5] = alpha[5] / beta[5]; gamma[6] = alpha[6] / beta[6]; gamma[7] = alpha[7] / beta[7];
+#else
+            gamma[0] = alpha[0] / beta[0]; gamma[1] = alpha[1] / beta[1]; gamma[2] = alpha[2] / beta[2];
+#endif
         }
         return;
     }
@@ -278,14 +362,28 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = (alpha[i] || beta) && (!(alpha[i] && beta));
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = (alpha[0] || beta) && (!(alpha[0] && beta)); gamma[1] = (alpha[1] || beta) && (!(alpha[1] && beta));
+            gamma[2] = (alpha[2] || beta) && (!(alpha[2] && beta)); gamma[3] = (alpha[3] || beta) && (!(alpha[3] && beta));
+#elif defined(_SIMD_02_)
+            gamma[0] = (alpha[0] || beta) && (!(alpha[0] && beta)); gamma[1] = (alpha[1] || beta) && (!(alpha[1] && beta));
+            gamma[2] = (alpha[2] || beta) && (!(alpha[2] && beta)); gamma[3] = (alpha[3] || beta) && (!(alpha[3] && beta));
+            gamma[4] = (alpha[4] || beta) && (!(alpha[4] && beta)); gamma[5] = (alpha[5] || beta) && (!(alpha[5] && beta));
+            gamma[6] = (alpha[6] || beta) && (!(alpha[6] && beta)); gamma[7] = (alpha[7] || beta) && (!(alpha[7] && beta));
+#else
+            gamma[0] = (alpha[0] || beta) && (!(alpha[0] && beta)); gamma[1] = (alpha[1] || beta) && (!(alpha[1] && beta));
+            gamma[2] = (alpha[2] || beta) && (!(alpha[2] && beta));
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha[i] / beta;
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha[0] / beta; gamma[1] = alpha[1] / beta; gamma[2] = alpha[2] / beta; gamma[3] = alpha[3] / beta;
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha[0] / beta; gamma[1] = alpha[1] / beta; gamma[2] = alpha[2] / beta; gamma[3] = alpha[3] / beta;
+            gamma[4] = alpha[4] / beta; gamma[5] = alpha[5] / beta; gamma[6] = alpha[6] / beta; gamma[7] = alpha[7] / beta;
+#else
+            gamma[0] = alpha[0] / beta; gamma[1] = alpha[1] / beta; gamma[2] = alpha[2] / beta;
+#endif
         }
         return;
     }
@@ -299,127 +397,221 @@ namespace Basic_Math {
 #endif
         }
         else if constexpr (std::is_same_v<Data, bool>) {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = (alpha || beta[i]) && (!(alpha && beta[i]));
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = (alpha || beta[0]) && (!(alpha && beta[0])); gamma[1] = (alpha || beta[1]) && (!(alpha && beta[1]));
+            gamma[2] = (alpha || beta[2]) && (!(alpha && beta[2])); gamma[3] = (alpha || beta[3]) && (!(alpha && beta[3]));
+#elif defined(_SIMD_02_)
+            gamma[0] = (alpha || beta[0]) && (!(alpha && beta[0])); gamma[1] = (alpha || beta[1]) && (!(alpha && beta[1]));
+            gamma[2] = (alpha || beta[2]) && (!(alpha && beta[2])); gamma[3] = (alpha || beta[3]) && (!(alpha && beta[3]));
+            gamma[4] = (alpha || beta[4]) && (!(alpha && beta[4])); gamma[5] = (alpha || beta[5]) && (!(alpha && beta[5]));
+            gamma[6] = (alpha || beta[6]) && (!(alpha && beta[6])); gamma[7] = (alpha || beta[7]) && (!(alpha && beta[7]));
+#else
+            gamma[0] = (alpha || beta[0]) && (!(alpha && beta[0])); gamma[1] = (alpha || beta[1]) && (!(alpha && beta[1]));
+            gamma[2] = (alpha || beta[2]) && (!(alpha && beta[2]));
+#endif
         }
         else {
-            for (int i = 0; i < vec_len; i++) {
-                gamma[i] = alpha / beta[i];
-            }
+#if defined(_SIMD_01_)
+            gamma[0] = alpha / beta[0]; gamma[1] = alpha / beta[1]; gamma[2] = alpha / beta[2]; gamma[3] = alpha / beta[3];
+#elif defined(_SIMD_02_)
+            gamma[0] = alpha / beta[0]; gamma[1] = alpha / beta[1]; gamma[2] = alpha / beta[2]; gamma[3] = alpha / beta[3];
+            gamma[4] = alpha / beta[4]; gamma[5] = alpha / beta[5]; gamma[6] = alpha / beta[6]; gamma[7] = alpha / beta[7];
+#else
+            gamma[0] = alpha / beta[0]; gamma[1] = alpha / beta[1]; gamma[2] = alpha / beta[2];
+#endif
         }
         return;
     }
     template <typename Data>
     inline void tuple_eq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] == beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] == beta[0]; gamma[1] = alpha[1] == beta[1]; gamma[2] = alpha[2] == beta[2]; gamma[3] = alpha[3] == beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] == beta[0]; gamma[1] = alpha[1] == beta[1]; gamma[2] = alpha[2] == beta[2]; gamma[3] = alpha[3] == beta[3];
+        gamma[4] = alpha[4] == beta[4]; gamma[5] = alpha[5] == beta[5]; gamma[6] = alpha[6] == beta[6]; gamma[7] = alpha[7] == beta[7];
+#else
+        gamma[0] = alpha[0] == beta[0]; gamma[1] = alpha[1] == beta[1]; gamma[2] = alpha[2] == beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_eq_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] == beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] == beta; gamma[1] = alpha[1] == beta; gamma[2] = alpha[2] == beta; gamma[3] = alpha[3] == beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] == beta; gamma[1] = alpha[1] == beta; gamma[2] = alpha[2] == beta; gamma[3] = alpha[3] == beta;
+        gamma[4] = alpha[4] == beta; gamma[5] = alpha[5] == beta; gamma[6] = alpha[6] == beta; gamma[7] = alpha[7] == beta;
+#else
+        gamma[0] = alpha[0] == beta; gamma[1] = alpha[1] == beta; gamma[2] = alpha[2] == beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_ne_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] != beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2]; gamma[3] = alpha[3] != beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2]; gamma[3] = alpha[3] != beta[3];
+        gamma[4] = alpha[4] != beta[4]; gamma[5] = alpha[5] != beta[5]; gamma[6] = alpha[6] != beta[6]; gamma[7] = alpha[7] != beta[7];
+#else
+        gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] != beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] != beta; gamma[1] = alpha[1] != beta; gamma[2] = alpha[2] != beta; gamma[3] = alpha[3] != beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] != beta; gamma[1] = alpha[1] != beta; gamma[2] = alpha[2] != beta; gamma[3] = alpha[3] != beta;
+        gamma[4] = alpha[4] != beta; gamma[5] = alpha[5] != beta; gamma[6] = alpha[6] != beta; gamma[7] = alpha[7] != beta;
+#else
+        gamma[0] = alpha[0] != beta; gamma[1] = alpha[1] != beta; gamma[2] = alpha[2] != beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bg_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] > beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] > beta[0]; gamma[1] = alpha[1] > beta[1]; gamma[2] = alpha[2] > beta[2]; gamma[3] = alpha[3] > beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] > beta[0]; gamma[1] = alpha[1] > beta[1]; gamma[2] = alpha[2] > beta[2]; gamma[3] = alpha[3] > beta[3];
+        gamma[4] = alpha[4] > beta[4]; gamma[5] = alpha[5] > beta[5]; gamma[6] = alpha[6] > beta[6]; gamma[7] = alpha[7] > beta[7];
+#else
+        gamma[0] = alpha[0] > beta[0]; gamma[1] = alpha[1] > beta[1]; gamma[2] = alpha[2] > beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bg_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] > beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] > beta; gamma[1] = alpha[1] > beta; gamma[2] = alpha[2] > beta; gamma[3] = alpha[3] > beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] > beta; gamma[1] = alpha[1] > beta; gamma[2] = alpha[2] > beta; gamma[3] = alpha[3] > beta;
+        gamma[4] = alpha[4] > beta; gamma[5] = alpha[5] > beta; gamma[6] = alpha[6] > beta; gamma[7] = alpha[7] > beta;
+#else
+        gamma[0] = alpha[0] > beta; gamma[1] = alpha[1] > beta; gamma[2] = alpha[2] > beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bg_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha > beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha > beta[0]; gamma[1] = alpha > beta[1]; gamma[2] = alpha > beta[2]; gamma[3] = alpha > beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha > beta[0]; gamma[1] = alpha > beta[1]; gamma[2] = alpha > beta[2]; gamma[3] = alpha > beta[3];
+        gamma[4] = alpha > beta[4]; gamma[5] = alpha > beta[5]; gamma[6] = alpha > beta[6]; gamma[7] = alpha > beta[7];
+#else
+        gamma[0] = alpha > beta[0]; gamma[1] = alpha > beta[1]; gamma[2] = alpha > beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] >= beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] >= beta[0]; gamma[1] = alpha[1] >= beta[1]; gamma[2] = alpha[2] >= beta[2]; gamma[3] = alpha[3] >= beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] >= beta[0]; gamma[1] = alpha[1] >= beta[1]; gamma[2] = alpha[2] >= beta[2]; gamma[3] = alpha[3] >= beta[3];
+        gamma[4] = alpha[4] >= beta[4]; gamma[5] = alpha[5] >= beta[5]; gamma[6] = alpha[6] >= beta[6]; gamma[7] = alpha[7] >= beta[7];
+#else
+        gamma[0] = alpha[0] >= beta[0]; gamma[1] = alpha[1] >= beta[1]; gamma[2] = alpha[2] >= beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] >= beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] >= beta; gamma[1] = alpha[1] >= beta; gamma[2] = alpha[2] >= beta; gamma[3] = alpha[3] >= beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] >= beta; gamma[1] = alpha[1] >= beta; gamma[2] = alpha[2] >= beta; gamma[3] = alpha[3] >= beta;
+        gamma[4] = alpha[4] >= beta; gamma[5] = alpha[5] >= beta; gamma[6] = alpha[6] >= beta; gamma[7] = alpha[7] >= beta;
+#else
+        gamma[0] = alpha[0] >= beta; gamma[1] = alpha[1] >= beta; gamma[2] = alpha[2] >= beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_bq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha >= beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha >= beta[0]; gamma[1] = alpha >= beta[1]; gamma[2] = alpha >= beta[2]; gamma[3] = alpha >= beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha >= beta[0]; gamma[1] = alpha >= beta[1]; gamma[2] = alpha >= beta[2]; gamma[3] = alpha >= beta[3];
+        gamma[4] = alpha >= beta[4]; gamma[5] = alpha >= beta[5]; gamma[6] = alpha >= beta[6]; gamma[7] = alpha >= beta[7];
+#else
+        gamma[0] = alpha >= beta[0]; gamma[1] = alpha >= beta[1]; gamma[2] = alpha >= beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sm_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] < beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] < beta[0]; gamma[1] = alpha[1] < beta[1]; gamma[2] = alpha[2] < beta[2]; gamma[3] = alpha[3] < beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] < beta[0]; gamma[1] = alpha[1] < beta[1]; gamma[2] = alpha[2] < beta[2]; gamma[3] = alpha[3] < beta[3];
+        gamma[4] = alpha[4] < beta[4]; gamma[5] = alpha[5] < beta[5]; gamma[6] = alpha[6] < beta[6]; gamma[7] = alpha[7] < beta[7];
+#else
+        gamma[0] = alpha[0] < beta[0]; gamma[1] = alpha[1] < beta[1]; gamma[2] = alpha[2] < beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sm_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] < beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] < beta; gamma[1] = alpha[1] < beta; gamma[2] = alpha[2] < beta; gamma[3] = alpha[3] < beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] < beta; gamma[1] = alpha[1] < beta; gamma[2] = alpha[2] < beta; gamma[3] = alpha[3] < beta;
+        gamma[4] = alpha[4] < beta; gamma[5] = alpha[5] < beta; gamma[6] = alpha[6] < beta; gamma[7] = alpha[7] < beta;
+#else
+        gamma[0] = alpha[0] < beta; gamma[1] = alpha[1] < beta; gamma[2] = alpha[2] < beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sm_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha < beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha < beta[0]; gamma[1] = alpha < beta[1]; gamma[2] = alpha < beta[2]; gamma[3] = alpha < beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha < beta[0]; gamma[1] = alpha < beta[1]; gamma[2] = alpha < beta[2]; gamma[3] = alpha < beta[3];
+        gamma[4] = alpha < beta[4]; gamma[5] = alpha < beta[5]; gamma[6] = alpha < beta[6]; gamma[7] = alpha < beta[7];
+#else
+        gamma[0] = alpha < beta[0]; gamma[1] = alpha < beta[1]; gamma[2] = alpha < beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] <= beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] <= beta[0]; gamma[1] = alpha[1] <= beta[1]; gamma[2] = alpha[2] <= beta[2]; gamma[3] = alpha[3] <= beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] <= beta[0]; gamma[1] = alpha[1] <= beta[1]; gamma[2] = alpha[2] <= beta[2]; gamma[3] = alpha[3] <= beta[3];
+        gamma[4] = alpha[4] <= beta[4]; gamma[5] = alpha[5] <= beta[5]; gamma[6] = alpha[6] <= beta[6]; gamma[7] = alpha[7] <= beta[7];
+#else
+        gamma[0] = alpha[0] <= beta[0]; gamma[1] = alpha[1] <= beta[1]; gamma[2] = alpha[2] <= beta[2];
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha[i] <= beta;
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha[0] <= beta; gamma[1] = alpha[1] <= beta; gamma[2] = alpha[2] <= beta; gamma[3] = alpha[3] <= beta;
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha[0] <= beta; gamma[1] = alpha[1] <= beta; gamma[2] = alpha[2] <= beta; gamma[3] = alpha[3] <= beta;
+        gamma[4] = alpha[4] <= beta; gamma[5] = alpha[5] <= beta; gamma[6] = alpha[6] <= beta; gamma[7] = alpha[7] <= beta;
+#else
+        gamma[0] = alpha[0] <= beta; gamma[1] = alpha[1] <= beta; gamma[2] = alpha[2] <= beta;
+#endif
         return;
     }
     template <typename Data>
     inline void tuple_sq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
-        for (int i = 0; i < vec_len; i++) {
-            gamma[i] = alpha <= beta[i];
-        }
+#if defined(_SIMD_01_)
+        gamma[0] = alpha <= beta[0]; gamma[1] = alpha <= beta[1]; gamma[2] = alpha <= beta[2]; gamma[3] = alpha <= beta[3];
+#elif defined(_SIMD_02_)
+        gamma[0] = alpha <= beta[0]; gamma[1] = alpha <= beta[1]; gamma[2] = alpha <= beta[2]; gamma[3] = alpha <= beta[3];
+        gamma[4] = alpha <= beta[4]; gamma[5] = alpha <= beta[5]; gamma[6] = alpha <= beta[6]; gamma[7] = alpha <= beta[7];
+#else
+        gamma[0] = alpha <= beta[0]; gamma[1] = alpha <= beta[1]; gamma[2] = alpha <= beta[2];
+#endif
         return;
     }
     template <typename Data>
