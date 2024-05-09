@@ -676,7 +676,10 @@ namespace Basic_Math {
     template <typename Data>
     inline void tuple_set(Data const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
-        std::cout << "~tuple set~\n";
+        std::cout << "~tuple set~\non " << gamma << " before:\n";
+        for (int i = 0; i < vec_len; i++)
+            std::cout << gamma[i] << ' ';
+        std::cout << '\n';
 #endif
 #if defined(_SIMD_01_)
         if constexpr (std::is_same_v<Data, float>) {
@@ -688,9 +691,13 @@ namespace Basic_Math {
 #elif defined(_SIMD_02_)
         if constexpr (std::is_same_v<Data, float>) {
 #ifdef _DEBUG_MODE_
+#if 0
+            _mm256_store_ps(gamma, _mm256_set1_ps(alpha));
+#else
             __m256 vecA; std::cout << "~vec declare~\n";
             vecA = _mm256_set1_ps(alpha); std::cout << "~set vec~\n";
             _mm256_store_ps(gamma, vecA); std::cout << "~store vec~\n";
+#endif
 #else
             _mm256_store_ps(gamma, _mm256_set1_ps(alpha));
 #endif

@@ -93,7 +93,7 @@ namespace Linalg {
 #endif
         for (int i = 0, j = 0; j < run_time; i += Basic_Math::vec_len, j++) {
 #ifdef _DEBUG_MODE_
-            std::cout << "i=" << i << " j=" << j << '\n';
+            std::cout << "i=" << i << " j=" << j << "\npointer= " << &this->storage_space[i] << '\n';
 #endif
             run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, omega, &this->storage_space[i]);
         }
@@ -117,12 +117,21 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector() {
+#ifdef _DEBUG_MODE_
+        std::cout << "~defult constructor~\n";
+#endif
         this->_shape = 1;
 #ifdef _THREAD_MODE_
-        this->_real_shape = Basic_Math::vec_len;
+        this->_real_shape = Basic_Math::size_check(this->_shape);
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
+#ifdef _DEBUG_MODE_
+        std::cout << "to set " << this->storage_space << " before:\n";
+        for (int i = 0; i < this->_real_shape; i++)
+            std::cout << this->storage_space[i] << ' ';
+        std::cout << '\n';
+#endif
+        Basic_Math::tuple_set<Data>(static_cast<Data>(0), static_cast<Data*>(&this->storage_space[0]));
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -159,7 +168,7 @@ namespace Linalg {
         }
 #endif
         return;
-        }
+    }
     /*destructor
     Enter: none
     delete vector
@@ -256,8 +265,8 @@ namespace Linalg {
             }
             else {
                 this->storage_space[i] = gamma;
+            }
         }
-    }
 #endif
         return true;
     }
@@ -294,7 +303,7 @@ namespace Linalg {
         }
 #endif
         return true;
-        }
+    }
     /*operator[]
     Enter: 1.coordinate
     do nothing
@@ -339,7 +348,7 @@ namespace Linalg {
             this->storage_space[i] = alpha.storage_space[i];
         return (*this);
 #endif
-        }
+    }
     /*operator= value
     Enter: 1.vector 2.value
     copy the value into the vector
@@ -847,7 +856,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] == alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator== value back
     Enter: 1.Vector 2.value
     compare the value with every element in the vector
@@ -868,7 +877,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] == alpha;
 #endif
         return temp;
-        }
+    }
     /*operator==
     Enter: 1.Vector 2.Vector
     compare each element in two vector
@@ -889,7 +898,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] != alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator== value back
     Enter: 1.Vector 2.value
     compare each element in the vector and the value
@@ -910,7 +919,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] != alpha;
 #endif
         return temp;
-        }
+    }
     /*operator>
     Enter: 1.Vector 2.Vector
     compare each element in two vector
@@ -931,7 +940,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] > alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator> value back
     Enter: 1.Vector 2.value
     compare each element in the vector and the value
@@ -952,7 +961,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] > alpha;
 #endif
         return temp;
-        }
+    }
     /*operator>=
     Enter: 1.Vector 2.Vector
     compare each element in two vector
@@ -973,7 +982,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] >= alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator>= value back
     Enter: 1.Vector 2.value
     compare each element in the vector and the value
@@ -994,7 +1003,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] >= alpha;
 #endif
         return temp;
-        }
+    }
     /*operator<
     Enter: 1.Vector 2.Vector
     compare each element in two vector
@@ -1015,7 +1024,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] < alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator< value back
     Enter: 1.Vector 2.value
     compare each element in the vector and the value
@@ -1036,7 +1045,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] < alpha;
 #endif
         return temp;
-        }
+    }
     /*operator<=
     Enter: 1.Vector 2.Vector
     compare each element in two vector
@@ -1057,7 +1066,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] <= alpha.storage_space[i];
 #endif
         return temp;
-        }
+    }
     /*operator<= value back
     Enter: 1.Vector 2.value
     compare each element in the vector and the value
@@ -1078,7 +1087,7 @@ namespace Linalg {
             temp.storage_space[i] = this->storage_space[i] <= alpha;
 #endif
         return temp;
-        }
+    }
     /*operator<<
     Enter: 1.ostream 2.vector
     print every element in the vector
@@ -1208,7 +1217,7 @@ namespace Linalg {
             }
         }
         return gamma;
-        }
+    }
     /*operator+ value front
     Enter: 1.value 2.Vector
     add the value into the vector
@@ -1233,8 +1242,8 @@ namespace Linalg {
         else {
             for (int i = 0; i < temp._shape; i++) {
                 temp.storage_space[i] = alpha + beta.storage_space[i];
+            }
         }
-    }
 #endif
         return temp;
     }
@@ -1262,8 +1271,8 @@ namespace Linalg {
         else {
             for (int i = 0; i < temp._shape; i++) {
                 temp.storage_space[i] = alpha - beta.storage_space[i];
+            }
         }
-    }
 #endif
         return temp;
     }
@@ -1291,8 +1300,8 @@ namespace Linalg {
         else {
             for (int i = 0; i < temp._shape; i++) {
                 temp.storage_space[i] = alpha * beta.storage_space[i];
+            }
         }
-    }
 #endif
         return temp;
     }
@@ -1320,8 +1329,8 @@ namespace Linalg {
         else {
             for (int i = 0; i < temp._shape; i++) {
                 temp.storage_space[i] = alpha / beta.storage_space[i];
+            }
         }
-    }
 #endif
         return temp;
     }
@@ -1346,7 +1355,7 @@ namespace Linalg {
         }
 #endif
         return temp;
-        }
+    }
     /*operator!= value front
     Enter: 1.value 2.Vector
     compare each element in the vector and the value
@@ -1368,7 +1377,7 @@ namespace Linalg {
         }
 #endif 
         return temp;
-        }
+    }
     /*operator> value front
     Enter: 1.value 2.Vector
     compare each element in the vector and the value
@@ -1390,7 +1399,7 @@ namespace Linalg {
         }
 #endif 
         return temp;
-        }
+    }
     /*operator>= value front
     Enter: 1.value 2.Vector
     compare each element in the vector and the value
@@ -1412,7 +1421,7 @@ namespace Linalg {
         }
 #endif
         return temp;
-        }
+    }
     /*operator< value front
     Enter: 1.value 2.Vector
     compare each element in the vector and the value
@@ -1434,7 +1443,7 @@ namespace Linalg {
         }
 #endif
         return temp;
-        }
+    }
     /*operator<= value front
     Enter: 1.value 2.Vector
     compare each element in the vector and the value
@@ -1456,8 +1465,8 @@ namespace Linalg {
         }
 #endif
         return temp;
-        }
     }
+}
 namespace Basic_Math {
     /*random Vector
     Enter: 1.Vector size 2.min value 3.max value
@@ -1490,7 +1499,7 @@ namespace Basic_Math {
         std::cout << "~vector random end~\n";
 #endif
         return temp;
-        }
+    }
     /*absolute
     Enter: 1.Vector
     check each element in the vector
@@ -1535,7 +1544,7 @@ namespace Basic_Math {
             return temp;
         }
     }
-    }
+}
 template class Linalg::Vector<int>;
 template class Linalg::Vector<float>;
 template class Linalg::Vector<bool>;
