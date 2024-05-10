@@ -1,5 +1,4 @@
 ﻿#include "../includes/basic.hpp"
-#define _DEBUG_MODE_
 namespace Basic_Math {
     std::atomic<bool> set_seed(false);
     std::atomic<unsigned long long> memory_heap(0);

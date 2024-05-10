@@ -1,5 +1,4 @@
 ﻿#include"../includes/vector.hpp"
-#define _DEBUG_MODE_
 namespace Linalg {
     /*constructor with datas
     Enter: 1.size 2.datas array
@@ -7,13 +6,16 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(int const& alpha, Data* const& beta) {
+#ifdef _DEBUG_MODE_
+        printf("~Data constructor~\n");
+#endif
         if (alpha <= 0) {
             this->_shape = 1;
 #ifdef _THREAD_MODE_
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
+            Basic_Math::tuple_set(this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -47,6 +49,9 @@ namespace Linalg {
             this->storage_space[i] = beta[i];
         }
 #endif
+#ifdef _DEBUG_MODE_
+        printf("~Data constructor end~\n");
+#endif
         return;
     }
     /*constructor only size
@@ -55,13 +60,16 @@ namespace Linalg {
     no return*/
     template <typename Data>
     Vector<Data>::Vector(int const& alpha) {
+#ifdef _DEBUG_MODE_
+        printf("~size constructor~\n");
+#endif
         if (alpha <= 0) {
             this->_shape = 1;
 #ifdef _THREAD_MODE_
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
+            Basic_Math::tuple_set(this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -73,29 +81,27 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         this->_real_shape = Basic_Math::size_check(alpha);
 #ifdef _DEBUG_MODE_
-        std::cout << "rs=" << this->_real_shape << '\n';
+        printf("rs= %d\n", this->_real_shape);
 #endif
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
-            std::cout << "~bad alloc~\n";
+            printf("BAD ALLOC\n");
             exit(1);
         }
-        std::cout << "~finish alloc~\n";
-        Basic_Math::status();
+        printf("SUCCESS ALLOC\n");
 #endif
         int run_time = this->_real_shape / Basic_Math::vec_len;
-        Data omega = static_cast<Data>(0);
         std::thread run_arry[run_time];
 #ifdef _DEBUG_MODE_
-        std::cout << "~run_time= " << run_time << "~\n";
+        printf("run times = %d\n", run_time);
 #endif
         for (int i = 0, j = 0; j < run_time; i += Basic_Math::vec_len, j++) {
 #ifdef _DEBUG_MODE_
-            std::cout << "i=" << i << " j=" << j << "\npointer= " << &this->storage_space[i] << '\n';
+            printf("i= %d j= %d\npointer= %p\n", i, j, &this->storage_space[i]);
 #endif
-            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, omega, &this->storage_space[i]);
+            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
         }
         for (int i = 0; i < run_time; i++) {
             run_arry[i].join();
@@ -107,7 +113,7 @@ namespace Linalg {
             this->storage_space[i] = static_cast<Data>(0);
 #endif
 #ifdef _DEBUG_MODE_
-        std::cout << "~finish construct~\n";
+        printf("~size constructor end~\n");
 #endif
         return;
     }
@@ -118,7 +124,7 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>::Vector() {
 #ifdef _DEBUG_MODE_
-        std::cout << "~defult constructor~\n";
+        printf("~defult constructor~\n");
 #endif
         this->_shape = 1;
 #ifdef _THREAD_MODE_
@@ -126,16 +132,16 @@ namespace Linalg {
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
-        std::cout << "to set " << this->storage_space << " before:\n";
-        for (int i = 0; i < this->_real_shape; i++)
-            std::cout << this->storage_space[i] << ' ';
-        std::cout << '\n';
+        printf("to set at %p\n", this->storage_space);
 #endif
-        Basic_Math::tuple_set<Data>(static_cast<Data>(0), static_cast<Data*>(&this->storage_space[0]));
+        Basic_Math::tuple_set<Data>(&this->storage_space[0]);
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
         this->storage_space[0] = static_cast<Data>(0);
+#endif
+#ifdef _DEBUG_MODE_
+        printf("~defult constructor end~\n");
 #endif
         return;
     }
@@ -146,7 +152,7 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>::Vector(Vector<Data> const& alpha) {
 #ifdef _DEBUG_MODE_
-        std::cout << "~copy constructor~\n";
+        printf("~copy constructor~\n");
 #endif
         this->_shape = alpha._shape;
 #ifdef _THREAD_MODE_
@@ -167,6 +173,9 @@ namespace Linalg {
             this->storage_space[i] = alpha.storage_space[i];
         }
 #endif
+#ifdef _DEBUG_MODE_
+        printf("~copy constructor end~\n");
+#endif
         return;
     }
     /*destructor
@@ -176,7 +185,7 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>::~Vector() {
 #ifdef _DEBUG_MODE_
-        std::cout << "~destructor~\n";
+        printf("~destructor~\n");
 #endif
 #ifdef _THREAD_MODE_
         Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
@@ -239,18 +248,18 @@ namespace Linalg {
         this->_real_shape = Basic_Math::size_check(alpha);
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        Data gamma = static_cast<Data>(0);
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
             if (i < temp._real_shape)
                 run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &temp.storage_space[i], &this->storage_space[i]);
             else
-                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, gamma, &this->storage_space[i]);
+                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_arry[i].join();
         }
 #else
+        Data gamma = static_cast<Data>(0);
         if (this->_shape) {
             delete[] this->storage_space;
             Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
@@ -321,7 +330,7 @@ namespace Linalg {
     template <typename Data>
     Vector<Data> Vector<Data>::operator=(Vector<Data> const& alpha) {
 #ifdef _DEBUG_MODE_
-        std::cout << "~operator=~\n";
+        printf("~operator=~\n");
 #endif
 #ifdef _THREAD_MODE_
         if (this->_shape) {
@@ -332,9 +341,17 @@ namespace Linalg {
         this->_real_shape = alpha._real_shape;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        for (int i = 0; i < this->_real_shape; i++) {
-            this->storage_space[i] = alpha.storage_space[i];
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        std::thread run_arry[runtime];
+        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+            run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
         }
+        for (int i = 0; i < runtime; i++) {
+            run_arry[i].join();
+        }
+#ifdef _DEBUG_MODE_
+        printf("~operator= end~\n");
+#endif
         return (*this);
 #else
         if (this->_shape) {
@@ -346,6 +363,9 @@ namespace Linalg {
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha.storage_space[i];
+#ifdef _DEBUG_MODE_
+        printf("~operator= end~\n");
+#endif
         return (*this);
 #endif
     }
@@ -365,6 +385,9 @@ namespace Linalg {
     return the result*/
     template <typename Data>
     Vector<Data> Vector<Data>::operator+(Vector<Data> const& alpha) {
+#ifdef _DEBUG_MODE_
+        printf("~operator+ with 1.vector 2.vector ~\n");
+#endif
         if (this->_shape != alpha._shape)
             return *this;
         Vector<Data> temp(*this);
@@ -386,6 +409,9 @@ namespace Linalg {
             for (int i = 0; i < this->_shape; i++)
                 temp.storage_space[i] = this->storage_space[i] + alpha.storage_space[i];
         }
+#endif
+#ifdef _DEBUG_MODE_
+        printf("~operator+ end~\n");
 #endif
         return temp;
     }
@@ -1475,7 +1501,7 @@ namespace Basic_Math {
     template <typename Data>
     Linalg::Vector<Data> random(int const& gamma, Data const& alpha, Data const& beta) {
 #ifdef _DEBUG_MODE_
-        std::cout << "~vector random~\n";
+        printf("~vector random~\n");
 #endif
         Linalg::Vector<Data> temp(gamma);
 #ifdef _THREAD_MODE_
@@ -1496,7 +1522,7 @@ namespace Basic_Math {
         }
 #endif
 #ifdef _DEBUG_MODE_
-        std::cout << "~vector random end~\n";
+        printf("~vector random end~\n");
 #endif
         return temp;
     }
@@ -1507,7 +1533,7 @@ namespace Basic_Math {
     template <typename Data>
     Linalg::Vector<Data> absolute(Linalg::Vector<Data> const& alpha) {
 #ifdef _DEBUG_MODE_
-        std::cout << "~vector absolute~\n";
+        printf("~vector absolute~\n");
 #endif
         Linalg::Vector<Data> temp(alpha);
         if constexpr (std::is_same_v<Data, bool>) {
@@ -1540,6 +1566,9 @@ namespace Basic_Math {
                     temp._storage_space[i] = std::fabs(alpha._storage_space[i]);
                 }
             }
+#endif
+#ifdef _DEBUG_MODE_
+            printf("~vector absolute end~\n");
 #endif
             return temp;
         }
