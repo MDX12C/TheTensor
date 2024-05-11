@@ -4,7 +4,7 @@
 #define _DEBUG_MODE_
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
-#define _AVX02_WILL_BE_USED_ON_
+#define _AVX2_WILL_BE_USED_ON_
 //---------------------------------------
 #include<iostream>
 #include<iomanip>
@@ -35,7 +35,10 @@
 #ifdef _SIMD_MODE_
 #include<immintrin.h>
 #include<x86intrin.h>
-#ifdef _AVX02_WILL_BE_USED_ON_
+#ifdef _AVX2_WILL_BE_USED_ON_
+#include<avx2intrin.h>
+#include<avxintrin.h>
+#include<avxvnniintrin.h>
 #define _SIMD_02_
 #else //_AVX02_WILL_BE_USED_ON_
 #define _SIMD_01_
@@ -123,9 +126,9 @@ namespace Basic_Math {
 	inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -154,9 +157,9 @@ namespace Basic_Math {
 	inline void tuple_add_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_add_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -185,9 +188,9 @@ namespace Basic_Math {
 	inline void tuple_sub(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -216,9 +219,9 @@ namespace Basic_Math {
 	inline void tuple_sub_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_sub_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -247,9 +250,9 @@ namespace Basic_Math {
 	inline void tuple_sub_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_sub_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_sub_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_sub_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_sub_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -278,9 +281,9 @@ namespace Basic_Math {
 	inline void tuple_mul(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -309,9 +312,9 @@ namespace Basic_Math {
 	inline void tuple_mul_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_mul_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -340,9 +343,9 @@ namespace Basic_Math {
 	inline void tuple_div(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -375,9 +378,9 @@ namespace Basic_Math {
 	inline void tuple_div_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_div_ps(_mm256_load_ps(alpha), _mm256_set1_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -410,9 +413,9 @@ namespace Basic_Math {
 	inline void tuple_div_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
-			_mm_store_ps(gamma, _mm_div_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
+			_mm_storeu_ps(gamma, _mm_div_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
 #elif defined(_SIMD_02_)
-			_mm256_store_ps(gamma, _mm256_div_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
+			_mm256_storeu_ps(gamma, _mm256_div_ps(_mm256_set1_ps(alpha), _mm256_load_ps(beta)));
 #endif
 		}
 		else if constexpr (std::is_same_v<Data, bool>) {
@@ -690,14 +693,14 @@ namespace Basic_Math {
 #endif
 #if defined(_SIMD_01_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm_store_ps(gamma, _mm_setzero_ps());
+			_mm_storeu_ps(gamma, _mm_setzero_ps());
 		}
 		else {
 			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
 		}
 #elif defined(_SIMD_02_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm256_store_ps(gamma, _mm256_setzero_ps());
+			_mm256_storeu_ps(gamma, _mm256_setzero_ps());
 		}
 		else {
 			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
@@ -713,16 +716,19 @@ namespace Basic_Math {
 	}
 	template <typename Data>
 	inline void tuple_load(Data* const& alpha, Data* const& gamma) {
+#ifdef _DEBUG_MODE_
+		printf("~tuple load from %p to %p~\n", alpha, gamma);
+#endif
 #if defined(_SIMD_01_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm_store_ps(gamma, _mm_loadu_ps(alpha));
+			_mm_storeu_ps(gamma, _mm_loadu_ps(alpha));
 		}
 		else {
 			gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 		}
 #elif defined(_SIMD_02_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm256_store_ps(gamma, _mm256_loadu_ps(alpha));
+			_mm256_storeu_ps(gamma, _mm256_loadu_ps(alpha));
 		}
 		else {
 			gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];

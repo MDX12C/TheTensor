@@ -132,6 +132,11 @@ namespace Linalg {
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
+        if (this->storage_space == nullptr) {
+            printf("BAD ALLOC\n");
+            exit(1);
+        }
+        printf("SUCCESS ALLOC\n");
         printf("to set at %p\n", this->storage_space);
 #endif
         Basic_Math::tuple_set<Data>(&this->storage_space[0]);
@@ -159,12 +164,23 @@ namespace Linalg {
         this->_real_shape = alpha._real_shape;
         this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+#ifdef _DEBUG_MODE_
+        if (this->storage_space == nullptr) {
+            printf("BAD ALLOC\n");
+            exit(1);
+        }
+        printf("SUCCESS ALLOC\n");
+#endif
+        int run_time = this->_real_shape / Basic_Math::vec_len;
+        std::thread run_arry[run_time];
+        for (int i = 0, j = 0; i < this->_real_shape && j < run_time; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
         }
-        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
+        for (int i = 0; i < run_time; i++) {
             run_arry[i].join();
+#ifdef _DEBUG_MODE_
+            printf("%d join\n", i + 1);
+#endif
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -328,7 +344,7 @@ namespace Linalg {
     copy the second vector into the first one
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator=(Vector<Data> const& alpha) {
+    Vector<Data>& Vector<Data>::operator=(Vector<Data> const& alpha) {
 #ifdef _DEBUG_MODE_
         printf("~operator=~\n");
 #endif
@@ -374,7 +390,7 @@ namespace Linalg {
     copy the value into the vector
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator=(Data const& alpha) {
+    Vector<Data>& Vector<Data>::operator=(Data const& alpha) {
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha;
         return (*this);
@@ -619,7 +635,7 @@ namespace Linalg {
     add the second vector into the first one
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator+=(Vector<Data> const& alpha) {
+    Vector<Data>& Vector<Data>::operator+=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
@@ -648,7 +664,7 @@ namespace Linalg {
     add the value into the vector
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator+=(Data const& alpha) {
+    Vector<Data>& Vector<Data>::operator+=(Data const& alpha) {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
@@ -675,7 +691,7 @@ namespace Linalg {
     subtract the second vector from the first one
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator-=(Vector<Data> const& alpha) {
+    Vector<Data>& Vector<Data>::operator-=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
@@ -704,7 +720,7 @@ namespace Linalg {
     subtract the value from the vector
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator-=(Data const& alpha) {
+    Vector<Data>& Vector<Data>::operator-=(Data const& alpha) {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
@@ -731,7 +747,7 @@ namespace Linalg {
     multiply every element in the second vector into the first one
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator*=(Vector<Data> const& alpha) {
+    Vector<Data>& Vector<Data>::operator*=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
@@ -760,7 +776,7 @@ namespace Linalg {
     multiply every element in the vector with the value
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator*=(Data const& alpha) {
+    Vector<Data>& Vector<Data>::operator*=(Data const& alpha) {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
@@ -787,7 +803,7 @@ namespace Linalg {
     divide every element in the first vector by the second vector
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator/=(Vector<Data> const& alpha) {
+    Vector<Data>& Vector<Data>::operator/=(Vector<Data> const& alpha) {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
@@ -816,7 +832,7 @@ namespace Linalg {
     divide every element in the vector by the value
     return this*/
     template <typename Data>
-    Vector<Data> Vector<Data>::operator/=(Data const& alpha) {
+    Vector<Data>& Vector<Data>::operator/=(Data const& alpha) {
 #ifdef _THREAD_MODE_
         std::thread run_array[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
