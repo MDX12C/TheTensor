@@ -1,7 +1,7 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
 /*constants*/
-#define _DEBUG_MODE_
+//#define _DEBUG_MODE_
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
 #define _AVX2_WILL_BE_USED_ON_
@@ -713,7 +713,7 @@ namespace Basic_Math {
 		printf("~tuple set finish~\n");
 #endif
 		return;
-	}
+		}
 	template <typename Data>
 	inline void tuple_load(Data* const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
@@ -738,9 +738,9 @@ namespace Basic_Math {
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2];
 #endif
 		return;
-	}
+		}
 #endif
-}
+	}
 namespace Linalg {
 	typedef struct
 	{

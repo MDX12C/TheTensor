@@ -8,18 +8,10 @@ namespace bsm = Basic_Math;
 #define show(x)                                                                \
   { std::cout << #x << ':' << '\n' << x << '\n'; }
 signed main() {
-	Basic_Math::status();
-	const int size = 20;
+	const int size = 5;
 	Linalg::Vector<float> alpha = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
 	show(alpha);
-	Basic_Math::status();
-	Linalg::Vector<float> beta = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
-	show(beta);
-	Basic_Math::status();
-	Linalg::Vector<float> gamma = alpha + beta;
+	Linalg::Vector<float> gamma = bsm::absolute(alpha);
 	show(gamma);
-	Basic_Math::status();
-	alpha.freedom_(); beta.freedom_();
-	Basic_Math::status();
 	return 0;
 }
