@@ -1,11 +1,14 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
 /*constants*/
-//#define _DEBUG_MODE_
-#define _THREAD_MODE_ //open thread mode
-#define _SIMD_MODE_ //open SIMD mode
+#define _DEBUG_MODE_
+#define _THREAD_MODE_  //open thread mode
+#define _SIMD_MODE_  //open SIMD mode
 #define _AVX2_WILL_BE_USED_ON_
 //---------------------------------------
+#ifdef _SIMD_MODE_
+#define _THREAD_MODE_
+#endif //_SIMD_MODE_
 #include<cpuid.h>
 #include<iostream>
 #include<iomanip>
@@ -16,9 +19,6 @@
 #include<climits>
 #include<utility>
 #include<type_traits>
-#ifdef _SIMD_MODE_
-#define _THREAD_MODE_
-#endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
@@ -57,14 +57,14 @@ namespace Basic_Math {
 	constexpr int vec_len = 1;
 #endif //_SIMD_00_
 #ifdef _SIMD_MODE_
-	constexpr bool SIMD_ON = true;
-	constexpr bool THREAD_ON = true;
+#define SIMD_ON 1
+#define THREAD_ON 1
 #else
-	constexpr bool SIMD_ON = false;
+#define SIMD_ON 0
 #ifdef _TREAD_MODE_
-	constexpr bool THREAD_ON = true;
+#define THREAD_ON 1
 #else
-	constexpr bool THREAD_ON = false;
+#define THREAD_ON 0
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
@@ -735,20 +735,20 @@ namespace Basic_Math {
 		return;
 	}
 	template <typename Data>
-	inline void tuple_set(Data* const& gamma) {
+	inline void tuple_set(Data const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple set at %p~\n", gamma);
 #endif
 #if defined(_SIMD_01_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm_storeu_ps(gamma, _mm_setzero_ps());
+			_mm_storeu_ps(gamma, _mm_set1_ps(alpha));
 		}
 		else {
 			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
 		}
 #elif defined(_SIMD_02_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm256_storeu_ps(gamma, _mm256_setzero_ps());
+			_mm256_storeu_ps(gamma, _mm256_set1_ps(alpha));
 		}
 		else {
 			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
@@ -785,6 +785,21 @@ namespace Basic_Math {
 #else
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2];
 #endif
+		return;
+	}
+	template <typename Data>
+	inline void tuple_not(Data* const& alpha, Data* const& gamma) {
+#ifdef _DEBUG_MODE_
+		printf("~tuple not from %p to %p~\n", alpha, gamma);
+#endif
+#if defined(_SIMD_01_)
+		gamma[0] = !alpha[0]; gamma[1] = !alpha[1]; gamma[2] = !alpha[2]; gamma[3] = !alpha[3];
+#elif defined(_SIMD_02_)
+		gamma[0] = !alpha[0]; gamma[1] = !alpha[1]; gamma[2] = !alpha[2]; gamma[3] = !alpha[3];
+		gamma[4] = !alpha[4]; gamma[5] = !alpha[5]; gamma[6] = !alpha[6]; gamma[7] = !alpha[7];
+#else
+		gamma[0] = !alpha[0]; gamma[1] = !alpha[1]; gamma[2] = !alpha[2];
+#endif 
 		return;
 	}
 #endif

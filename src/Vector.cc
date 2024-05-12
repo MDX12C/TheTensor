@@ -20,7 +20,7 @@ namespace Linalg {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space);
+            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -83,7 +83,7 @@ namespace Linalg {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space);
+            Basic_Math::tuple_set(static_cast<Data>(0), this->storage_space);
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -120,7 +120,7 @@ namespace Linalg {
 #ifdef _DEBUG_MODE_
             printf("i= %d j= %d\npointer= %p\n", i, j, &this->storage_space[i]);
 #endif
-            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
+            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, static_cast<Data>(0), &this->storage_space[i]);
             run_arry[j].detach();
         }
         std::this_thread::sleep_for(std::chrono::microseconds(50));
@@ -162,7 +162,7 @@ namespace Linalg {
         printf("SUCCESS ALLOC\n");
         printf("to set at %p\n", this->storage_space);
 #endif
-        Basic_Math::tuple_set<Data>(&this->storage_space[0]);
+        Basic_Math::tuple_set<Data>(static_cast<Data>(0), &this->storage_space[0]);
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -308,10 +308,11 @@ namespace Linalg {
             if (i < temp._real_shape)
                 run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &temp.storage_space[i], &this->storage_space[i]);
             else
-                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
+                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, static_cast<Data>(0), &this->storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        for (int i = this->_shape; i < this->_real_shape; i++)
+            this->storage_space[i] = static_cast<Data>(0);
 #else
         Data gamma = static_cast<Data>(0);
         if (this->_shape) {
@@ -415,12 +416,27 @@ namespace Linalg {
         }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
         std::thread run_arry[runtime];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++) {
+                this->storage_space[i] = alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #ifdef _DEBUG_MODE_
         printf("~operator= end~\n");
 #endif
@@ -447,8 +463,33 @@ namespace Linalg {
     return this*/
     template <typename Data>
     Vector<Data>& Vector<Data>::operator=(Data const& alpha) {
+#ifdef _THREAD_MODE_
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_set<Data>, alpha, &this->storage_space[i]);
+            run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                this->storage_space[i] = alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+#else
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha;
+#endif
         return (*this);
     }
     /*operator+
@@ -464,12 +505,36 @@ namespace Linalg {
             return *this;
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
+#ifdef _DEBUG_MODE_
+            printf("i=%d,j=%d\n", i, j);
+#endif
             run_arry[j] = std::thread(Basic_Math::tuple_add<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = this->storage_space[i] || alpha.storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = this->storage_space[i] + alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -494,12 +559,27 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator+(Data const& alpha) {
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_add_s_<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                temp.storage_space[i] = this->storage_space[i] + alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -523,12 +603,33 @@ namespace Linalg {
             return *this;
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sub<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = this->storage_space[i] || (!alpha.storage_space[i]);
+                }
+                else {
+                    temp.storage_space[i] = this->storage_space[i] - alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -550,9 +651,25 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator-(Data const& alpha) {
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sub_sb_<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
+        }
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                temp.storage_space[i] = this->storage_space[i] - alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -577,12 +694,33 @@ namespace Linalg {
             return *this;
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_mul<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = this->storage_space[i] && alpha.storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = this->storage_space[i] * alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -604,12 +742,33 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator*(Data const& alpha) {
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_mul_s_<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = this->storage_space[i] && alpha;
+                }
+                else {
+                    temp.storage_space[i] = this->storage_space[i] * alpha;
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -633,12 +792,33 @@ namespace Linalg {
             return *this;
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_div<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = (this->storage_space[i] || alpha.storage_space[i]) && (!(alpha.storage_space[i] && this->storage_space[i]));
+                }
+                else {
+                    temp.storage_space[i] = this->storage_space[i] / alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -660,12 +840,27 @@ namespace Linalg {
     Vector<Data> Vector<Data>::operator/(Data const& alpha) {
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_div_sb_<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                temp.storage_space[i] = this->storage_space[i] / alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -688,12 +883,33 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_add<Data>, &this->storage_space[i], &alpha.storage_space[i], &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    this->storage_space[i] = this->storage_space[i] || alpha.storage_space[i];
+                }
+                else {
+                    this->storage_space[i] += alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -714,12 +930,27 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>& Vector<Data>::operator+=(Data const& alpha) {
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_add_s_<Data>, &this->storage_space[i], alpha, &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                this->storage_space[i] += alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -742,12 +973,33 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sub<Data>, &this->storage_space[i], &alpha.storage_space[i], &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    this->storage_space[i] = this->storage_space[i] || (!alpha.storage_space[i]);
+                }
+                else {
+                    this->storage_space[i] -= alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -768,12 +1020,27 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>& Vector<Data>::operator-=(Data const& alpha) {
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sub_sb_<Data>, &this->storage_space[i], alpha, &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                this->storage_space[i] -= alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -796,12 +1063,33 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_mul<Data>, &this->storage_space[i], &alpha.storage_space[i], &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    this->storage_space[i] = this->storage_space[i] && alpha.storage_space[i];
+                }
+                else {
+                    this->storage_space[i] *= alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -822,10 +1110,32 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>& Vector<Data>::operator*=(Data const& alpha) {
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_mul_s_<Data>, &this->storage_space[i], alpha, &this->storage_space[i]);
             run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    this->storage_space[i] = this->storage_space[i] && alpha;
+                }
+                else {
+                    this->storage_space[i] *= alpha;
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -849,12 +1159,33 @@ namespace Linalg {
         if (this->_shape != alpha._shape)
             return (*this);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_div<Data>, &this->storage_space[i], &alpha.storage_space[i], &this->storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    this->storage_space[i] = (this->storage_space[i] || alpha.storage_space[i]) && (!(alpha.storage_space[i] && this->storage_space[i]));
+                }
+                else {
+                    this->storage_space[i] /= alpha.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (is_same_v<Data, bool>) {
             for (int i = 0; i < this->_shape; i++) {
@@ -875,10 +1206,26 @@ namespace Linalg {
     template <typename Data>
     Vector<Data>& Vector<Data>::operator/=(Data const& alpha) {
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int runtime = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            runtime--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[runtime];
+        for (int i = 0, j = 0; j < runtime; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_div_sb_<Data>, &this->storage_space[i], alpha, &this->storage_space[i]);
             run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = runtime * (Basic_Math::vec_len); i < this->_shape; i++)
+                this->storage_space[i] /= alpha;
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -892,6 +1239,93 @@ namespace Linalg {
         }
 #endif
         return (*this);
+    }
+    /*operator-
+    Enter: 1.Vector
+    mutiply the value and the Vector
+    return the answer vector*/
+    template <typename Data>
+    Vector<Data> Vector<Data>::operator-() {
+        Vector<Data> temp(*this);
+#ifdef _THREAD_MODE_
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % (Basic_Math::vec_len)) {
+            run_flag = true;
+            run_num--;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
+            if constexpr (std::is_same_v < Data, bool>) {
+                run_array[j] = std::thread(Basic_Math::tuple_not<Data>, &this->storage_space[i], &temp.storage_space[i]);
+                run_array[j].detach();
+            }
+            else {
+                run_array[j] = std::thread(Basic_Math::tuple_mul_s_<Data>, &this->storage_space[i], static_cast<Data>(-1), &temp.storage_space[i]);
+                run_array[j].detach();
+            }
+        }
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < this->_shape; i++) {
+                if constexpr (std::is_same_v < Data, bool>) {
+                    temp.storage_space[i] = !this->storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = -this->storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            if constexpr (std::is_same_v < Data, bool>) {
+                temp.storage_space[i] = !this->storage_space[i];
+            }
+            else
+                temp.storage_space[i] = -this->storage_space[i];
+#endif
+        return temp;
+    }
+    /*operator!
+    Enter: 1.vector
+    logical not operator
+    return the answer vector*/
+    template <typename Data>
+    Vector<Data> Vector<Data>::operator!() {
+        Vector<Data> temp(*this);
+#ifdef _THREAD_MODE_
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num -= 1;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_not<Data>, &this->storage_space[i], &temp.storage_space[i]);
+            run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = !this->storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+#else
+        for (int i = 0; i < this->_shape; i++)
+            temp.storage_space[i] = !this->storage_space[i];
+#endif
+        return temp;
     }
     /*freedom
     Enter: none
@@ -934,13 +1368,33 @@ namespace Linalg {
     template <typename Data>
     Vector<bool> Vector<Data>::operator==(Vector<Data> const& alpha) {
         Vector<bool> temp(this->_shape);
+        if (this->_shape != alpha._shape) {
+            temp = false;
+            return temp;
+        }
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_eq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] == alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] == alpha.storage_space[i];
@@ -955,54 +1409,31 @@ namespace Linalg {
     Vector<bool> Vector<Data>::operator==(Data const& alpha) {
         Vector<bool> temp(this->_shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_eq_s<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] == alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] == alpha;
-#endif
-        return temp;
-    }
-    /*operator==
-    Enter: 1.Vector 2.Vector
-    compare each element in two vector
-    return the bool Vector meaning unequal*/
-    template <typename Data>
-    Vector<bool> Vector<Data>::operator!=(Vector<Data> const& alpha) {
-        Vector<bool> temp(this->_shape);
-#ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_ne_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
-            run_array[j].detach();
-        }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
-#else
-        for (int i = 0; i < this->_shape; i++)
-            temp.storage_space[i] = this->storage_space[i] != alpha.storage_space[i];
-#endif
-        return temp;
-    }
-    /*operator== value back
-    Enter: 1.Vector 2.value
-    compare each element in the vector and the value
-    return the bool Vector meaning unequal*/
-    template <typename Data>
-    Vector<bool> Vector<Data>::operator!=(Data const& alpha) {
-        Vector<bool> temp(this->_shape);
-#ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            run_array[j] = std::thread(Basic_Math::tuple_ne_s<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
-            run_array[j].detach();
-        }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
-#else 
-        for (int i = 0; i < this->_shape; i++)
-            temp.storage_space[i] = this->storage_space[i] != alpha;
 #endif
         return temp;
     }
@@ -1013,13 +1444,33 @@ namespace Linalg {
     template <typename Data>
     Vector<bool> Vector<Data>::operator>(Vector<Data> const& alpha) {
         Vector<bool> temp(this->_shape);
+        if (this->_shape != alpha._shape) {
+            temp = false;
+            return temp;
+        }
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_bg_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] > alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] > alpha.storage_space[i];
@@ -1034,12 +1485,28 @@ namespace Linalg {
     Vector<bool> Vector<Data>::operator>(Data const& alpha) {
         Vector<bool> temp(this->_shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_bg_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] > alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] > alpha;
@@ -1053,13 +1520,33 @@ namespace Linalg {
     template <typename Data>
     Vector<bool> Vector<Data>::operator>=(Vector<Data> const& alpha) {
         Vector<bool> temp(this->_shape);
+        if (this->_shape != alpha._shape) {
+            temp = false;
+            return temp;
+        }
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_bq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] >= alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] >= alpha.storage_space[i];
@@ -1074,12 +1561,28 @@ namespace Linalg {
     Vector<bool> Vector<Data>::operator>=(Data const& alpha) {
         Vector<bool> temp(this->_shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_bq_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] >= alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] >= alpha;
@@ -1093,13 +1596,33 @@ namespace Linalg {
     template <typename Data>
     Vector<bool> Vector<Data>::operator<(Vector<Data> const& alpha) {
         Vector<bool> temp(this->_shape);
+        if (this->_shape != alpha._shape) {
+            temp = false;
+            return temp;
+        }
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sm_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] < alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] < alpha.storage_space[i];
@@ -1114,12 +1637,28 @@ namespace Linalg {
     Vector<bool> Vector<Data>::operator<(Data const& alpha) {
         Vector<bool> temp(this->_shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sm_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] < alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] < alpha;
@@ -1133,11 +1672,32 @@ namespace Linalg {
     template <typename Data>
     Vector<bool> Vector<Data>::operator<=(Vector<Data> const& alpha) {
         Vector<bool> temp(this->_shape);
+        if (this->_shape != alpha._shape) {
+            temp = false;
+            return temp;
+        }
 #ifdef _THREAD_MODE_ 
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sq_v<Data>, &this->storage_space[i], &alpha.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
+        }
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] <= alpha.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         for (int i = 0; i < this->_shape; i++)
@@ -1153,12 +1713,28 @@ namespace Linalg {
     Vector<bool> Vector<Data>::operator<=(Data const& alpha) {
         Vector<bool> temp(this->_shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = this->_real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (this->_shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sq_sb<Data>, &this->storage_space[i], alpha, &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = (Basic_Math::vec_len) *run_num; i < this->_shape; i++) {
+                temp.storage_space[i] = this->storage_space[i] <= alpha;
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < this->_shape; i++)
             temp.storage_space[i] = this->storage_space[i] <= alpha;
@@ -1260,33 +1836,46 @@ namespace Linalg {
     Data dot(Vector<Data> const& beta, Vector<Data> const& alpha) {
         if (beta._shape != alpha._shape)
             return static_cast<Data>(0);
-        Data gamma = static_cast<Data>(0);
         Vector<Data> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_array[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_array[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_mul<Data>, &alpha.storage_space[i], &beta.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
-#else
-        for (int i = 0; i < temp._shape; i++) {
-            temp.storage_space[i] = alpha.storage_space[i] * beta.storage_space[i];
-        }
-#endif
-        if constexpr (std::is_same_v<Data, bool>) {
-            int t = 0;
-            for (int i = 0; i < temp._shape; i++) {
-                t += temp.storage_space[i] ? 1 : -1;
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                if constexpr (std::is_same_v<Data, bool>) {
+                    temp.storage_space[i] = alpha.storage_space[i] && beta.storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = alpha.storage_space[i] * beta.storage_space[i];
+                }
             }
-            gamma = t > 0 ? 1 : 0;
         }
         else {
-            for (int i = 0; i < temp._shape; i++) {
-                gamma += temp.storage_space[i];
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+#else
+        for (int i = 0; i < temp._shape; i++) {
+            if constexpr (std::is_same_v<Data, bool>) {
+                temp.storage_space[i] = alpha.storage_space[i] && beta.storage_space[i];
+            }
+            else {
+                temp.storage_space[i] = alpha.storage_space[i] * beta.storage_space[i];
             }
         }
-        return gamma;
+#endif
+        return temp.sum();
     }
     /*operator+ value front
     Enter: 1.value 2.Vector
@@ -1296,12 +1885,33 @@ namespace Linalg {
     Vector<op_pls> operator+(op_pls const& alpha, Vector<op_pls> const& beta) {
         Vector<op_pls> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_add_s_<op_pls>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                if constexpr (std::is_same_v<op_pls, bool>) {
+                    temp.storage_space[i] = alpha || beta.storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = alpha + beta.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (std::is_same_v<op_pls, bool>) {
             for (int i = 0; i < temp._shape; i++) {
@@ -1324,12 +1934,33 @@ namespace Linalg {
     Vector<op_mns> operator-(op_mns const& alpha, Vector<op_mns> const& beta) {
         Vector<op_mns> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_sub_sf_<op_mns>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                if constexpr (std::is_same_v<op_mns, bool>) {
+                    temp.storage_space[i] = alpha || (!beta.storage_space[i]);
+                }
+                else {
+                    temp.storage_space[i] = alpha - beta.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (std::is_same_v<op_mns, bool>) {
             for (int i = 0; i < temp._shape; i++) {
@@ -1352,12 +1983,33 @@ namespace Linalg {
     Vector<op_mul> operator*(op_mul const& alpha, Vector<op_mul> const& beta) {
         Vector<op_mul> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_mul_s_<op_mul>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                if constexpr (std::is_same_v<op_mul, bool>) {
+                    temp.storage_space[i] = alpha && beta.storage_space[i];
+                }
+                else {
+                    temp.storage_space[i] = alpha * beta.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (std::is_same_v<op_mul, bool>) {
             for (int i = 0; i < temp._shape; i++) {
@@ -1380,12 +2032,33 @@ namespace Linalg {
     Vector<op_div> operator/(op_div const& alpha, Vector<op_div> const& beta) {
         Vector<op_div> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_div_sf_<op_div>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                if constexpr (std::is_same_v<op_div, bool>) {
+                    temp.storage_space[i] = (alpha || beta.storage_space[i]) && (!(alpha && beta.storage_space[i]));
+                }
+                else {
+                    temp.storage_space[i] = alpha / beta.storage_space[i];
+                }
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         if constexpr (std::is_same_v<op_div, bool>) {
             for (int i = 0; i < temp._shape; i++) {
@@ -1408,12 +2081,28 @@ namespace Linalg {
     Vector<bool> operator==(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_eq_s<Data>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha == beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha == beta.storage_space[i];
@@ -1429,12 +2118,28 @@ namespace Linalg {
     Vector<bool> operator!=(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_ne_s<Data>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha != beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha != beta.storage_space[i];
@@ -1450,12 +2155,28 @@ namespace Linalg {
     Vector<bool> operator>(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_bg_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha > beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha > beta.storage_space[i];
@@ -1471,12 +2192,28 @@ namespace Linalg {
     Vector<bool> operator>=(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_bq_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha >= beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha >= beta.storage_space[i];
@@ -1492,12 +2229,28 @@ namespace Linalg {
     Vector<bool> operator<(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_sm_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha < beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha < beta.storage_space[i];
@@ -1513,12 +2266,28 @@ namespace Linalg {
     Vector<bool> operator<=(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_num = beta._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (beta._shape % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_sq_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < beta._shape; i++) {
+                temp.storage_space[i] = alpha <= beta.storage_space[i];
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha <= beta.storage_space[i];
@@ -1539,15 +2308,27 @@ namespace Basic_Math {
 #endif
         Linalg::Vector<Data> temp(gamma);
 #ifdef _THREAD_MODE_
-        int run_times = temp._real_shape / Basic_Math::vec_len - 1;
-        std::thread run_arry[run_times];
-        for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
+        int run_num = temp._real_shape / Basic_Math::vec_len;
+        bool run_flag;
+        if (gamma % Basic_Math::vec_len) {
+            run_num--;
+            run_flag = true;
+        }
+        else {
+            run_flag = false;
+        }
+        std::thread run_arry[run_num];
+        for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_rand<Data>, &temp.storage_space[i], alpha, beta);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
-        for (int i = run_times * Basic_Math::vec_len; i < gamma; i++) {
-            temp.storage_space[i] = Basic_Math::random(alpha, beta);
+        if (run_flag) {
+            for (int i = run_num * (Basic_Math::vec_len); i < gamma; i++) {
+                temp.storage_space[i] = Basic_Math::random(alpha, beta);
+            }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
         }
 #else
         for (int i = 0; i < temp._shape; i++) {
@@ -1580,7 +2361,6 @@ namespace Basic_Math {
                 run_arry[j] = std::thread(Basic_Math::tuple_abs<Data>, &alpha.storage_space[i], &temp.storage_space[i]);
                 run_arry[j].detach();
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(50));
             for (int j = run_times * Basic_Math::vec_len; j < alpha._shape; j++) {
                 if constexpr (std::is_same_v<Data, int>) {
                     temp.storage_space[j] = std::abs(alpha.storage_space[j]);

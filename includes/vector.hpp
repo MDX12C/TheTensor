@@ -83,6 +83,8 @@ namespace Linalg
         Vector operator-(Data const&);
         Vector operator*(Data const&);
         Vector operator/(Data const&);
+        Vector operator-();
+        Vector operator!();
         Vector<bool> operator==(Vector const&);
         Vector<bool> operator<(Vector const&);
         Vector<bool> operator<=(Vector const&);
