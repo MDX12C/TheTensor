@@ -12,7 +12,7 @@ signed main() {
 	const int size = 20;
 	Linalg::Vector<float> alpha = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
 	show(alpha);
-	Linalg::Vector<bool> gamma = alpha > static_cast<float>(-1);
+	Linalg::Vector<float> gamma = Basic_Math::absolute(alpha);
 	show(gamma);
 	return 0;
 }
