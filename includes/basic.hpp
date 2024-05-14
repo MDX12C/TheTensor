@@ -740,27 +740,27 @@ namespace Basic_Math {
 		return;
 	}
 	template <typename Data>
-	inline void tuple_set(Data* const& gamma) {
+	inline void tuple_set(Data* const& gamma,Data const& alpha) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple set at %p~\n", gamma);
 #endif
 #if defined(_SIMD_01_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm_storeu_ps(gamma, _mm_setzero_ps());
+			_mm_storeu_ps(gamma, _mm_set1_ps(alpha));
 		}
 		else {
-			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
+			gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha; gamma[3] = alpha;
 		}
 #elif defined(_SIMD_02_)
 		if constexpr (std::is_same_v<Data, float>) {
-			_mm256_storeu_ps(gamma, _mm256_setzero_ps());
+			_mm256_storeu_ps(gamma, _mm256_set1_ps(alpha));
 		}
 		else {
-			gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0); gamma[3] = static_cast<Data>(0);
-			gamma[4] = static_cast<Data>(0); gamma[5] = static_cast<Data>(0); gamma[6] = static_cast<Data>(0); gamma[7] = static_cast<Data>(0);
+			gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha; gamma[3] = alpha;
+			gamma[4] = alpha; gamma[5] = alpha; gamma[6] = alpha; gamma[7] = alpha;
 		}
 #else
-		gamma[0] = static_cast<Data>(0); gamma[1] = static_cast<Data>(0); gamma[2] = static_cast<Data>(0);
+		gamma[0] = alpha; gamma[1] = alpha; gamma[2] = alpha;
 #endif
 #ifdef _DEBUG_MODE_
 		printf("~tuple set finish~\n");
