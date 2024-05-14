@@ -15,7 +15,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space, static_cast<Data>(0));
+            Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -32,16 +32,15 @@ namespace Linalg {
         std::thread run_arry[run_num];
         for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &beta[i], &this->storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_num; i++) {
-            run_arry[i].join();
-        }
-        for (int j = this->_real_shape - Basic_Math::vec_len; j < this->_real_shape; j++) {
+        for (int j = run_num * Basic_Math::vec_len; j < this->_real_shape; j++) {
             if (j < this->_shape)
                 this->storage_space[j] = beta[j];
             else
                 this->storage_space[j] = static_cast<Data>(0);
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -69,7 +68,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space, static_cast<Data>(0));
+            Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -102,10 +101,9 @@ namespace Linalg {
             printf("i= %d j= %d\npointer= %p\n", i, j, &this->storage_space[i]);
 #endif
             run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_time; i++) {
-            run_arry[i].join();
-        }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -175,13 +173,9 @@ namespace Linalg {
         std::thread run_arry[run_time];
         for (int i = 0, j = 0; i < this->_real_shape && j < run_time; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_time; i++) {
-            run_arry[i].join();
-#ifdef _DEBUG_MODE_
-            printf("%d join\n", i + 1);
-#endif
-        }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -1524,7 +1518,7 @@ namespace Basic_Math {
         for (int i = run_times * Basic_Math::vec_len; i < gamma; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
@@ -1564,7 +1558,7 @@ namespace Basic_Math {
                     alpha.storage_space[j] = std::fabs(alpha.storage_space[j]);
                 }
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(50));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
             for (int i = 0; i < alpha._shape; i++) {
                 if constexpr (std::is_same_v<Data, int>) {

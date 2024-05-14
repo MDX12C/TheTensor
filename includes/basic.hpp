@@ -67,6 +67,7 @@ namespace Basic_Math {
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
+	constexpr int wait_time = 100;
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;
 #elif defined(_SIMD_02_)
@@ -691,6 +692,9 @@ namespace Basic_Math {
 	}
 	template <typename Data>
 	inline void tuple_abs(Data* const& alpha, Data* const& gamma) {
+#ifdef _DEBUG_MODE_
+		printf("~tuple abs at %p~\n", alpha);
+#endif
 		if constexpr (std::is_same_v<Data, float>) {
 #if defined(_SIMD_01_)
 			gamma[0] = std::fabs(alpha[0]); gamma[1] = std::fabs(alpha[1]); gamma[2] = std::fabs(alpha[2]); gamma[3] = std::fabs(alpha[3]);
@@ -721,6 +725,9 @@ namespace Basic_Math {
 			gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2];
 #endif
 		}
+#ifdef _DEBUG_MODE_
+		printf("~tuple abs end~\n");
+#endif
 		return;
 	}
 	template <typename Data>
@@ -740,7 +747,7 @@ namespace Basic_Math {
 		return;
 	}
 	template <typename Data>
-	inline void tuple_set(Data* const& gamma,Data const& alpha) {
+	inline void tuple_set(Data* const& gamma, Data const& alpha) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple set at %p~\n", gamma);
 #endif
