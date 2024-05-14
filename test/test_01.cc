@@ -8,13 +8,13 @@ namespace bsm = Basic_Math;
 #define show(x)                                                                \
   { std::cout << #x << ':' << '\n' << x << '\n'; }
 signed main() {
-  Basic_Math::status();
-  const int size = 20;
-  Linalg::Vector<float> alpha = Basic_Math::random(size, Basic_Math::float_value_min, Basic_Math::float_value_max);
-  Linalg::Vector<float> beta = Basic_Math::random(size, Basic_Math::float_value_min, Basic_Math::float_value_max);
-  show(alpha);
-  show(beta);
-  Linalg::Vector<float> gamma = alpha + beta;
-  show(gamma);
-  return 0;
+	const int size = 60;
+	Linalg::Vector<float> alpha = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
+	show(alpha);
+	Linalg::Vector<float> beta = Basic_Math::random(size, static_cast<float>(-1), static_cast<float>(1));
+	show(beta);
+	bsm::status();
+	Linalg::Vector<float> gamma = alpha + beta;
+	show(gamma);
+	return 0;
 }

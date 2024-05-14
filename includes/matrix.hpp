@@ -8,7 +8,6 @@ namespace Linalg
     {
     private:
         Data* storage_space;
-        Data _sum;
         MaShape _shape;
         int _size;
 
@@ -30,7 +29,6 @@ namespace Linalg
         ~Matrix();
         Matrix T();
         inline MaShape shape() { return this->_shape; }
-        inline Data sum() { return this->_sum; }
         inline int size() { return this->_size; }
         void freedom_();
         bool endow_(MaShape const&, Data const&);
