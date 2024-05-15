@@ -71,7 +71,7 @@ namespace Basic_Math {
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;
 #elif defined(_SIMD_02_)
-	constexpr int align_size = 16;
+	constexpr int align_size = 32;
 #else 
 	constexpr int align_size = 16;
 #endif
