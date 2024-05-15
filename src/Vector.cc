@@ -15,7 +15,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space);
+            Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -32,16 +32,15 @@ namespace Linalg {
         std::thread run_arry[run_num];
         for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &beta[i], &this->storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_num; i++) {
-            run_arry[i].join();
-        }
-        for (int j = this->_real_shape - Basic_Math::vec_len; j < this->_real_shape; j++) {
+        for (int j = run_num * Basic_Math::vec_len; j < this->_real_shape; j++) {
             if (j < this->_shape)
                 this->storage_space[j] = beta[j];
             else
                 this->storage_space[j] = static_cast<Data>(0);
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -69,7 +68,7 @@ namespace Linalg {
             this->_real_shape = Basic_Math::vec_len;
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-            Basic_Math::tuple_set(this->storage_space);
+            Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -101,11 +100,10 @@ namespace Linalg {
 #ifdef _DEBUG_MODE_
             printf("i= %d j= %d\npointer= %p\n", i, j, &this->storage_space[i]);
 #endif
-            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
+            run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_time; i++) {
-            run_arry[i].join();
-        }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -139,7 +137,7 @@ namespace Linalg {
         printf("SUCCESS ALLOC\n");
         printf("to set at %p\n", this->storage_space);
 #endif
-        Basic_Math::tuple_set<Data>(&this->storage_space[0]);
+        Basic_Math::tuple_set<Data>(&this->storage_space[0], static_cast<Data>(0));
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -175,13 +173,9 @@ namespace Linalg {
         std::thread run_arry[run_time];
         for (int i = 0, j = 0; i < this->_real_shape && j < run_time; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < run_time; i++) {
-            run_arry[i].join();
-#ifdef _DEBUG_MODE_
-            printf("%d join\n", i + 1);
-#endif
-        }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -269,7 +263,7 @@ namespace Linalg {
             if (i < temp._real_shape)
                 run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &temp.storage_space[i], &this->storage_space[i]);
             else
-                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i]);
+                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
         }
         for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
             run_arry[i].join();
@@ -1143,14 +1137,14 @@ namespace Linalg {
             }
             t = t > 0 ? 1 : 0;
 #if  defined(_DEBUG_MODE_) && defined(_THREAD_MODE_)
-            beta << "size: " << alpha._shape << " total: " << t << " real size: " << alpha._real_shape << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape << " total: " << t << " real size: " << alpha._real_shape << '\n';
             for (int i = 0; i < alpha._real_shape; i++) {
                 beta << alpha.storage_space[i];
                 if (i != alpha._real_shape - 1)
                     beta << ' ';
             }
 #else
-            beta << "size: " << alpha._shape << " total: " << t << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape << " total: " << t << '\n';
             for (int i = 0; i < alpha._shape; i++) {
                 beta << alpha.storage_space[i];
                 if (i != alpha._shape - 1)
@@ -1167,24 +1161,22 @@ namespace Linalg {
             }
             digits += 2 + Basic_Math::Float16_Accuracy;
 #if defined(_DEBUG_MODE_) && defined(_THREAD_MODE_)
-            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << " real size: " << alpha._real_shape << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape << " real size: " << alpha._real_shape \
+                << std::setprecision(Basic_Math::Float16_Accuracy)\
+                << std::fixed << std::setfill(' ') << std::showpoint \
+                << std::showpos << std::internal << " total: " << sum << '\n';
             for (int i = 0; i < alpha._real_shape; i++) {
-                beta << std::setprecision(Basic_Math::Float16_Accuracy) \
-                    << std::fixed << std::setfill(' ') << std::showpoint \
-                    << std::showpos << std::internal \
-                    << std::setw(digits) \
-                    << alpha.storage_space[i];
+                beta << std::setw(digits) << alpha.storage_space[i];
                 if (i != alpha._real_shape - 1)
                     beta << ' ';
             }
 #else 
-            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape  \
+                << std::setprecision(Basic_Math::Float16_Accuracy)\
+                << std::fixed << std::setfill(' ') << std::showpoint \
+                << std::showpos << std::internal << " total: " << sum << '\n';
             for (int i = 0; i < alpha._shape; i++) {
-                beta << std::setprecision(Basic_Math::Float16_Accuracy) \
-                    << std::fixed << std::setfill(' ') << std::showpoint \
-                    << std::showpos << std::internal \
-                    << std::setw(digits) \
-                    << alpha.storage_space[i];
+                beta << std::setw(digits) << alpha.storage_space[i];
                 if (i != alpha._shape - 1)
                     beta << ' ';
             }
@@ -1199,22 +1191,18 @@ namespace Linalg {
             }
             digits += 1;
 #if defined(_DEBUG_MODE_) && defined(_THREAD_MODE_)
-            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << " real size: " << alpha._real_shape << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape << " real size: " << alpha._real_shape << std::setfill(' ') \
+                << std::showpos << std::internal << " total: " << sum << '\n';
             for (int i = 0; i < alpha._real_shape; i++) {
-                beta << std::setfill(' ') \
-                    << std::showpos << std::internal \
-                    << std::setw(digits) \
-                    << alpha.storage_space[i];
-                if (i != alpha._shape - 1)
+                beta << std::setw(digits) << alpha.storage_space[i];
+                if (i != alpha._real_shape - 1)
                     beta << ' ';
             }
 #else
-            beta << std::noshowpos << "size: " << alpha._shape << " total: " << sum << '\n';
+            beta << std::noshowpos << "size: " << alpha._shape << std::setfill(' ') \
+                << std::showpos << std::internal << " total: " << sum << '\n';
             for (int i = 0; i < alpha._shape; i++) {
-                beta << std::setfill(' ') \
-                    << std::showpos << std::internal \
-                    << std::setw(digits) \
-                    << alpha.storage_space[i];
+                beta << std::setw(digits) << alpha.storage_space[i];
                 if (i != alpha._shape - 1)
                     beta << ' ';
             }
@@ -1525,13 +1513,12 @@ namespace Basic_Math {
         std::thread run_arry[run_times];
         for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_rand<Data>, &temp.storage_space[i], alpha, beta);
-        }
-        for (int i = 0; i < run_times; i++) {
-            run_arry[i].join();
+            run_arry[j].detach();
         }
         for (int i = run_times * Basic_Math::vec_len; i < gamma; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
@@ -1561,9 +1548,7 @@ namespace Basic_Math {
             std::thread run_arry[run_times];
             for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
                 run_arry[j] = std::thread(Basic_Math::tuple_abs<Data>, &alpha.storage_space[i], &temp.storage_space[i]);
-            }
-            for (int i = 0; i < run_times; i++) {
-                run_arry[i].join();
+                run_arry[j].detach();
             }
             for (int j = run_times * Basic_Math::vec_len; j < alpha._shape; j++) {
                 if constexpr (std::is_same_v<Data, int>) {
@@ -1573,6 +1558,7 @@ namespace Basic_Math {
                     alpha.storage_space[j] = std::fabs(alpha.storage_space[j]);
                 }
             }
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
 #else
             for (int i = 0; i < alpha._shape; i++) {
                 if constexpr (std::is_same_v<Data, int>) {
