@@ -1,7 +1,7 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
 /*constants*/
-//#define _DEBUG_MODE_
+#define _DEBUG_MODE_
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
 #define _AVX2_WILL_BE_USED_ON_
@@ -67,7 +67,7 @@ namespace Basic_Math {
 #endif //_TREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
-	constexpr int wait_time = 150;
+	constexpr int wait_time = 50;
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;
 #elif defined(_SIMD_02_)

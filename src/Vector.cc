@@ -51,7 +51,12 @@ namespace Linalg {
             else
                 this->storage_space[j] = static_cast<Data>(0);
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+        }
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -124,7 +129,12 @@ namespace Linalg {
             run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+        }
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -206,7 +216,12 @@ namespace Linalg {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &alpha.storage_space[i], &this->storage_space[i]);
             run_arry[j].detach();
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+        }
 #else
         this->storage_space = new Data[this->_shape];
         Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
@@ -1230,7 +1245,7 @@ namespace Linalg {
             for (int gamma = 0; gamma < alpha._shape; gamma++) {
                 digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
                 sum += alpha.storage_space[gamma];
-        }
+            }
             digits += 2 + Basic_Math::Float16_Accuracy;
 #if defined(_DEBUG_MODE_) && defined(_THREAD_MODE_)
             beta << std::noshowpos << "size: " << alpha._shape << " real size: " << alpha._real_shape \
@@ -1590,7 +1605,12 @@ namespace Basic_Math {
         for (int i = run_times * Basic_Math::vec_len; i < gamma; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+        }
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
@@ -1630,7 +1650,12 @@ namespace Basic_Math {
                     alpha.storage_space[j] = std::fabs(alpha.storage_space[j]);
                 }
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+            if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+            }
+            else {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            }
 #else
             for (int i = 0; i < alpha._shape; i++) {
                 if constexpr (std::is_same_v<Data, int>) {
@@ -1646,8 +1671,8 @@ namespace Basic_Math {
 #endif
             return temp;
         }
-                }
-            }
+    }
+}
 template class Linalg::Vector<int>;
 template class Linalg::Vector<float>;
 template class Linalg::Vector<bool>;
