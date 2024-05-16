@@ -13,7 +13,12 @@ namespace Linalg {
             this->_shape = 1;
 #ifdef _THREAD_MODE_
             this->_real_shape = Basic_Math::vec_len;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            if constexpr (std::is_same_v<Data, float>) {
+                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            }
+            else {
+                this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+            }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
@@ -26,7 +31,13 @@ namespace Linalg {
         this->_shape = alpha;
 #ifdef _THREAD_MODE_
         this->_real_shape = Basic_Math::size_check(alpha);
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        this->_real_shape = Basic_Math::vec_len;
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         int run_num = (this->_real_shape / Basic_Math::vec_len) - 1;
         std::thread run_arry[run_num];
@@ -66,7 +77,12 @@ namespace Linalg {
             this->_shape = 1;
 #ifdef _THREAD_MODE_
             this->_real_shape = Basic_Math::vec_len;
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            if constexpr (std::is_same_v<Data, float>) {
+                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            }
+            else {
+                this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+            }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
 #else
@@ -82,7 +98,12 @@ namespace Linalg {
 #ifdef _DEBUG_MODE_
         printf("rs= %d\n", this->_real_shape);
 #endif
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
@@ -127,7 +148,12 @@ namespace Linalg {
         this->_shape = 1;
 #ifdef _THREAD_MODE_
         this->_real_shape = Basic_Math::size_check(this->_shape);
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
@@ -160,7 +186,12 @@ namespace Linalg {
         this->_shape = alpha._shape;
 #ifdef _THREAD_MODE_
         this->_real_shape = alpha._real_shape;
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
@@ -199,7 +230,12 @@ namespace Linalg {
 #endif
 #ifdef _THREAD_MODE_
         Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
-        _mm_free(this->storage_space);
+        if constexpr (std::is_same_v<Data, float>) {
+            _mm_free(this->storage_space);
+        }
+        else {
+            free(this->storage_space);
+        }
 #else
         Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
         delete[] this->storage_space;
@@ -251,12 +287,22 @@ namespace Linalg {
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
         if (this->_shape) {
-            _mm_free(this->storage_space);
+            if constexpr (std::is_same_v<Data, float>) {
+                _mm_free(this->storage_space);
+            }
+            else {
+                free(this->storage_space);
+            }
             Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
         }
         this->_shape = alpha;
         this->_real_shape = Basic_Math::size_check(alpha);
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
@@ -299,10 +345,20 @@ namespace Linalg {
             return false;
 #ifdef _THREAD_MODE_
         Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
-        _mm_free(this->storage_space);
+        if constexpr (std::is_same_v<Data, float>) {
+            _mm_free(this->storage_space);
+        }
+        else {
+            free(this->storage_space);
+        }
         this->_shape = alpha;
         this->_real_shape = Basic_Math::size_check(alpha);
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
@@ -344,12 +400,22 @@ namespace Linalg {
 #endif
 #ifdef _THREAD_MODE_
         if (this->_shape) {
-            _mm_free(this->storage_space);
+            if constexpr (std::is_same_v<Data, float>) {
+                _mm_free(this->storage_space);
+            }
+            else {
+                free(this->storage_space);
+            }
             Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
         }
         this->_shape = alpha._shape;
         this->_real_shape = alpha._real_shape;
-        this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         int runtime = this->_real_shape / Basic_Math::vec_len;
         std::thread run_arry[runtime];
@@ -858,8 +924,14 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
         this->_real_shape = Basic_Math::vec_len;
-        _mm_free(this->storage_space);
-        this->storage_space = (Data*) _mm_malloc(sizeof(Data) * this->_real_shape, Basic_Math::align_size);
+        if constexpr (std::is_same_v<Data, float>) {
+            _mm_free(this->storage_space);
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            free(this->storage_space);
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         for (int i = 0; i < this->_real_shape; i++)
             this->storage_space[i] = static_cast<Data>(0);
@@ -1158,7 +1230,7 @@ namespace Linalg {
             for (int gamma = 0; gamma < alpha._shape; gamma++) {
                 digits = std::max(digits, Basic_Math::Int_Digits(alpha.storage_space[gamma]));
                 sum += alpha.storage_space[gamma];
-            }
+        }
             digits += 2 + Basic_Math::Float16_Accuracy;
 #if defined(_DEBUG_MODE_) && defined(_THREAD_MODE_)
             beta << std::noshowpos << "size: " << alpha._shape << " real size: " << alpha._real_shape \
@@ -1574,8 +1646,8 @@ namespace Basic_Math {
 #endif
             return temp;
         }
-    }
-}
+                }
+            }
 template class Linalg::Vector<int>;
 template class Linalg::Vector<float>;
 template class Linalg::Vector<bool>;
