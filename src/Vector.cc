@@ -400,8 +400,17 @@ namespace Linalg {
     return the data in the coordinate*/
     template <typename Data>
     Data& Vector<Data>::operator[](int const& alpha) {
-        if (alpha < 0 || alpha >= this->_shape)
-            return this->storage_space[0];
+        if (alpha < 0 || alpha >= this->_shape) {
+            if constexpr (std::is_same_v<Data, float>) {
+                return Basic_Math::float_leak;
+            }
+            else if constexpr (std::is_same_v<Data, int>) {
+                return Basic_Math::int_leak;
+            }
+            else {
+                return Basic_Math::bool_leak;
+            }
+        }
         return this->storage_space[alpha];
     }
     /*operator=

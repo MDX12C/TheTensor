@@ -76,12 +76,21 @@ namespace Basic_Math {
 	constexpr int align_size = 8;
 #endif
 #endif //_THREAD_MODE_
-	constexpr float float_value_max = static_cast<float>(200);
-	constexpr float float_value_min = (-1) * float_value_max;
-	constexpr int int_value_max = static_cast<int>(200);
-	constexpr int int_value_min = (-1) * int_value_max;
+	extern const float float_value_max;
+	extern const float float_value_min;
+	extern const int int_value_max;
+	extern const int int_value_min;
+	extern const bool bool_value_max;
+	extern const bool bool_value_min;
 	extern std::atomic<bool> set_seed;
 	extern std::atomic<unsigned long long> memory_heap;
+	extern float float_leak;
+	extern bool bool_leak;
+	extern int int_leak;
+	/*int digits
+	Enter: 1.value
+	count how many digits the value has before the decimal point
+	return the answer*/
 	template <typename Data>
 	inline int Int_Digits(Data const& alpha) {
 		if constexpr (std::is_same_v<Data, bool>) {
@@ -96,6 +105,10 @@ namespace Basic_Math {
 			}
 		}
 	}
+	/*random
+	Enter: 1.min value 2.max value
+	random a value between min and max
+	return the answer*/
 	template <typename Data>
 	inline Data random(Data const& alpha, Data const& beta) {
 		if (!static_cast<bool>(set_seed.load())) {
@@ -145,6 +158,8 @@ namespace Basic_Math {
 			return alpha + (std::rand() % range);
 		}
 	}
+	/*status
+	return the Basic status*/
 	inline void status() {
 		printf("\n");
 		for (int i = 0; i < terminal_width; i++) printf("-");
@@ -173,9 +188,11 @@ namespace Basic_Math {
 		return;
 	}
 #ifdef _THREAD_MODE_
+	/*below are the functions you don't need to use*/
 	inline int size_check(int const& alpha) {
 		int gamma = alpha / vec_len; gamma += (alpha % vec_len) ? 1 : 0; gamma *= vec_len; return gamma;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -207,6 +224,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_add_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -238,6 +256,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sub(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -269,6 +288,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sub_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -300,6 +320,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sub_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -331,6 +352,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_mul(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -362,6 +384,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_mul_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -393,6 +416,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_div(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -428,6 +452,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_div_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -463,6 +488,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_div_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
@@ -498,6 +524,7 @@ namespace Basic_Math {
 		}
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_eq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -510,6 +537,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_eq_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -522,6 +550,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_ne_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -534,6 +563,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -546,6 +576,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bg_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -558,6 +589,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bg_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -570,6 +602,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bg_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -582,6 +615,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -594,6 +628,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -606,6 +641,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_bq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -618,6 +654,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sm_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -630,6 +667,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sm_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -642,6 +680,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sm_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -654,6 +693,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -666,6 +706,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -678,6 +719,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_sq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
@@ -690,6 +732,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_abs(Data* const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
@@ -730,6 +773,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_rand(Data* const& gamma, Data const& alpha, Data const& beta) {
 #if defined(_SIMD_01_)
@@ -746,6 +790,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_set(Data* const& gamma, Data const& alpha) {
 #ifdef _DEBUG_MODE_
@@ -774,6 +819,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
+	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_load(Data* const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
@@ -799,7 +845,7 @@ namespace Basic_Math {
 #endif
 		return;
 	}
-#endif
+#endif //THREAD MODE
 }
 namespace Linalg {
 	typedef struct
