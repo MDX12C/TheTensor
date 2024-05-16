@@ -13,7 +13,6 @@ override MAINFILE ?= $(MAINFILE)
 
 OBJS = $(SRCS:.cc=.o)
 
-
 $(TARGET): $(OBJS)
 	@if [ ! -d "dist" ]; then \
 		echo "creating dist/ folder"; \
