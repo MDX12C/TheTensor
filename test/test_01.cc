@@ -5,6 +5,7 @@ namespace bsm = Basic_Math;
 #else 
 #include "../includes/math.hpp"
 #endif
+
 #define show(x)                                                                \
   { std::cout << #x << ':' << '\n' << x << '\n'; }
 signed main() {
