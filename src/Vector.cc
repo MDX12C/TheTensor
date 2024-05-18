@@ -321,14 +321,22 @@ namespace Linalg {
         Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
-            if (i < temp._real_shape)
+            if (i < temp._real_shape) {
                 run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &temp.storage_space[i], &this->storage_space[i]);
-            else
+                run_arry[j].detach();
+            }
+            else {
                 run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
+                run_arry[j].detach();
+            }
         }
-        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
-            run_arry[i].join();
+        if constexpr (std::is_same_v<Data, float>) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+        }
+
 #else
         Data gamma = static_cast<Data>(0);
         if (this->_shape) {
