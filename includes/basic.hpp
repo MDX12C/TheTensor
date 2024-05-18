@@ -60,7 +60,7 @@ namespace Basic_Math {
 	constexpr bool THREAD_ON = true;
 #else
 	constexpr bool SIMD_ON = false;
-#ifdef _TREAD_MODE_
+#ifdef _THREAD_MODE_
 	constexpr bool THREAD_ON = true;
 #else
 	constexpr bool THREAD_ON = false;
