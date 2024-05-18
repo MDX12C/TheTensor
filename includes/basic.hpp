@@ -190,6 +190,7 @@ namespace Basic_Math {
 #ifdef _THREAD_MODE_
 	/*below are the functions you don't need to use*/
 	inline int size_check(int const& alpha) {
+		if (alpha <= 0)return 0;
 		int gamma = alpha / vec_len; gamma += (alpha % vec_len) ? 1 : 0; gamma *= vec_len; return gamma;
 	}
 	/*below are the functions you don't need to use*/
