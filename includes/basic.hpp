@@ -64,7 +64,7 @@ namespace Basic_Math {
 	constexpr bool THREAD_ON = true;
 #else
 	constexpr bool THREAD_ON = false;
-#endif //_TREAD_MODE_
+#endif //_THREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
 	constexpr int wait_time = 50;
@@ -76,12 +76,6 @@ namespace Basic_Math {
 	constexpr int align_size = 8;
 #endif
 #endif //_THREAD_MODE_
-	extern const float float_value_max;
-	extern const float float_value_min;
-	extern const int int_value_max;
-	extern const int int_value_min;
-	extern const bool bool_value_max;
-	extern const bool bool_value_min;
 	extern std::atomic<bool> set_seed;
 	extern std::atomic<unsigned long long> memory_heap;
 	extern float float_leak;
@@ -563,7 +557,7 @@ namespace Basic_Math {
 		gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2]; gamma[3] = alpha[3] != beta[3];
 #endif
 		return;
-	}
+}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
@@ -840,7 +834,7 @@ namespace Basic_Math {
 		else {
 			gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 			gamma[4] = alpha[4]; gamma[5] = alpha[5]; gamma[6] = alpha[6]; gamma[7] = alpha[7];
-		}
+	}
 #else
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 #endif
