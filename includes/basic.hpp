@@ -4,7 +4,7 @@
 #define _DEBUG_MODE_
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
-#define _AVX2_WILL_BE_USED_ON_
+#define _AVX2_WILL_BE_USED_ON_ //open AVX2
 //---------------------------------------
 #include<iostream>
 #include<iomanip>
@@ -184,7 +184,7 @@ namespace Basic_Math {
 #ifdef _THREAD_MODE_
 	/*below are the functions you don't need to use*/
 	inline int size_check(int const& alpha) {
-		if (alpha <= 0)return 0;
+		if (alpha <= 0)return vec_len;
 		int gamma = alpha / vec_len; gamma += (alpha % vec_len) ? 1 : 0; gamma *= vec_len; return gamma;
 	}
 	/*below are the functions you don't need to use*/
@@ -557,7 +557,7 @@ namespace Basic_Math {
 		gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2]; gamma[3] = alpha[3] != beta[3];
 #endif
 		return;
-}
+	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
 	inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
@@ -834,7 +834,7 @@ namespace Basic_Math {
 		else {
 			gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 			gamma[4] = alpha[4]; gamma[5] = alpha[5]; gamma[6] = alpha[6]; gamma[7] = alpha[7];
-	}
+		}
 #else
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 #endif

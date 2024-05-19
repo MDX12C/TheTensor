@@ -21,6 +21,12 @@ namespace Linalg {
             }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
+            if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+            }
+            else {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            }
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -90,6 +96,12 @@ namespace Linalg {
             }
             Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
+            if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+            }
+            else {
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            }
 #else
             this->storage_space = new Data[1];
             Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -174,6 +186,12 @@ namespace Linalg {
         printf("to set at %p\n", this->storage_space);
 #endif
         Basic_Math::tuple_set<Data>(&this->storage_space[0], static_cast<Data>(0));
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+        }
 #else
         this->storage_space = new Data[1];
         Basic_Math::memory_heap.fetch_add(sizeof(Data));
@@ -301,6 +319,13 @@ namespace Linalg {
             return true;
         Vector<Data> temp(*this);
 #ifdef _THREAD_MODE_
+        if (this->_real_shape == Basic_Math::size_check(alpha)) {
+            this->_shape = alpha;
+            for (int i = this->_shape; i < this->_real_shape; i++) {
+                this->storage_space[i] = static_cast<Data>(0);
+            }
+            return true;
+        }
         if (this->_shape) {
             if constexpr (std::is_same_v<Data, float>) {
                 _mm_free(this->storage_space);
@@ -336,7 +361,6 @@ namespace Linalg {
         else {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
         }
-
 #else
         Data gamma = static_cast<Data>(0);
         if (this->_shape) {
@@ -367,28 +391,49 @@ namespace Linalg {
         if (alpha < 0 || alpha >= this->_shape)
             return false;
 #ifdef _THREAD_MODE_
-        Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
-        if constexpr (std::is_same_v<Data, float>) {
-            _mm_free(this->storage_space);
+        if (this->_real_shape == Basic_Math::size_check(alpha)) {
+            this->_shape = alpha;
+            for (int i = this->_shape; i < this->_real_shape; i++) {
+                this->storage_space[i] = static_cast<Data>(0);
+            }
         }
         else {
-            free(this->storage_space);
+            Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
+            if constexpr (std::is_same_v<Data, float>) {
+                _mm_free(this->storage_space);
+            }
+            else {
+                free(this->storage_space);
+            }
+            this->_shape = alpha;
+            this->_real_shape = Basic_Math::size_check(alpha);
+            if constexpr (std::is_same_v<Data, float>) {
+                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            }
+            else {
+                this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+            }
+            Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
         }
-        this->_shape = alpha;
-        this->_real_shape = Basic_Math::size_check(alpha);
-        if constexpr (std::is_same_v<Data, float>) {
-            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
-        }
-        else {
-            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
-        }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
-        std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
+        int run_times = this->_real_shape / Basic_Math::vec_len - 1;
+        std::thread run_arry[run_times];
+        for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, &beta[i], &this->storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < this->_real_shape / Basic_Math::vec_len; i++) {
-            run_arry[i].join();
+        for (int i = run_times * Basic_Math::vec_len; i < this->_real_shape; i++) {
+            if (i < this->_shape) {
+                this->storage_space[i] = beta[i];
+            }
+            else {
+                this->storage_space[i] = static_cast<Data>(0);
+            }
+        }
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
         }
 #else
         Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
