@@ -1666,9 +1666,13 @@ namespace Linalg {
         std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_mul_s_<op_mul>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
-            run_arry[i].join();
+        if (std::is_same_v<op_mul, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::operate_delay));
         }
 #else
         if constexpr (std::is_same_v<op_mul, bool>) {
