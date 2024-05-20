@@ -613,7 +613,7 @@ namespace Linalg {
             run_arry[j].detach();
         }
         for (int i = run_times * Basic_Math::vec_len; i < this->_shape; i++) {
-            if constexpr (is_same_v<Data, bool>) {
+            if constexpr (std::is_same_v<Data, bool>) {
                 temp.storage_space[i] = this->storage_space[i] || alpha;
             }
             else {
@@ -992,7 +992,7 @@ namespace Linalg {
 #ifdef _THREAD_MODE_
         int run_times = this->_real_shape / Basic_Math::vec_len - 1;
         std::thread run_array[run_times];
-        for (int i = 0, j = 0; j< run_times; i += Basic_Math::vec_len, j++) {
+        for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
             run_array[j] = std::thread(Basic_Math::tuple_sub_sb_<Data>, &this->storage_space[i], alpha, &this->storage_space[i]);
             run_array[j].detach();
         }
