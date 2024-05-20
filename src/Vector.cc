@@ -25,7 +25,7 @@ namespace Linalg {
                 std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
             }
             else {
-                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
             }
 #else
             this->storage_space = new Data[1];
@@ -61,7 +61,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -100,7 +100,7 @@ namespace Linalg {
                 std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
             }
             else {
-                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
             }
 #else
             this->storage_space = new Data[1];
@@ -145,7 +145,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -190,7 +190,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         this->storage_space = new Data[1];
@@ -238,7 +238,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         this->storage_space = new Data[this->_shape];
@@ -359,7 +359,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         Data gamma = static_cast<Data>(0);
@@ -433,7 +433,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
@@ -509,7 +509,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #ifdef _DEBUG_MODE_
         printf("~operator= end~\n");
@@ -548,7 +548,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 3));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 16));
         }
 #else
         for (int i = 0; i < this->_shape; i++) {
@@ -580,7 +580,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -624,7 +624,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -667,7 +667,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -708,7 +708,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -743,7 +743,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -776,7 +776,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -811,7 +811,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -852,7 +852,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -886,7 +886,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -926,7 +926,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -968,7 +968,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -1008,7 +1008,7 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 162));
         }
 #else
         if constexpr (is_same_v<Data, bool>) {
@@ -1792,7 +1792,7 @@ namespace Linalg {
 }
 namespace Basic_Math {
     /*random Vector
-    Enter: 1.Vector size 2.min value 3.max value
+    Enter: 1.Vector size 2.min value 16.max value
     random a vector
     return the vector*/
     template <typename Data>
@@ -1815,7 +1815,7 @@ namespace Basic_Math {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 1024));
         }
 #else
         for (int i = 0; i < temp._shape; i++) {
@@ -1860,7 +1860,7 @@ namespace Basic_Math {
                 std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
             }
             else {
-                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 8));
+                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * 1024));
             }
 #else
             for (int i = 0; i < alpha._shape; i++) {
