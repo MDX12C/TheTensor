@@ -63,9 +63,9 @@ namespace Basic_Math {
 #endif //_THREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
-	constexpr int wait_time = 50;
+	constexpr int wait_time = 100;
 	constexpr int set_delay = 16;
-	constexpr int operate_delay = 32;
+	constexpr int operate_delay = 64;
 	constexpr int function_delay = 1024;
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;

@@ -1703,7 +1703,7 @@ namespace Linalg {
             run_arry[j].detach();
         }
         for (int j = run_times * Basic_Math::vec_len; j < beta._shape; j++) {
-            if constexpr (std::is_same_v<Data, bool>) {
+            if constexpr (std::is_same_v<op_div, bool>) {
                 temp.storage_space[j] = (alpha || beta.storage_space[j]) && (!(alpha && beta.storage_space[j]));
             }
             else {
