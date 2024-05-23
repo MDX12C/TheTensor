@@ -1696,12 +1696,25 @@ namespace Linalg {
     Vector<op_div> operator/(op_div const& alpha, Vector<op_div> const& beta) {
         Vector<op_div> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_times = beta._real_shape / Basic_Math::vec_len - 1;
+        std::thread run_arry[run_times];
+        for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_div_sf_<op_div>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
-            run_arry[i].join();
+        for (int j = run_times * Basic_Math::vec_len; j < beta._shape; j++) {
+            if constexpr (std::is_same_v<Data, bool>) {
+                temp.storage_space[j] = (alpha || beta.storage_space[j]) && (!(alpha && beta.storage_space[j]));
+            }
+            else {
+                temp.storage_space[j] = alpha / beta.storage_space[j];
+            }
+        }
+        if (std::is_same_v<op_div, float> && Basic_Math::SIMD_ON) {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::operate_delay));
         }
 #else
         if constexpr (std::is_same_v<op_div, bool>) {
