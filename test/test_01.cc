@@ -13,5 +13,13 @@ signed main() {
 	const int size = 20;
 	Linalg::Vector<float> Alpha = bsm::random(size, static_cast<float>(-1), static_cast<float>(1));
 	show(Alpha);
+	Linalg::Vector<float> Beta = bsm::random(size, static_cast<float>(-1), static_cast<float>(1));
+	show(Beta);
+	Linalg::Vector<float> Gamma(size);
+	show(Gamma);
+	Gamma = Alpha = Beta;
+	show(Gamma);
+	show(Alpha);
+	show(Beta);
 	return 0;
 }
