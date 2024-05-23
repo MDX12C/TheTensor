@@ -1813,13 +1813,16 @@ namespace Linalg {
     Vector<bool> operator>=(Data const& alpha, Vector<Data> const& beta) {
         Vector<bool> temp(beta._shape);
 #ifdef _THREAD_MODE_
-        std::thread run_arry[beta._real_shape / Basic_Math::vec_len];
-        for (int i = 0, j = 0; i < beta._real_shape; i += Basic_Math::vec_len, j++) {
+        int run_times = beta._real_shape / Basic_Math::vec_len - 1;
+        std::thread run_arry[run_times];
+        for (int i = 0, j = 0; j < run_times; i += Basic_Math::vec_len, j++) {
             run_arry[j] = std::thread(Basic_Math::tuple_bq_sf<Data>, alpha, &beta.storage_space[i], &temp.storage_space[i]);
+            run_arry[j].detach();
         }
-        for (int i = 0; i < beta._real_shape / Basic_Math::vec_len; i++) {
-            run_arry[i].join();
+        for (int i = run_times * Basic_Math::vec_len; i < beta._shape; i++) {
+            temp.storage_space[i] = alpha >= beta.storage_space[i];
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::operate_delay));
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = alpha >= beta.storage_space[i];
