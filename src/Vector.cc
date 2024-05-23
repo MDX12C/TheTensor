@@ -1902,12 +1902,7 @@ namespace Basic_Math {
         for (int i = run_times * Basic_Math::vec_len; i < gamma; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
         }
-        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
-        }
-        else {
-            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::function_delay));
-        }
+        std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::function_delay));
 #else
         for (int i = 0; i < temp._shape; i++) {
             temp.storage_space[i] = Basic_Math::random(alpha, beta);
@@ -1947,12 +1942,7 @@ namespace Basic_Math {
                     alpha.storage_space[j] = std::fabs(alpha.storage_space[j]);
                 }
             }
-            if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
-                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
-            }
-            else {
-                std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::function_delay));
-            }
+            std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::function_delay));
 #else
             for (int i = 0; i < alpha._shape; i++) {
                 if constexpr (std::is_same_v<Data, int>) {
