@@ -871,14 +871,14 @@ namespace Basic_Math {
 		ll::Teshape* S;
 	};
 #define _TransForm(Dtype) pointer.##Dtype 
-	typedef struct Data_node {
+	typedef struct {
 		Data_type type;
 		Data_ptr pointer;
-	};
-	typedef struct mm_node{
-		mm_node* front,* back;
-		int size;Data_node data;
-	};
+	}Data_node;
+	typedef struct {
+		mm_node* front, * back;
+		int size; Data_node data;
+	}mm_node;
 	extern unsigned long long mm_heap;
 	extern int mm_block;
 	extern mm_node* mm_top;
