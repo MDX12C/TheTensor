@@ -857,17 +857,17 @@ namespace Linalg {
 }
 #define ll Linalg
 namespace Basic_Math {
-	enum Data_type { V_i, V_b, V_f, M_i, M_b, M_f, T_i, T_b, T_f, S };
+	enum Data_type { V_int, V_bool, V_float, M_int, M_bool, M_float, T_int, T_bool, T_float, S };
 	union Data_ptr {
-		ll::Vector<int>* V_i;
-		ll::Vector<bool>* V_b;
-		ll::Vector<float>* V_f;
-		ll::Matrix<int>* M_i;
-		ll::Matrix<bool>* M_b;
-		ll::Matrix<float>* M_f;
-		ll::Tensor<int>* T_i;
-		ll::Tensor<bool>* T_b;
-		ll::Tensor<float>* T_f;
+		ll::Vector<int>* V_int;
+		ll::Vector<bool>* V_bool;
+		ll::Vector<float>* V_float;
+		ll::Matrix<int>* M_int;
+		ll::Matrix<bool>* M_bool;
+		ll::Matrix<float>* M_float;
+		ll::Tensor<int>* T_int;
+		ll::Tensor<bool>* T_bool;
+		ll::Tensor<float>* T_float;
 		ll::Teshape* S;
 	};
 #define _TransForm(Dtype) pointer.##Dtype 
