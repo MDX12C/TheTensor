@@ -856,18 +856,21 @@ namespace Linalg {
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
 #define ll Linalg
+#define Vc Vector
+#define Mt Matrix
+#define Ts Tensor
 namespace Basic_Math {
-	enum Data_type { V_int, V_bool, V_float, M_int, M_bool, M_float, T_int, T_bool, T_float, S };
+	enum Data_type { V_i, V_b, V_f, M_i, M_b, M_f, T_i, T_b, T_f, S };
 	union Data_ptr {
-		ll::Vector<int>* V_int;
-		ll::Vector<bool>* V_bool;
-		ll::Vector<float>* V_float;
-		ll::Matrix<int>* M_int;
-		ll::Matrix<bool>* M_bool;
-		ll::Matrix<float>* M_float;
-		ll::Tensor<int>* T_int;
-		ll::Tensor<bool>* T_bool;
-		ll::Tensor<float>* T_float;
+		ll::Vc<int>* V_i;
+		ll::Vc<bool>* V_b;
+		ll::Vc<float>* V_f;
+		ll::Mt<int>* M_i;
+		ll::Mt<bool>* M_b;
+		ll::Mt<float>* M_f;
+		ll::Ts<int>* T_i;
+		ll::Ts<bool>* T_b;
+		ll::Ts<float>* T_f;
 		ll::Teshape* S;
 	};
 #define _TransForm(Dtype) pointer.##Dtype 
@@ -885,4 +888,7 @@ namespace Basic_Math {
 	extern mm_node* mm_buttom;
 }
 #undef ll
+#undef Vc
+#undef Mt
+#undef Ts
 #endif //BASIC_H

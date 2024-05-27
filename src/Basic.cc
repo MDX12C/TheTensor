@@ -5,6 +5,10 @@ namespace Basic_Math {
     float float_leak = 0;
     bool bool_leak = false;
     int int_leak = 0;
+    unsigned long long mm_heap = 0;
+    int mm_block = 0;
+    mm_node* mm_top = nullptr;
+    mm_node* mm_buttom = nullptr;
 }
 namespace Linalg {
     /*MaShape operator==
