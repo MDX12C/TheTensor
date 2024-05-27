@@ -5,4 +5,17 @@
 #define _THREAD_MODE_ //open thread mode
 #define _SIMD_MODE_ //open SIMD mode
 #define _AVX2_WILL_BE_USED_ON_ //open AVX2
+/*end of constants*/
+
+/*control block*/
+#ifdef _SIMD_MODE_
+#define _THREAD_MODE_
+#ifdef _AVX2_WILL_BE_USED_ON_
+#define _SIMD_02_
+#else
+#define _SIMD_01_
+#endif //AVX_ON
+#else 
+#undef _AVX2_WILL_BE_UESD_ON_
+#endif //_SIMD_MODE_
 #endif // DEFINE_H

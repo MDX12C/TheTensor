@@ -11,9 +11,6 @@
 #include<climits>
 #include<utility>
 #include<type_traits>
-#ifdef _SIMD_MODE_
-#define _THREAD_MODE_
-#endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
@@ -25,17 +22,12 @@
 #ifdef _SIMD_MODE_
 #include<immintrin.h>
 #include<x86intrin.h>
+#endif //_SIMD_MODE_
 #ifdef _AVX2_WILL_BE_USED_ON_
 #include<avx2intrin.h>
 #include<avxintrin.h>
 #include<avxvnniintrin.h>
-#define _SIMD_02_
-#else //_AVX02_WILL_BE_USED_ON_
-#define _SIMD_01_
-#endif //_AVX02_WILL_BE_USED_ON_
-#else //_SIMD_MODE_
-#undef _AVX02_WILL_BE_USED_ON_
-#endif //_SIMD_MODE_
+#endif //AVX2_ON
 namespace Basic_Math {
 	constexpr int Float16_Accuracy = 3;
 	constexpr int Float32_Accuracy = 7;
@@ -857,9 +849,36 @@ namespace Linalg {
 	class Matrix;
 	template <typename Data>
 	class Tensor;
+	class Teshape;
 	template <typename Data>
 	void AddLine_(Matrix<Data>&, Vector<Data> const&);
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
+#define ll Linalg
+namespace Basic_Math {
+	enum Data_type { V_i, V_b, V_f, M_i, M_b, M_f, T_i, T_b, T_f, S };
+	union Data_ptr {
+		ll::Vector<int>* V_i;
+		ll::Vector<bool>* V_b;
+		ll::Vector<float>* V_f;
+		ll::Matrix<int>* M_i;
+		ll::Matrix<bool>* M_b;
+		ll::Matrix<float>* M_f;
+		ll::Tensor<int>* T_i;
+		ll::Tensor<bool>* T_b;
+		ll::Tensor<float>* T_f;
+		ll::Teshape* S;
+	};
+#define _TransForm(Dtype) Data_ptr.##Dtype 
+	typedef struct Data_node {
+		Data_type type;
+		Data_ptr pointer;
+	};
+	typedef struct mm_node{
+		mm_node* front,* back;
+		int size;Data_node data;
+	};
+}
+#undef ll
 #endif //BASIC_H
