@@ -870,7 +870,7 @@ namespace Basic_Math {
 		ll::Tensor<float>* T_f;
 		ll::Teshape* S;
 	};
-#define _TransForm(Dtype) Data_ptr.##Dtype 
+#define _TransForm(Dtype) pointer.##Dtype 
 	typedef struct Data_node {
 		Data_type type;
 		Data_ptr pointer;
@@ -879,6 +879,10 @@ namespace Basic_Math {
 		mm_node* front,* back;
 		int size;Data_node data;
 	};
+	extern unsigned long long mm_heap;
+	extern int mm_block;
+	extern mm_node* mm_top;
+	extern mm_node* mm_buttom;
 }
 #undef ll
 #endif //BASIC_H
