@@ -860,32 +860,7 @@ namespace Linalg {
 #define Mt Matrix
 #define Ts Tensor
 namespace Basic_Math {
-	enum Data_type { V_i, V_b, V_f, M_i, M_b, M_f, T_i, T_b, T_f, S };
-	union Data_ptr {
-		ll::Vc<int>* V_i;
-		ll::Vc<bool>* V_b;
-		ll::Vc<float>* V_f;
-		ll::Mt<int>* M_i;
-		ll::Mt<bool>* M_b;
-		ll::Mt<float>* M_f;
-		ll::Ts<int>* T_i;
-		ll::Ts<bool>* T_b;
-		ll::Ts<float>* T_f;
-		ll::Teshape* S;
-	};
-#define _TransForm(Dtype) pointer.##Dtype 
-	typedef struct {
-		Data_type type;
-		Data_ptr pointer;
-	}Data_node;
-	typedef struct {
-		mm_node* front, * back;
-		int size; Data_node data;
-	}mm_node;
-	extern unsigned long long mm_heap;
-	extern int mm_block;
-	extern mm_node* mm_top;
-	extern mm_node* mm_buttom;
+	
 }
 #undef ll
 #undef Vc

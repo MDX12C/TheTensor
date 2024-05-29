@@ -1,5 +1,5 @@
 ﻿#include"../includes/tensor.hpp"
-namespace Basic_Math {
+namespace Linalg {
     /*constructor with Dimansion
     Enter: 1.Dimansion
     construct a Teshape with the Dimansion but the shape is 1
@@ -211,14 +211,12 @@ namespace Basic_Math {
         }
         return true;
     }
-}
-namespace Linalg {
     /*Constructor Datas
     Enter: 1.Teshape 2.Data pointer
     construct a Tensor with inited Datas
     no return*/
     template <typename Data>
-    Tensor<Data>::Tensor(bsm::Teshape const& alpha, Data* const& beta) {
+    Tensor<Data>::Tensor(Teshape const& alpha, Data* const& beta) {
         this->_shape = alpha;
         int gamma = this->_shape._size;
         this->storage_space = new Data[gamma];
@@ -232,7 +230,7 @@ namespace Linalg {
     constructor a Tensor with the shape and fill with 0
     no return*/
     template <typename Data>
-    Tensor<Data>::Tensor(bsm::Teshape const& alpha) {
+    Tensor<Data>::Tensor(Teshape const& alpha) {
         this->_shape = alpha;
         int gamma = this->_shape._size;
         this->storage_space = new Data[gamma];
@@ -307,14 +305,14 @@ namespace Linalg {
     resize the Tensor，the beyond data will be fill with 0
     return if resize successfully*/
     template <typename Data>
-    bool Tensor<Data>::resize_(bsm::Teshape const& alpha) {
+    bool Tensor<Data>::resize_(Teshape const& alpha) {
         if (this->_shape._dimansion != alpha._dimansion)
             return false;
         Tensor<Data> temp(*this);
         Data gamma = static_cast<Data>(0);
         delete[] this->storage_space;
         this->_shape = alpha;
-        bsm::Teshape omega(this->_shape._dimansion);
+        Teshape omega(this->_shape._dimansion);
         this->storage_space = new Data[this->_shape._size];
         for (int i = 0; i < this->_shape._size; i++) {
             omega = this->_shape.coordinate(i);
@@ -332,7 +330,7 @@ namespace Linalg {
     reshape the Tensor
     return if reshape successfully*/
     template <typename Data>
-    bool Tensor<Data>::reshape_(bsm::Teshape const& alpha) {
+    bool Tensor<Data>::reshape_(Teshape const& alpha) {
         if (this->_shape == alpha)
             return true;
         if (this->_shape._size != alpha._size)
@@ -345,7 +343,7 @@ namespace Linalg {
     do nothing
     return the data in the coordinate*/
     template <typename Data>
-    Data Tensor<Data>::operator[](bsm::Teshape const& alpha) {
+    Data Tensor<Data>::operator[](Teshape const& alpha) {
         if (!(bsm::belongs(alpha, this->_shape)))
             return static_cast<Data>(0);
         return this->storage_space[this->_shape.coordinate(alpha)];
@@ -405,14 +403,14 @@ namespace Linalg {
     stand the Vector into Tensor
     return if stand successfully*/
     template <typename Data>
-    bool Tensor<Data>::stand_(Vector<Data> const& alpha, bsm::Teshape const& beta) {
-        if(alpha._shape != beta._size)
+    bool Tensor<Data>::stand_(Vector<Data> const& alpha, Teshape const& beta) {
+        if (alpha._shape != beta._size)
             return false;
-        if(this->_shape._size)
+        if (this->_shape._size)
             delete[] this->storage_space;
         this->_shape = beta;
         this->storage_space = new Data[this->_shape._size];
-        for(int i = 0; i < this->_shape._size; i++)
+        for (int i = 0; i < this->_shape._size; i++)
             this->storage_space[i] = alpha.storage_space[i];
         return true;
     }

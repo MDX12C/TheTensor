@@ -1,8 +1,8 @@
 ﻿#ifndef TENSOR_H
 #define TENSOR_H
 #include "./matrix.hpp"
-namespace bsm = Basic_Math;
-namespace Basic_Math {
+#define bsm Basic_Math
+namespace Linalg {
     class Teshape {
     private:
         int _dimansion = 1;
@@ -33,35 +33,35 @@ namespace Basic_Math {
     std::istream& operator>>(std::istream&, Teshape&);
     std::ostream& operator<<(std::ostream&, Teshape const&);
     bool belongs(Teshape const&, Teshape const&);
-};
-namespace Linalg {
+
     template <typename Data>
     class Tensor {
     private:
         Data* storage_space;
         Data _sum;
-        bsm::Teshape _shape;
+        Teshape _shape;
         int _digits;
 
         friend class Linalg::Matrix<Data>;
         friend class Linalg::Vector<Data>;
     public:
-        Tensor(bsm::Teshape const&, Data* const&);
-        Tensor(bsm::Teshape const&);
+        Tensor(Teshape const&, Data* const&);
+        Tensor(Teshape const&);
         Tensor();
         Tensor(Tensor const&);
         ~Tensor();
-        inline bsm::Teshape shape() { return this->_shape; }
+        inline Teshape shape() { return this->_shape; }
         void freedom_();
-        bool endow_(bsm::Teshape const&, Data const&);
-        bool resize_(bsm::Teshape const&);
-        bool reshape_(bsm::Teshape const&);
+        bool endow_(Teshape const&, Data const&);
+        bool resize_(Teshape const&);
+        bool reshape_(Teshape const&);
         Matrix<Data> flat(int const&);
         Vector<Data> flat();
-        bool stand_(Vector<Data> const&, Basic_Math::Teshape const&);
-        Data operator[](bsm::Teshape const&);
+        bool stand_(Vector<Data> const&, Teshape const&);
+        Data operator[](Teshape const&);
         Tensor operator=(Tensor const&);
         Tensor operator=(Data const&);
     };
 }
+#undef bsm
 #endif
