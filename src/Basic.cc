@@ -6,6 +6,12 @@ namespace Basic_Math {
     bool bool_leak = false;
     int int_leak = 0;
 }
+namespace Memory_Maintain {
+    unsigned long long _mmy_heap = 0;
+    int block = 0;
+    _mmy_node* top;
+    _mmy_node* buttom;
+}
 namespace Linalg {
     /*MaShape operator==
     Enter: 1.MaShape 2.MaShape

@@ -843,27 +843,70 @@ namespace Linalg {
 	bool operator<(MaShape const&, MaShape const&);
 	bool operator<=(MaShape const&, MaShape const&);
 	std::ostream& operator<<(std::ostream&, MaShape const&);
+	//Datas with 1 Dimantion
 	template <typename Data>
 	class Vector;
+	//Datas with 2 Dimantion
 	template <typename Data>
 	class Matrix;
+	//Datas with 3 Dimantion but is not suportable for operate
 	template <typename Data>
 	class Tensor;
+	//Shape of Tensor
 	class Teshape;
 	template <typename Data>
 	void AddLine_(Matrix<Data>&, Vector<Data> const&);
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
-#define ll Linalg
-#define Vc Vector
-#define Mt Matrix
-#define Ts Tensor
-namespace Basic_Math {
-	
+#define Mm Memory_Maintain
+#define Ln Linalg
+#define Bs Basic_Math
+#define V(tp) Vector<##tp##> 
+#define M(tp) Matrix<##tp##>
+#define T(tp) Tensor<##tp##>
+namespace Memory_Maintain {
+	typedef enum { Vi, Vb, Vf, Mi, Mb, Mf, Ti, Tb, Tf, S }_mmy_type;
+	typedef union {
+		Ln::V(int)* vi; Ln::V(bool)* vb; Ln::V(float)* vf;
+		Ln::M(int)* mi; Ln::M(bool)* mb; Ln::M(float)* mf;
+		Ln::T(int)* ti; Ln::T(bool)* tb; Ln::T(float)* tf;
+		Ln::Teshape* s;
+	}_mmy_pointer;
+	typedef struct {
+		_mmy_type type;
+		_mmy_pointer ptr;
+	}_mmy_data;
+	typedef struct {
+		_mmy_node* front = nullptr;
+		_mmy_node* back = nullptr;
+		int size = 0;
+		_mmy_data data;
+	}_mmy_node;
+	extern unsigned long long _mmy_heap;
+	extern int block;
+	extern _mmy_node* top;
+	extern _mmy_node* buttom;
+	template <typename Data>
+	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
+		if constexpr (std::is_same_v<Data, Ln::V(int)*>) { alpha.type = Vi; alpha.ptr.vi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::V(bool)*>) { alpha.type = Vb; alpha.ptr.vb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::V(float)*>) { alpha.type = Vf; alpha.ptr.vf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(int)*>) { alpha.type = Mi; alpha.ptr.mi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(bool)*>) { alpha.type = Mb; alpha.ptr.mb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(float)*>) { alpha.type = Mf; alpha.ptr.mf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(int)*>) { alpha.type = Ti; alpha.ptr.ti = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(bool)*>) { alpha.type = Tb; alpha.ptr.tb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(float)*>) { alpha.type = Tf; alpha.ptr.tf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Teshape*>) { alpha.type = S; alpha.ptr.s = beta; return true; }
+		else { return false; }
+	}
+	/*inline bool _mmy_ref();*/
 }
-#undef ll
-#undef Vc
-#undef Mt
-#undef Ts
+#undef Mm
+#undef Ln
+#undef Bs
+#undef V(tp)
+#undef M(tp)
+#undef T(tp)
 #endif //BASIC_H
