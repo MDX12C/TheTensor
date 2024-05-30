@@ -29,11 +29,17 @@
 #include<avxvnniintrin.h>
 #endif //AVX2_ON
 namespace Basic_Math {
+	// the value do as you think
 	constexpr int Float16_Accuracy = 3;
+	// the value do as you think
 	constexpr int Float32_Accuracy = 7;
+	// the value do as you think
 	constexpr int Float64_Accuracy = 15;
+	// the value do as you think
 	constexpr int terminal_width = 144;
+	// the value do as you think
 	constexpr int terminal_height = 40;
+	//vec_len: in order to pack tuple
 #if defined(_SIMD_01_)
 	constexpr int vec_len = 4;
 #elif defined(_SIMD_02_)
@@ -55,10 +61,15 @@ namespace Basic_Math {
 #endif //_THREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
+	//the base delay that threads use
 	constexpr int wait_time = 100;
+	//addition to set value
 	constexpr int set_delay = 16;
+	//addition to do operate
 	constexpr int operate_delay = 64;
+	//addition to call funcion
 	constexpr int function_delay = 1024;
+	//the aligned size that support x86
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;
 #elif defined(_SIMD_02_)
@@ -69,8 +80,11 @@ namespace Basic_Math {
 #endif //_THREAD_MODE_
 	extern std::atomic<bool> set_seed;
 	extern std::atomic<unsigned long long> memory_heap;
+	//space when memory is leak
 	extern float float_leak;
+	//space when memory is leak
 	extern bool bool_leak;
+	//space when memory is leak
 	extern int int_leak;
 	/*int digits
 	Enter: 1.value
@@ -834,6 +848,7 @@ namespace Basic_Math {
 #endif //THREAD MODE
 }
 namespace Linalg {
+	//the shape of Matrix
 	typedef struct
 	{
 		int rows = 1;
@@ -849,13 +864,15 @@ namespace Linalg {
 	//Datas with 2 Dimantion
 	template <typename Data>
 	class Matrix;
-	//Datas with 3 Dimantion but is not suportable for operate
+	//Datas with 3 Dimantion but is not supportable for operate
 	template <typename Data>
 	class Tensor;
 	//Shape of Tensor
 	class Teshape;
+	//a function which can and a Vector into a Matrix
 	template <typename Data>
 	void AddLine_(Matrix<Data>&, Vector<Data> const&);
+	//a function which can and a Vector into a Matrix
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
@@ -866,27 +883,36 @@ namespace Linalg {
 #define M(tp) Matrix<##tp##>
 #define T(tp) Tensor<##tp##>
 namespace Memory_Maintain {
+	/*you don't need to know what this mean*/
 	typedef enum { Vi, Vb, Vf, Mi, Mb, Mf, Ti, Tb, Tf, S }_mmy_type;
+	/*you don't need to know what this mean*/
 	typedef union {
 		Ln::V(int)* vi; Ln::V(bool)* vb; Ln::V(float)* vf;
 		Ln::M(int)* mi; Ln::M(bool)* mb; Ln::M(float)* mf;
 		Ln::T(int)* ti; Ln::T(bool)* tb; Ln::T(float)* tf;
 		Ln::Teshape* s;
 	}_mmy_pointer;
+	/*you don't need to know what this mean*/
 	typedef struct {
 		_mmy_type type;
 		_mmy_pointer ptr;
 	}_mmy_data;
+	/*you don't need to know what this mean*/
 	typedef struct {
 		_mmy_node* front = nullptr;
 		_mmy_node* back = nullptr;
 		int size = 0;
 		_mmy_data data;
 	}_mmy_node;
+	/*don't touch it*/
 	extern unsigned long long _mmy_heap;
+	/*don't touch it*/
 	extern int block;
+	/*don't touch it*/
 	extern _mmy_node* top;
+	/*don't touch it*/
 	extern _mmy_node* buttom;
+	/*below is the function you don't need to use*/
 	template <typename Data>
 	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
 		if constexpr (std::is_same_v<Data, Ln::V(int)*>) { alpha.type = Vi; alpha.ptr.vi = beta; return true; }
@@ -901,7 +927,21 @@ namespace Memory_Maintain {
 		else if constexpr (std::is_same_v<Data, Ln::Teshape*>) { alpha.type = S; alpha.ptr.s = beta; return true; }
 		else { return false; }
 	}
-	/*inline bool _mmy_ref();*/
+	/*below is the function you don't need to use*/
+	template <typename Data>
+	inline bool _mmy_catch(_mmy_data const& alpha, Data& beta) {
+		if (alpha.type == Vi) { beta = alpha.ptr.vi; return true; }
+		else if (alpha.type == Vb) { beta = alpha.ptr.vb; return true; }
+		else if (alpha.type == Vf) { beta = alpha.ptr.vb; return true; }
+		else if (alpha.type == Mi) { beta = alpha.ptr.mi; return true; }
+		else if (alpha.type == Mb) { beta = alpha.ptr.mb; return true; }
+		else if (alpha.type == Mf) { beta = alpha.ptr.mf; return true; }
+		else if (alpha.type == Ti) { beta = alpha.ptr.ti; return true; }
+		else if (alpha.type == Tb) { beta = alpha.ptr.tb; return true; }
+		else if (alpha.type == Tf) { beta = alpha.ptr.tf; return true; }
+		else if (alpha.type == S) { beta = alpha.ptr.s; return true; }
+		else { return false; }
+	}
 }
 #undef Mm
 #undef Ln
