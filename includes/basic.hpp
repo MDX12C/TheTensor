@@ -11,6 +11,7 @@
 #include<climits>
 #include<utility>
 #include<type_traits>
+#include<set>
 #ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
@@ -912,6 +913,8 @@ namespace Memory_Maintain {
 	extern _mmy_node* _mmy_top;
 	/*don't touch it*/
 	extern _mmy_node* _mmy_buttom;
+	/*don't touch it*/
+	extern std::set<int> _mmy_id;
 	/*below is the function you don't need to use*/
 	template <typename Data>
 	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
@@ -956,6 +959,20 @@ namespace Memory_Maintain {
 		else if (alpha.type == Tf) { return (alpha.ptr.tf == beta); }
 		else if (alpha.type == S) { return (alpha.ptr.s == beta); }
 		else { return false; }
+	}
+	/*below is the function you don't need to use*/
+	inline void _mmy_free(_mmy_data& alpha) {
+		if (alpha.type == Vi) { alpha.ptr.vi->freedom_(); }
+		else if (alpha.type == Vb) { alpha.ptr.vb->freedom_(); }
+		else if (alpha.type == Vf) { alpha.ptr.vf->freedom_(); }
+		else if (alpha.type == Mi) { alpha.ptr.mi->freedom_(); }
+		else if (alpha.type == Mb) { alpha.ptr.mb->freedom_(); }
+		else if (alpha.type == Mf) { alpha.ptr.mf->freedom_(); }
+		else if (alpha.type == Ti) { alpha.ptr.ti->freedom_(); }
+		else if (alpha.type == Tb) { alpha.ptr.tb->freedom_(); }
+		else if (alpha.type == Tf) { alpha.ptr.tf->freedom_(); }
+		else if (alpha.type == S) { alpha.ptr.s->freedom_(); }
+		else { return; }
 	}
 	/*to sign up for memory manage*/
 	template <typename Data>
@@ -1045,11 +1062,11 @@ namespace Memory_Maintain {
 		return false;
 	}
 	/*check how much block in usage*/
-	inline unsigned long long _mmy_usage(){return _mmy_heap;}
+	inline unsigned long long _mmy_usage() { return _mmy_heap; }
 	/*check how much block in usage*/
-	inline int _mmy_zone(){return _mmy_block;}
+	inline int _mmy_zone() { return _mmy_block; }
 	/*show all the usage*/
-	
+
 	//to this
 }
 #undef Mm
