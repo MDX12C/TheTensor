@@ -942,6 +942,14 @@ namespace Memory_Maintain {
 		else if (alpha.type == S) { beta = alpha.ptr.s; return true; }
 		else { return false; }
 	}
+	/*to sign up for memory id*/
+	template <tyepname Data>
+	inline bool _mmy_sign(Data const& alpha, int const& beta) {
+		if ((alpha == nullptr) || (beta <= 0)) {
+			return false;
+		}
+
+	}
 }
 #undef Mm
 #undef Ln
