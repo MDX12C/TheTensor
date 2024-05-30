@@ -1006,10 +1006,51 @@ namespace Memory_Maintain {
 		_mmy_node* gamma;
 		while (omega != nullptr) {
 			if (_mmy_cmp(omega->data, alpha)) {
-				/*temp*/
+				if ((omega->front == nullptr) && (omega->back == nullptr)) {
+					_mmy_block = _mmy_heap = 0;
+					_mmy_top = _mmy_buttom = nullptr;
+					delete omega;
+					return true;
+				}
+				else if (omega->front == nullptr) {
+					gamma = omega->back;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					_mmy_top = gamma;
+					gamma->data = nullptr;
+					delete omega;
+					return true;
+				}
+				else if (omega->back == nullptr) {
+					gamma = omega->front;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					_mmy_buttom = gamma;
+					gamma->back = nullptr;
+					delete omega;
+					return true;
+				}
+				else {
+					gamma = omega->front;
+					gamma->back = omega->back;
+					gamma = omega->back;
+					gamma->front = omega->front;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					delete omega;
+					return true;
+				}
 			}
 		}
+		return false;
 	}
+	/*check how much block in usage*/
+	inline unsigned long long _mmy_usage(){return _mmy_heap;}
+	/*check how much block in usage*/
+	inline int _mmy_zone(){return _mmy_block;}
+	/*show all the usage*/
+	
+	//to this
 }
 #undef Mm
 #undef Ln
