@@ -11,9 +11,6 @@
 #include<climits>
 #include<utility>
 #include<type_traits>
-#ifdef _SIMD_MODE_
-#define _THREAD_MODE_
-#endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
 #include<chrono>
 #include<thread>
@@ -25,23 +22,24 @@
 #ifdef _SIMD_MODE_
 #include<immintrin.h>
 #include<x86intrin.h>
+#endif //_SIMD_MODE_
 #ifdef _AVX2_WILL_BE_USED_ON_
 #include<avx2intrin.h>
 #include<avxintrin.h>
 #include<avxvnniintrin.h>
-#define _SIMD_02_
-#else //_AVX02_WILL_BE_USED_ON_
-#define _SIMD_01_
-#endif //_AVX02_WILL_BE_USED_ON_
-#else //_SIMD_MODE_
-#undef _AVX02_WILL_BE_USED_ON_
-#endif //_SIMD_MODE_
+#endif //AVX2_ON
 namespace Basic_Math {
+	// the value do as you think
 	constexpr int Float16_Accuracy = 3;
+	// the value do as you think
 	constexpr int Float32_Accuracy = 7;
+	// the value do as you think
 	constexpr int Float64_Accuracy = 15;
+	// the value do as you think
 	constexpr int terminal_width = 144;
+	// the value do as you think
 	constexpr int terminal_height = 40;
+	//vec_len: in order to pack tuple
 #if defined(_SIMD_01_)
 	constexpr int vec_len = 4;
 #elif defined(_SIMD_02_)
@@ -63,10 +61,15 @@ namespace Basic_Math {
 #endif //_THREAD_MODE_
 #endif //_SIMD_MODE_
 #ifdef _THREAD_MODE_
+	//the base delay that threads use
 	constexpr int wait_time = 100;
+	//addition to set value
 	constexpr int set_delay = 16;
+	//addition to do operate
 	constexpr int operate_delay = 64;
+	//addition to call funcion
 	constexpr int function_delay = 1024;
+	//the aligned size that support x86
 #if defined(_SIMD_01_)
 	constexpr int align_size = 16;
 #elif defined(_SIMD_02_)
@@ -77,8 +80,11 @@ namespace Basic_Math {
 #endif //_THREAD_MODE_
 	extern std::atomic<bool> set_seed;
 	extern std::atomic<unsigned long long> memory_heap;
+	//space when memory is leak
 	extern float float_leak;
+	//space when memory is leak
 	extern bool bool_leak;
+	//space when memory is leak
 	extern int int_leak;
 	/*int digits
 	Enter: 1.value
@@ -842,6 +848,7 @@ namespace Basic_Math {
 #endif //THREAD MODE
 }
 namespace Linalg {
+	//the shape of Matrix
 	typedef struct
 	{
 		int rows = 1;
@@ -851,15 +858,204 @@ namespace Linalg {
 	bool operator<(MaShape const&, MaShape const&);
 	bool operator<=(MaShape const&, MaShape const&);
 	std::ostream& operator<<(std::ostream&, MaShape const&);
+	//Datas with 1 Dimantion
 	template <typename Data>
 	class Vector;
+	//Datas with 2 Dimantion
 	template <typename Data>
 	class Matrix;
+	//Datas with 3 Dimantion but is not supportable for operate
 	template <typename Data>
 	class Tensor;
+	//Shape of Tensor
+	class Teshape;
+	//a function which can and a Vector into a Matrix
 	template <typename Data>
 	void AddLine_(Matrix<Data>&, Vector<Data> const&);
+	//a function which can and a Vector into a Matrix
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
+#define Mm Memory_Maintain
+#define Ln Linalg
+#define Bs Basic_Math
+#define V(tp) Vector<##tp##> 
+#define M(tp) Matrix<##tp##>
+#define T(tp) Tensor<##tp##>
+namespace Memory_Maintain {
+	/*you don't need to know what this mean*/
+	typedef enum { Vi, Vb, Vf, Mi, Mb, Mf, Ti, Tb, Tf, S }_mmy_type;
+	/*you don't need to know what this mean*/
+	typedef union {
+		Ln::V(int)* vi; Ln::V(bool)* vb; Ln::V(float)* vf;
+		Ln::M(int)* mi; Ln::M(bool)* mb; Ln::M(float)* mf;
+		Ln::T(int)* ti; Ln::T(bool)* tb; Ln::T(float)* tf;
+		Ln::Teshape* s;
+	}_mmy_pointer;
+	/*you don't need to know what this mean*/
+	typedef struct {
+		_mmy_type type;
+		_mmy_pointer ptr;
+	}_mmy_data;
+	/*you don't need to know what this mean*/
+	typedef struct {
+		_mmy_node* front = nullptr;
+		_mmy_node* back = nullptr;
+		int size = 0;
+		_mmy_data data;
+	}_mmy_node;
+	/*don't touch it*/
+	extern unsigned long long _mmy_heap;
+	/*don't touch it*/
+	extern int _mmy_block;
+	/*don't touch it*/
+	extern _mmy_node* _mmy_top;
+	/*don't touch it*/
+	extern _mmy_node* _mmy_buttom;
+	/*below is the function you don't need to use*/
+	template <typename Data>
+	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
+		if constexpr (std::is_same_v<Data, Ln::V(int)*>) { alpha.type = Vi; alpha.ptr.vi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::V(bool)*>) { alpha.type = Vb; alpha.ptr.vb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::V(float)*>) { alpha.type = Vf; alpha.ptr.vf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(int)*>) { alpha.type = Mi; alpha.ptr.mi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(bool)*>) { alpha.type = Mb; alpha.ptr.mb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::M(float)*>) { alpha.type = Mf; alpha.ptr.mf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(int)*>) { alpha.type = Ti; alpha.ptr.ti = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(bool)*>) { alpha.type = Tb; alpha.ptr.tb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::T(float)*>) { alpha.type = Tf; alpha.ptr.tf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Teshape*>) { alpha.type = S; alpha.ptr.s = beta; return true; }
+		else { return false; }
+	}
+	/*below is the function you don't need to use*/
+	template <typename Data>
+	inline bool _mmy_catch(_mmy_data const& alpha, Data& beta) {
+		if (alpha.type == Vi) { beta = alpha.ptr.vi; return true; }
+		else if (alpha.type == Vb) { beta = alpha.ptr.vb; return true; }
+		else if (alpha.type == Vf) { beta = alpha.ptr.vb; return true; }
+		else if (alpha.type == Mi) { beta = alpha.ptr.mi; return true; }
+		else if (alpha.type == Mb) { beta = alpha.ptr.mb; return true; }
+		else if (alpha.type == Mf) { beta = alpha.ptr.mf; return true; }
+		else if (alpha.type == Ti) { beta = alpha.ptr.ti; return true; }
+		else if (alpha.type == Tb) { beta = alpha.ptr.tb; return true; }
+		else if (alpha.type == Tf) { beta = alpha.ptr.tf; return true; }
+		else if (alpha.type == S) { beta = alpha.ptr.s; return true; }
+		else { return false; }
+	}
+	/*below is the function you don't need to use*/
+	template <typename Data>
+	inline bool _mmy_cmp(_mmy_data const& alpha, Data const& beta) {
+		if (alpha.type == Vi) { return (alpha.ptr.vi == beta); }
+		else if (alpha.type == Vb) { return (alpha.ptr.vb == beta); }
+		else if (alpha.type == Vf) { return (alpha.ptr.vf == beta); }
+		else if (alpha.type == Mi) { return (alpha.ptr.mi == beta); }
+		else if (alpha.type == Mb) { return (alpha.ptr.mb == beta); }
+		else if (alpha.type == Mf) { return (alpha.ptr.mf == beta); }
+		else if (alpha.type == Ti) { return (alpha.ptr.ti == beta); }
+		else if (alpha.type == Tb) { return (alpha.ptr.tb == beta); }
+		else if (alpha.type == Tf) { return (alpha.ptr.tf == beta); }
+		else if (alpha.type == S) { return (alpha.ptr.s == beta); }
+		else { return false; }
+	}
+	/*to sign up for memory manage*/
+	template <typename Data>
+	inline bool _mmy_sign(int const& alpha, Data const& beta) {
+		if ((alpha <= 0) || (beta == nullptr))return false;
+		_mmy_node* object = new _mmy_node;
+		object->size = alpha;
+		if (!_mmy_order(object->data, beta)) {
+			delete object;
+			return false;
+		}
+		if (_mmy_block == 0) {
+			_mmy_top = object;
+			_mmy_buttom = object;
+			object->back = nullptr;
+			object->front = nullptr;
+			_mmy_block += 1;
+			_mmy_heap += alpha;
+			return true;
+		}
+		_mmy_node* temp = _mmy_top;
+		object->front = nullptr;
+		object->back = temp;
+		temp->front = object;
+		_mmy_top = object;
+		_mmy_block += 1;
+		_mmy_heap += alpha;
+		return true;
+	}
+	/*to modify the memory usage*/
+	template <typename Data>
+	inline bool _mmy_modify(int const& alpha, Data const& beta) {
+		_mmy_node* omega = _mmy_top;
+		while (omega != nullptr) {
+			if (_mmy_cmp(omega->data, beta)) {
+				_mmy_heap += alpha - (omega->size);
+				omega->size = alpha;
+				return true;
+			}
+			omega = omega->back;
+		}
+		return false;
+	}
+	/*to delete the memory usage*/
+	template <typename Data>
+	inline bool _mmy_delete(Data const& alpha) {
+		_mmy_node* omega = _mmy_top;
+		_mmy_node* gamma;
+		while (omega != nullptr) {
+			if (_mmy_cmp(omega->data, alpha)) {
+				if ((omega->front == nullptr) && (omega->back == nullptr)) {
+					_mmy_block = _mmy_heap = 0;
+					_mmy_top = _mmy_buttom = nullptr;
+					delete omega;
+					return true;
+				}
+				else if (omega->front == nullptr) {
+					gamma = omega->back;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					_mmy_top = gamma;
+					gamma->data = nullptr;
+					delete omega;
+					return true;
+				}
+				else if (omega->back == nullptr) {
+					gamma = omega->front;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					_mmy_buttom = gamma;
+					gamma->back = nullptr;
+					delete omega;
+					return true;
+				}
+				else {
+					gamma = omega->front;
+					gamma->back = omega->back;
+					gamma = omega->back;
+					gamma->front = omega->front;
+					_mmy_block -= 1;
+					_mmy_heap -= omega->size;
+					delete omega;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	/*check how much block in usage*/
+	inline unsigned long long _mmy_usage(){return _mmy_heap;}
+	/*check how much block in usage*/
+	inline int _mmy_zone(){return _mmy_block;}
+	/*show all the usage*/
+	
+	//to this
+}
+#undef Mm
+#undef Ln
+#undef Bs
+#undef V(tp)
+#undef M(tp)
+#undef T(tp)
 #endif //BASIC_H
