@@ -907,11 +907,11 @@ namespace Memory_Maintain {
 	/*don't touch it*/
 	extern unsigned long long _mmy_heap;
 	/*don't touch it*/
-	extern int block;
+	extern int _mmy_block;
 	/*don't touch it*/
-	extern _mmy_node* top;
+	extern _mmy_node* _mmy_top;
 	/*don't touch it*/
-	extern _mmy_node* buttom;
+	extern _mmy_node* _mmy_buttom;
 	/*below is the function you don't need to use*/
 	template <typename Data>
 	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
@@ -942,13 +942,73 @@ namespace Memory_Maintain {
 		else if (alpha.type == S) { beta = alpha.ptr.s; return true; }
 		else { return false; }
 	}
-	/*to sign up for memory id*/
-	template <tyepname Data>
-	inline bool _mmy_sign(Data const& alpha, int const& beta) {
-		if ((alpha == nullptr) || (beta <= 0)) {
+	/*below is the function you don't need to use*/
+	template <typename Data>
+	inline bool _mmy_cmp(_mmy_data const& alpha, Data const& beta) {
+		if (alpha.type == Vi) { return (alpha.ptr.vi == beta); }
+		else if (alpha.type == Vb) { return (alpha.ptr.vb == beta); }
+		else if (alpha.type == Vf) { return (alpha.ptr.vf == beta); }
+		else if (alpha.type == Mi) { return (alpha.ptr.mi == beta); }
+		else if (alpha.type == Mb) { return (alpha.ptr.mb == beta); }
+		else if (alpha.type == Mf) { return (alpha.ptr.mf == beta); }
+		else if (alpha.type == Ti) { return (alpha.ptr.ti == beta); }
+		else if (alpha.type == Tb) { return (alpha.ptr.tb == beta); }
+		else if (alpha.type == Tf) { return (alpha.ptr.tf == beta); }
+		else if (alpha.type == S) { return (alpha.ptr.s == beta); }
+		else { return false; }
+	}
+	/*to sign up for memory manage*/
+	template <typename Data>
+	inline bool _mmy_sign(int const& alpha, Data const& beta) {
+		if ((alpha <= 0) || (beta == nullptr))return false;
+		_mmy_node* object = new _mmy_node;
+		object->size = alpha;
+		if (!_mmy_order(object->data, beta)) {
+			delete object;
 			return false;
 		}
-
+		if (_mmy_block == 0) {
+			_mmy_top = object;
+			_mmy_buttom = object;
+			object->back = nullptr;
+			object->front = nullptr;
+			_mmy_block += 1;
+			_mmy_heap += alpha;
+			return true;
+		}
+		_mmy_node* temp = _mmy_top;
+		object->front = nullptr;
+		object->back = temp;
+		temp->front = object;
+		_mmy_top = object;
+		_mmy_block += 1;
+		_mmy_heap += alpha;
+		return true;
+	}
+	/*to modify the memory usage*/
+	template <typename Data>
+	inline bool _mmy_modify(int const& alpha, Data const& beta) {
+		_mmy_node* omega = _mmy_top;
+		while (omega != nullptr) {
+			if (_mmy_cmp(omega->data, beta)) {
+				_mmy_heap += alpha - (omega->size);
+				omega->size = alpha;
+				return true;
+			}
+			omega = omega->back;
+		}
+		return false;
+	}
+	/*to delete the memory usage*/
+	template <typename Data>
+	inline bool _mmy_delete(Data const& alpha) {
+		_mmy_node* omega = _mmy_top;
+		_mmy_node* gamma;
+		while (omega != nullptr) {
+			if (_mmy_cmp(omega->data, alpha)) {
+				/*temp*/
+			}
+		}
 	}
 }
 #undef Mm

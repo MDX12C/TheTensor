@@ -8,9 +8,9 @@ namespace Basic_Math {
 }
 namespace Memory_Maintain {
     unsigned long long _mmy_heap = 0;
-    int block = 0;
-    _mmy_node* top;
-    _mmy_node* buttom;
+    int _mmy_block = 0;
+    _mmy_node* _mmy_top;
+    _mmy_node* _mmy_buttom;
 }
 namespace Linalg {
     /*MaShape operator==
