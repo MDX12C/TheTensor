@@ -877,7 +877,6 @@ namespace Linalg {
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
-#define Mm Memory_Maintain
 #define Ln Linalg
 #define Bs Basic_Math
 #define V(tp) Vector<##tp##> 
@@ -899,9 +898,9 @@ namespace Memory_Maintain {
 		_mmy_pointer ptr;
 	}_mmy_data;
 	/*you don't need to know what this mean*/
-	typedef struct {
-		_mmy_node* front = nullptr;
-		_mmy_node* back = nullptr;
+	typedef struct _mmy_node{
+		struct _mmy_node* front = nullptr;
+		struct _mmy_node* back = nullptr;
 		int size = 0;
 		_mmy_data data;
 	}_mmy_node;
@@ -1053,7 +1052,7 @@ namespace Memory_Maintain {
 	inline void _mmy_all() {
 		_mmy_node* alpha = _mmy_top;
 		for (int i = 0; i < Basic_Math::terminal_width; i++) { std::cout << '-'; }
-		printf("\n%d block and %d bytes were alloced in total\n", _mmy_block, _mmy_heap);
+		printf("\n%d block and %lld bytes were alloced in total\n", _mmy_block, _mmy_heap);
 		while (alpha != nullptr) {
 			printf("id=%p use %d bytes\n", alpha, alpha->size);
 			alpha = alpha->back;
@@ -1069,10 +1068,18 @@ namespace Memory_Maintain {
 			if (alpha->data.type == Vi) { alpha->data.ptr.vi->freedom_(); }
 			else if (alpha->data.type == Vb) { alpha->data.ptr.vb->freedom_(); }
 			else if (alpha->data.type == Vf) { alpha->data.ptr.vf->freedom_(); }
+			else if (alpha->data.type == Mi) { alpha->data.ptr.mi->freedom_(); }
+			else if (alpha->data.type == Mb) { alpha->data.ptr.mb->freedom_(); }
+			else if (alpha->data.type == Mf) { alpha->data.ptr.mf->freedom_(); }
+			else if (alpha->data.type == Ti) { alpha->data.ptr.ti->freedom_(); }
+			else if (alpha->data.type == Tb) { alpha->data.ptr.tb->freedom_(); }
+			else if (alpha->data.type == Tf) { alpha->data.ptr.tf->freedom_(); }
+			else if (alpha->data.type == S) { alpha->data.ptr.s->freedom_(); }
+			alpha = alpha->back;
 		}
+		return;
 	}
 }
-#undef Mm
 #undef Ln
 #undef Bs
 #undef V(tp)

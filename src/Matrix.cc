@@ -77,11 +77,19 @@ namespace Linalg
     do nothing
     return the data in the coordinate*/
     template <typename Data>
-    Data Matrix<Data>::operator[](MaShape const& alpha)
+    Data& Matrix<Data>::operator[](MaShape const& alpha)
     {
         if (alpha < this->_shape)
             return this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
-        return static_cast<Data>(0);
+        if constexpr (std::is_same_v<Data, int>) {
+            return Basic_Math::int_leak;
+        }
+        else if constexpr (std::is_same_v<Data, bool>) {
+            return Basic_Math::bool_leak;
+        }
+        else {
+            return Basic_Math::float_leak;
+        }
     }
     /*Transpose matrix
     Enter: none
@@ -140,7 +148,7 @@ namespace Linalg
     copy the second Matrix to the first
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator=(Matrix const& alpha)
+    Matrix<Data>& Matrix<Data>::operator=(Matrix const& alpha)
     {
         this->_shape = alpha._shape;
         this->_size = alpha._size;
@@ -156,7 +164,7 @@ namespace Linalg
     let the Matrix fulled with the value
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator=(Data const& alpha)
+    Matrix<Data>& Matrix<Data>::operator=(Data const& alpha)
     {
         if (this->storage_space == nullptr)
             this->resize_(MaShape{ 1, 1 });
@@ -281,7 +289,7 @@ namespace Linalg
     add elements in the second Matrix into the first Matrix
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator+=(Matrix const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator+=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
             return (*this);
         for (int i = 0; i < alpha._size; i++) {
@@ -294,7 +302,7 @@ namespace Linalg
     add the value into the Matrix
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator+=(Data const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator+=(Data const& alpha) {
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] += alpha;
         }
@@ -305,7 +313,7 @@ namespace Linalg
     subtract elements in the second Matrix from the first Matrix
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator-=(Matrix const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator-=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
             return (*this);
         for (int i = 0; i < this->_size; i++) {
@@ -318,7 +326,7 @@ namespace Linalg
     subtract every element in the Matrix by the value
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator-=(Data const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator-=(Data const& alpha) {
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] -= alpha;
         }
@@ -329,7 +337,7 @@ namespace Linalg
     multiply every in the first Matrix by the second Matrix
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator*=(Matrix const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator*=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
             return (*this);
         for (int i = 0; i < this->_size; i++) {
@@ -342,7 +350,7 @@ namespace Linalg
     mutiply every element in the Matrix by the value
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator*=(Data const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator*=(Data const& alpha) {
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] *= alpha;
         }
@@ -353,7 +361,7 @@ namespace Linalg
     divide every element in the first Matrix by the elements in the second Matrix
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator/=(Matrix const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator/=(Matrix const& alpha) {
         if (!(this->_shape == alpha._shape))
             return (*this);
         for (int i = 0; i < this->_size; i++) {
@@ -366,7 +374,7 @@ namespace Linalg
     divide every elements in the Matrix by the value
     return this*/
     template <typename Data>
-    Matrix<Data> Matrix<Data>::operator/=(Data const& alpha) {
+    Matrix<Data>& Matrix<Data>::operator/=(Data const& alpha) {
         for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] /= alpha;
         }

@@ -56,7 +56,7 @@ namespace Linalg
         friend Matrix<bool> operator<(T const&, Matrix<T> const&);
 
         template <typename T>
-        friend Matrix<T> Basic_Math::random(MaShape const&, T const&, T const&);
+        friend Matrix<T> Basic_Math::random(Linalg::MaShape const&, T const&, T const&);
         template <typename T>
         friend Matrix<T> Basic_Math::absolute(Matrix<T> const&);
     public:
