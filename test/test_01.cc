@@ -9,5 +9,11 @@ namespace bsm = Basic_Math;
 #define show(x)                                                                \
   { std::cout << #x << ':' << '\n' << x << '\n'; }
 signed main() {
-	return 0;
+  Linalg::Vector<float> alpha = Basic_Math::random(20, float(-1), float(1));
+  show(alpha);
+  Linalg::Vector<float> beta = Basic_Math::random(20, float(-1), float(1));
+  show(beta);
+  Linalg::Vector<float> gamma = alpha + beta;
+  show(gamma);
+  return 0;
 }

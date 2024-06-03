@@ -18,4 +18,9 @@
 #else 
 #undef _AVX2_WILL_BE_UESD_ON_
 #endif //_SIMD_MODE_
+
+#ifndef __GNUC__
+#  define  __attribute__(x)  
+#endif
+
 #endif // DEFINE_H

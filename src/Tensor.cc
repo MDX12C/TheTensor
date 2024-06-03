@@ -1,4 +1,5 @@
 ﻿#include"../includes/tensor.hpp"
+#define bsm Basic_Math
 namespace Linalg {
     /*constructor with Dimansion
     Enter: 1.Dimansion
@@ -294,8 +295,8 @@ namespace Linalg {
     endow the value at the coordinate
     return if endow is successful*/
     template <typename Data>
-    bool Tensor<Data>::endow_(bsm::Teshape const& alpha, Data const& beta) {
-        if (!(bsm::belongs(alpha, this->_shape)))
+    bool Tensor<Data>::endow_(Teshape const& alpha, Data const& beta) {
+        if (!(belongs(alpha, this->_shape)))
             return false;
         this->storage_space[this->_shape.coordinate(alpha)] = beta;
         return true;
@@ -316,7 +317,7 @@ namespace Linalg {
         this->storage_space = new Data[this->_shape._size];
         for (int i = 0; i < this->_shape._size; i++) {
             omega = this->_shape.coordinate(i);
-            if (bsm::belongs(omega, temp._shape)) {
+            if (belongs(omega, temp._shape)) {
                 this->storage_space[i] = temp[omega];
             }
             else {
@@ -344,7 +345,7 @@ namespace Linalg {
     return the data in the coordinate*/
     template <typename Data>
     Data Tensor<Data>::operator[](Teshape const& alpha) {
-        if (!(bsm::belongs(alpha, this->_shape)))
+        if (!(belongs(alpha, this->_shape)))
             return static_cast<Data>(0);
         return this->storage_space[this->_shape.coordinate(alpha)];
     }
@@ -415,6 +416,7 @@ namespace Linalg {
         return true;
     }
 }
+#undef bsm
 template class Linalg::Tensor<int>;
 //template class Linalg::Tensor<int64_t>;
 template class Linalg::Tensor<float>;

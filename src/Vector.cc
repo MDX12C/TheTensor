@@ -19,7 +19,7 @@ namespace Linalg {
             else {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
-            Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+            Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
             if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
                 std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
@@ -29,7 +29,7 @@ namespace Linalg {
             }
 #else
             this->storage_space = new Data[1];
-            Basic_Math::memory_heap.fetch_add(sizeof(Data));
+            Memory_Maintain::_mmy_sign(sizeof(Data), this);
             this->storage_space[0] = static_cast<Data>(0);
 #endif
             return;
@@ -44,7 +44,7 @@ namespace Linalg {
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
         int run_num = (this->_real_shape / Basic_Math::vec_len) - 1;
         std::thread run_arry[run_num];
         for (int i = 0, j = 0; j < run_num; i += Basic_Math::vec_len, j++) {
@@ -65,7 +65,7 @@ namespace Linalg {
         }
 #else
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_shape * sizeof(Data), this);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] = beta[i];
         }
@@ -94,7 +94,7 @@ namespace Linalg {
             else {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
-            Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+            Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
             Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
             if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
                 std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
@@ -104,7 +104,7 @@ namespace Linalg {
             }
 #else
             this->storage_space = new Data[1];
-            Basic_Math::memory_heap.fetch_add(sizeof(Data));
+            Memory_Maintain::_mmy_sign(sizeof(Data), this);
             this->storage_space[0] = static_cast<Data>(0);
 #endif
             return;
@@ -121,7 +121,7 @@ namespace Linalg {
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
             printf("BAD ALLOC\n");
@@ -149,7 +149,7 @@ namespace Linalg {
         }
 #else
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_shape * sizeof(Data), this);
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = static_cast<Data>(0);
 #endif
@@ -176,7 +176,7 @@ namespace Linalg {
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
             printf("BAD ALLOC\n");
@@ -194,7 +194,7 @@ namespace Linalg {
         }
 #else
         this->storage_space = new Data[1];
-        Basic_Math::memory_heap.fetch_add(sizeof(Data));
+        Memory_Maintain::_mmy_sign(sizeof(Data), this);
         this->storage_space[0] = static_cast<Data>(0);
 #endif
 #ifdef _DEBUG_MODE_
@@ -220,7 +220,7 @@ namespace Linalg {
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_real_shape * sizeof(Data), this);
 #ifdef _DEBUG_MODE_
         if (this->storage_space == nullptr) {
             printf("BAD ALLOC\n");
@@ -242,7 +242,7 @@ namespace Linalg {
         }
 #else
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_sign(this->_shape * sizeof(Data), this);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] = alpha.storage_space[i];
         }
@@ -262,7 +262,7 @@ namespace Linalg {
         printf("~destructor~\n");
 #endif
 #ifdef _THREAD_MODE_
-        Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_delete(this);
         if constexpr (std::is_same_v<Data, float>) {
             _mm_free(this->storage_space);
         }
@@ -270,7 +270,7 @@ namespace Linalg {
             free(this->storage_space);
         }
 #else
-        Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_delete(this);
         delete[] this->storage_space;
 #endif
         return;
@@ -333,7 +333,6 @@ namespace Linalg {
             else {
                 free(this->storage_space);
             }
-            Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
         }
         this->_shape = alpha;
         this->_real_shape = Basic_Math::size_check(alpha);
@@ -343,7 +342,7 @@ namespace Linalg {
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(this->_real_shape * sizeof(Data), this);
         std::thread run_arry[this->_real_shape / Basic_Math::vec_len];
         for (int i = 0, j = 0; i < this->_real_shape; i += Basic_Math::vec_len, j++) {
             if (i < temp._real_shape) {
@@ -365,11 +364,10 @@ namespace Linalg {
         Data gamma = static_cast<Data>(0);
         if (this->_shape) {
             delete[] this->storage_space;
-            Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
         }
         this->_shape = alpha;
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(this->_shape * sizeof(Data), this);
         Data gamma = static_cast<Data>(0);
         for (int i = 0; i < this->_shape; i++) {
             if (i < temp._shape) {
@@ -398,7 +396,6 @@ namespace Linalg {
             }
         }
         else {
-            Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
             if constexpr (std::is_same_v<Data, float>) {
                 _mm_free(this->storage_space);
             }
@@ -413,7 +410,7 @@ namespace Linalg {
             else {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
-            Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+            Memory_Maintain::_mmy_modify(this->_real_shape * sizeof(Data), this);
         }
         int run_times = this->_real_shape / Basic_Math::vec_len - 1;
         std::thread run_arry[run_times];
@@ -436,11 +433,10 @@ namespace Linalg {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time * Basic_Math::set_delay));
         }
 #else
-        Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
         delete[] this->storage_space;
         this->_shape = alpha;
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(this->_shape * sizeof(Data), this);
         for (int i = 0; i < this->_shape; i++) {
             this->storage_space[i] = beta[i];
         }
@@ -487,7 +483,6 @@ namespace Linalg {
                 else {
                     free(this->storage_space);
                 }
-                Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
             }
             this->_shape = alpha._shape;
             this->_real_shape = alpha._real_shape;
@@ -497,7 +492,7 @@ namespace Linalg {
             else {
                 this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
             }
-            Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+            Memory_Maintain::_mmy_modify(this->_real_shape * sizeof(Data), this);
         }
         int runtime = this->_real_shape / Basic_Math::vec_len;
         std::thread run_arry[runtime];
@@ -517,12 +512,11 @@ namespace Linalg {
         return (*this);
 #else
         if (this->_shape) {
-            Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
             delete[] this->storage_space;
         }
         this->_shape = alpha._shape;
         this->storage_space = new Data[this->_shape];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(this->_shape * sizeof(Data), this);
         for (int i = 0; i < this->_shape; i++)
             this->storage_space[i] = alpha.storage_space[i];
 #ifdef _DEBUG_MODE_
@@ -1175,7 +1169,6 @@ namespace Linalg {
     void Vector<Data>::freedom_() {
         this->_shape = 1;
 #ifdef _THREAD_MODE_
-        Basic_Math::memory_heap.fetch_sub(this->_real_shape * sizeof(Data));
         this->_real_shape = Basic_Math::vec_len;
         if constexpr (std::is_same_v<Data, float>) {
             _mm_free(this->storage_space);
@@ -1185,7 +1178,7 @@ namespace Linalg {
             free(this->storage_space);
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
-        Basic_Math::memory_heap.fetch_add(this->_real_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(this->_real_shape * sizeof(Data), this);
         Basic_Math::tuple_set<Data>(this->storage_space, static_cast<Data>(0));
         if  constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
@@ -1195,9 +1188,8 @@ namespace Linalg {
         }
 #else
         delete[] this->storage_space;
-        Basic_Math::memory_heap.fetch_sub(this->_shape * sizeof(Data));
         this->storage_space = new Data[1];
-        Basic_Math::memory_heap.fetch_add(this->_shape * sizeof(Data));
+        Memory_Maintain::_mmy_modify(sizeof(Data), this);
         this->storage_space[0] = static_cast<Data>(0);
 #endif
         return;
