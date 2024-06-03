@@ -11,7 +11,6 @@ namespace Memory_Maintain {
     int _mmy_block = 0;
     _mmy_node* _mmy_top;
     _mmy_node* _mmy_buttom;
-    std::set<int> _mmy_id;
 }
 namespace Linalg {
     /*MaShape operator==

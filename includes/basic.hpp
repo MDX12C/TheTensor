@@ -913,8 +913,6 @@ namespace Memory_Maintain {
 	extern _mmy_node* _mmy_top;
 	/*don't touch it*/
 	extern _mmy_node* _mmy_buttom;
-	/*don't touch it*/
-	extern std::set<int> _mmy_id;
 	/*below is the function you don't need to use*/
 	template <typename Data>
 	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
@@ -959,20 +957,6 @@ namespace Memory_Maintain {
 		else if (alpha.type == Tf) { return (alpha.ptr.tf == beta); }
 		else if (alpha.type == S) { return (alpha.ptr.s == beta); }
 		else { return false; }
-	}
-	/*below is the function you don't need to use*/
-	inline void _mmy_free(_mmy_data& alpha) {
-		if (alpha.type == Vi) { alpha.ptr.vi->freedom_(); }
-		else if (alpha.type == Vb) { alpha.ptr.vb->freedom_(); }
-		else if (alpha.type == Vf) { alpha.ptr.vf->freedom_(); }
-		else if (alpha.type == Mi) { alpha.ptr.mi->freedom_(); }
-		else if (alpha.type == Mb) { alpha.ptr.mb->freedom_(); }
-		else if (alpha.type == Mf) { alpha.ptr.mf->freedom_(); }
-		else if (alpha.type == Ti) { alpha.ptr.ti->freedom_(); }
-		else if (alpha.type == Tb) { alpha.ptr.tb->freedom_(); }
-		else if (alpha.type == Tf) { alpha.ptr.tf->freedom_(); }
-		else if (alpha.type == S) { alpha.ptr.s->freedom_(); }
-		else { return; }
 	}
 	/*to sign up for memory manage*/
 	template <typename Data>
@@ -1066,8 +1050,27 @@ namespace Memory_Maintain {
 	/*check how much block in usage*/
 	inline int _mmy_zone() { return _mmy_block; }
 	/*show all the usage*/
-
-	//to this
+	inline void _mmy_all() {
+		_mmy_node* alpha = _mmy_top;
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { std::cout << '-'; }
+		printf("\n%d block and %d bytes were alloced in total\n", _mmy_block, _mmy_heap);
+		while (alpha != nullptr) {
+			printf("id=%p use %d bytes\n", alpha, alpha->size);
+			alpha = alpha->back;
+		}
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { std::cout << '-'; }
+		std::cout << '\n';
+		return;
+	}
+	/*in order to clear memory*/
+	inline void _mmy_clean() {
+		_mmy_node* alpha = _mmy_top;
+		while (alpha != nullptr) {
+			if (alpha->data.type == Vi) { alpha->data.ptr.vi->freedom_(); }
+			else if (alpha->data.type == Vb) { alpha->data.ptr.vb->freedom_(); }
+			else if (alpha->data.type == Vf) { alpha->data.ptr.vf->freedom_(); }
+		}
+	}
 }
 #undef Mm
 #undef Ln
