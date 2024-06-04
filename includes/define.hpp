@@ -18,9 +18,34 @@
 #else 
 #undef _AVX2_WILL_BE_UESD_ON_
 #endif //_SIMD_MODE_
-
 #ifndef __GNUC__
 #  define  __attribute__(x)  
 #endif
-
+#include<iostream>
+#include<iomanip>
+#include<cfloat>
+#include<cmath>
+#include<cstdlib>
+#include<ctime>
+#include<climits>
+#include<utility>
+#include<type_traits>
+#include<set>
+#ifdef _THREAD_MODE_
+#include<chrono>
+#include<thread>
+#include<atomic>
+#include<mutex>
+#include<functional>
+#include<xmmintrin.h>
+#endif //_THREAD_MODE_
+#ifdef _SIMD_MODE_
+#include<immintrin.h>
+#include<x86intrin.h>
+#endif //_SIMD_MODE_
+#ifdef _AVX2_WILL_BE_USED_ON_
+#include<avx2intrin.h>
+#include<avxintrin.h>
+#include<avxvnniintrin.h>
+#endif //AVX2_ON
 #endif // DEFINE_H

@@ -536,14 +536,20 @@ namespace Basic_Math {
     }
 }
 template class Linalg::Matrix<int>;
+template class Linalg::Matrix<bool>;
 template class Linalg::Matrix<float>;
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<int> const&);
+template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<bool> const&);
 template std::ostream& Linalg::operator<<(std::ostream&, Linalg::Matrix<float> const&);
 template Linalg::Matrix<int> Linalg::dot(Linalg::Matrix<int> const&, Linalg::Matrix<int> const&);
+template Linalg::Matrix<bool> Linalg::dot(Linalg::Matrix<bool> const&, Linalg::Matrix<bool> const&);
 template Linalg::Matrix<float> Linalg::dot(Linalg::Matrix<float> const&, Linalg::Matrix<float> const&);
 template void Linalg::AddLine_(Linalg::Matrix<int>&, Linalg::Vector<int> const&);
+template void Linalg::AddLine_(Linalg::Matrix<bool>&, Linalg::Vector<bool> const&);
 template void Linalg::AddLine_(Linalg::Matrix<float>&, Linalg::Vector<float> const&);
 template void Linalg::AddRow_(Linalg::Matrix<int>&, Linalg::Vector<int> const&);
+template void Linalg::AddRow_(Linalg::Matrix<bool>&, Linalg::Vector<bool> const&);
 template void Linalg::AddRow_(Linalg::Matrix<float>&, Linalg::Vector<float> const&);
 template Linalg::Matrix<int> Basic_Math::random(Linalg::MaShape const&, int const&, int const&);
+template Linalg::Matrix<bool> Basic_Math::random(Linalg::MaShape const&, bool const&, bool const&);
 template Linalg::Matrix<float> Basic_Math::random(Linalg::MaShape const&, float const&, float const&);

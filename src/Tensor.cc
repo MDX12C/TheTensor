@@ -418,6 +418,7 @@ namespace Linalg {
 }
 #undef bsm
 template class Linalg::Tensor<int>;
+template class Linalg::Tensor<bool>;
 //template class Linalg::Tensor<int64_t>;
 template class Linalg::Tensor<float>;
 //template class Linalg::Tensor<_Float64>;

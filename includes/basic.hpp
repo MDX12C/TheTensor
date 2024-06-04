@@ -1,34 +1,6 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
-//---------------------------------------
 #include"./define.hpp"
-#include<iostream>
-#include<iomanip>
-#include<cfloat>
-#include<cmath>
-#include<cstdlib>
-#include<ctime>
-#include<climits>
-#include<utility>
-#include<type_traits>
-#include<set>
-#ifdef _THREAD_MODE_
-#include<chrono>
-#include<thread>
-#include<atomic>
-#include<mutex>
-#include<functional>
-#include<xmmintrin.h>
-#endif //_THREAD_MODE_
-#ifdef _SIMD_MODE_
-#include<immintrin.h>
-#include<x86intrin.h>
-#endif //_SIMD_MODE_
-#ifdef _AVX2_WILL_BE_USED_ON_
-#include<avx2intrin.h>
-#include<avxintrin.h>
-#include<avxvnniintrin.h>
-#endif //AVX2_ON
 namespace Basic_Math {
 	// the value do as you think
 	constexpr int Float16_Accuracy = 3;
@@ -80,7 +52,6 @@ namespace Basic_Math {
 #endif
 #endif //_THREAD_MODE_
 	extern std::atomic<bool> set_seed;
-	extern std::atomic<unsigned long long> memory_heap;
 	//space when memory is leak
 	extern float float_leak;
 	//space when memory is leak
@@ -157,35 +128,6 @@ namespace Basic_Math {
 			Data range = beta - alpha + 1;
 			return alpha + (std::rand() % range);
 		}
-	}
-	/*status
-	return the Basic status*/
-	static inline __attribute__((__always_inline__, __used__)) void status() {
-		printf("\n");
-		for (int i = 0; i < terminal_width; i++) printf("-");
-		printf("\n");
-		if (set_seed.load()) {
-			printf("have set seed\n");
-		}
-		else {
-			printf("no set seed\n");
-		}
-#ifdef _THREAD_MODE_
-		printf("_THREAD_MODE_\nalign_size: %d\n", align_size);
-#else
-		printf("_THREAD_OFF_\n");
-#endif
-#if defined(_SIMD_01_)
-		printf("_SIMD_MODE_01_\n");
-#elif defined(_SIMD_02_) 
-		printf("_SIMD_MODE_02_\n");
-#else
-		printf("_SIMD_OFF_\n");
-#endif
-		printf("memory heap: %llu\n", memory_heap.load());
-		for (int i = 0; i < terminal_width; i++) printf("-");
-		printf("\n\n");
-		return;
 	}
 #ifdef _THREAD_MODE_
 	/*below are the functions you don't need to use*/
@@ -819,7 +761,7 @@ namespace Basic_Math {
 		printf("~tuple set finish~\n");
 #endif
 		return;
-	}
+		}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
 	static inline __attribute__((__always_inline__)) void tuple_load(Data* const& alpha, Data* const& gamma) {
@@ -845,9 +787,9 @@ namespace Basic_Math {
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 #endif
 		return;
-	}
+		}
 #endif //THREAD MODE
-}
+	}
 namespace Linalg {
 	//the shape of Matrix
 	typedef struct
@@ -1048,18 +990,65 @@ namespace Memory_Maintain {
 	/*show all the usage*/
 	inline void _mmy_all() {
 		_mmy_node* alpha = _mmy_top;
-		for (int i = 0; i < Basic_Math::terminal_width; i++) { std::cout << '-'; }
-		printf("\n%d block and %lld bytes were alloced in total\n", _mmy_block, _mmy_heap);
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { printf("-"); }
+		printf("\n%d blocks and %lld bytes were alloced in total\n", _mmy_block, _mmy_heap);
 		while (alpha != nullptr) {
-			printf("id=%p use %d bytes\n", alpha, alpha->size);
+			printf("ID: %p uses %d bytes ", alpha, alpha->size);
+			if (alpha->data.type == Vi) { printf("type: Vector<int>\n"); }
+			else if (alpha->data.type == Vf) { printf("type: Vector<float>\n"); }
+			else if (alpha->data.type == Vb) { printf("type: Vector<bool>\n"); }
+			else if (alpha->data.type == Mi) { printf("type: Matrix<int>\n"); }
+			else if (alpha->data.type == Mf) { printf("type: Matrix<float>\n"); }
+			else if (alpha->data.type == Mb) { printf("type: Matrix<bool>\n"); }
+			else if (alpha->data.type == Ti) { printf("type: Tensor<int>\n"); }
+			else if (alpha->data.type == Tf) { printf("type: Tensor<float>\n"); }
+			else if (alpha->data.type == Tb) { printf("type: Tensor<bool>\n"); }
+			else if (alpha->data.type == S) { printf("type: Teshape\n"); }
+			else { printf("type: unknown\n"); }
 			alpha = alpha->back;
 		}
-		for (int i = 0; i < Basic_Math::terminal_width; i++) { std::cout << '-'; }
-		std::cout << '\n';
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { printf("-"); }
+		printf("\n");
 		return;
 	}
-	/*in order to clear memory*/
-	void _mmy_clean()__attribute__((__unused__));
 }
 #undef Ln
+namespace Basic_Math {
+	/*status
+	Enter: 1.flag
+	show the status of mode and memory, if the flag is true, then show the memory detail
+	no return*/
+	static inline __attribute__((__always_inline__, __used__)) void status(bool const& alpha) {
+		printf("\n");
+		for (int i = 0; i < terminal_width; i++) printf("-");
+		printf("\n");
+		if (set_seed.load()) {
+			printf("have set seed\n");
+		}
+		else {
+			printf("no set seed\n");
+		}
+#ifdef _THREAD_MODE_
+		printf("_THREAD_MODE_\nalign_size: %d\n", align_size);
+#else
+		printf("_THREAD_OFF_\n");
+#endif
+#if defined(_SIMD_01_)
+		printf("_SIMD_MODE_01_\n");
+#elif defined(_SIMD_02_) 
+		printf("_SIMD_MODE_02_\n");
+#else
+		printf("_SIMD_OFF_\n");
+#endif
+		if (alpha) {
+			Memory_Maintain::_mmy_all();
+		}
+		else {
+			printf("memory block: %d memory usage: %lld bytes\n", Memory_Maintain::_mmy_block, Memory_Maintain::_mmy_heap);
+		}
+		for (int i = 0; i < terminal_width; i++) printf("-");
+		printf("\n\n");
+		return;
+	}
+}
 #endif //BASIC_H

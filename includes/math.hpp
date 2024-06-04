@@ -5,7 +5,7 @@
 #include "./matrix.hpp"
 #include "./tensor.hpp"
 namespace Memory_Maintain {
-    void _mmy_clean() {
+    inline void _mmy_clean() {
         _mmy_node* alpha = _mmy_top;
         while (alpha != nullptr) {
             if (alpha->data.type == Vi) { alpha->data.ptr.vi->freedom_(); }
