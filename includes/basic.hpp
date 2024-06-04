@@ -1,33 +1,6 @@
 ﻿#ifndef BASIC_H
 #define BASIC_H
-//---------------------------------------
 #include"./define.hpp"
-#include<iostream>
-#include<iomanip>
-#include<cfloat>
-#include<cmath>
-#include<cstdlib>
-#include<ctime>
-#include<climits>
-#include<utility>
-#include<type_traits>
-#ifdef _THREAD_MODE_
-#include<chrono>
-#include<thread>
-#include<atomic>
-#include<mutex>
-#include<functional>
-#include<xmmintrin.h>
-#endif //_THREAD_MODE_
-#ifdef _SIMD_MODE_
-#include<immintrin.h>
-#include<x86intrin.h>
-#endif //_SIMD_MODE_
-#ifdef _AVX2_WILL_BE_USED_ON_
-#include<avx2intrin.h>
-#include<avxintrin.h>
-#include<avxvnniintrin.h>
-#endif //AVX2_ON
 namespace Basic_Math {
 	// the value do as you think
 	constexpr int Float16_Accuracy = 3;
@@ -64,9 +37,9 @@ namespace Basic_Math {
 	//the base delay that threads use
 	constexpr int wait_time = 100;
 	//addition to set value
-	constexpr int set_delay = 16;
+	constexpr int set_delay = 32;
 	//addition to do operate
-	constexpr int operate_delay = 64;
+	constexpr int operate_delay = 128;
 	//addition to call funcion
 	constexpr int function_delay = 1024;
 	//the aligned size that support x86
@@ -79,7 +52,6 @@ namespace Basic_Math {
 #endif
 #endif //_THREAD_MODE_
 	extern std::atomic<bool> set_seed;
-	extern std::atomic<unsigned long long> memory_heap;
 	//space when memory is leak
 	extern float float_leak;
 	//space when memory is leak
@@ -91,7 +63,7 @@ namespace Basic_Math {
 	count how many digits the value has before the decimal point
 	return the answer*/
 	template <typename Data>
-	inline int Int_Digits(Data const& alpha) {
+	static inline __attribute__((__always_inline__)) int Int_Digits(Data const& alpha) {
 		if constexpr (std::is_same_v<Data, bool>) {
 			return 1;
 		}
@@ -109,7 +81,7 @@ namespace Basic_Math {
 	random a value between min and max
 	return the answer*/
 	template <typename Data>
-	inline Data random(Data const& alpha, Data const& beta) {
+	static inline __attribute__((__always_inline__)) Data random(Data const& alpha, Data const& beta) {
 		if (!static_cast<bool>(set_seed.load())) {
 			std::srand(int(std::time(0)));
 			set_seed.store(true);
@@ -134,7 +106,7 @@ namespace Basic_Math {
 #ifdef _DEBUG_MODE_
 			printf("float random\n");
 #endif
-			long double range = static_cast<long double>(beta) - static_cast<long double>(alpha) + 1;
+			long double range = static_cast<long double>(beta) - static_cast<long double>(alpha);
 			long double floating = static_cast<long double>(std::rand()) / RAND_MAX;
 			if (range < 0) {
 				range *= -1;
@@ -157,44 +129,15 @@ namespace Basic_Math {
 			return alpha + (std::rand() % range);
 		}
 	}
-	/*status
-	return the Basic status*/
-	inline void status() {
-		printf("\n");
-		for (int i = 0; i < terminal_width; i++) printf("-");
-		printf("\n");
-		if (set_seed.load()) {
-			printf("have set seed\n");
-		}
-		else {
-			printf("no set seed\n");
-		}
-#ifdef _THREAD_MODE_
-		printf("_THREAD_MODE_\nalign_size: %d\n", align_size);
-#else
-		printf("_THREAD_OFF_\n");
-#endif
-#if defined(_SIMD_01_)
-		printf("_SIMD_MODE_01_\n");
-#elif defined(_SIMD_02_) 
-		printf("_SIMD_MODE_02_\n");
-#else
-		printf("_SIMD_OFF_\n");
-#endif
-		printf("memory heap: %llu\n", memory_heap.load());
-		for (int i = 0; i < terminal_width; i++) printf("-");
-		printf("\n\n");
-		return;
-	}
 #ifdef _THREAD_MODE_
 	/*below are the functions you don't need to use*/
-	inline int size_check(int const& alpha) {
+	static inline __attribute__((__always_inline__)) int size_check(int const& alpha) {
 		if (alpha <= 0)return vec_len;
 		int gamma = alpha / vec_len; gamma += (alpha % vec_len) ? 1 : 0; gamma *= vec_len; return gamma;
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_add(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
@@ -226,7 +169,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_add_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_add_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_add_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
@@ -258,7 +201,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sub(Data* const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sub(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
@@ -290,7 +233,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sub_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sub_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_sub_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
@@ -322,7 +265,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sub_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sub_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_sub_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
@@ -354,7 +297,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_mul(Data* const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_mul(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
@@ -386,7 +329,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_mul_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_mul_s_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_mul_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
@@ -418,7 +361,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_div(Data* const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_div(Data* const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_load_ps(beta)));
@@ -454,7 +397,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_div_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_div_sb_(Data* const& alpha, Data const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_div_ps(_mm_load_ps(alpha), _mm_set1_ps(beta)));
@@ -490,7 +433,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_div_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_div_sf_(Data const& alpha, Data* const& beta, Data* const& gamma) {
 		if constexpr ((std::is_same_v<Data, float>) && (SIMD_ON)) {
 #if defined(_SIMD_01_)
 			_mm_store_ps(gamma, _mm_div_ps(_mm_set1_ps(alpha), _mm_load_ps(beta)));
@@ -526,7 +469,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_eq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_eq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] == beta[0]; gamma[1] = alpha[1] == beta[1]; gamma[2] = alpha[2] == beta[2]; gamma[3] = alpha[3] == beta[3];
 #elif defined(_SIMD_02_)
@@ -539,7 +482,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_eq_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_eq_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] == beta; gamma[1] = alpha[1] == beta; gamma[2] = alpha[2] == beta; gamma[3] = alpha[3] == beta;
 #elif defined(_SIMD_02_)
@@ -552,7 +495,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_ne_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_ne_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] != beta[0]; gamma[1] = alpha[1] != beta[1]; gamma[2] = alpha[2] != beta[2]; gamma[3] = alpha[3] != beta[3];
 #elif defined(_SIMD_02_)
@@ -565,7 +508,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_ne_s(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] != beta; gamma[1] = alpha[1] != beta; gamma[2] = alpha[2] != beta; gamma[3] = alpha[3] != beta;
 #elif defined(_SIMD_02_)
@@ -578,7 +521,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bg_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bg_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] > beta[0]; gamma[1] = alpha[1] > beta[1]; gamma[2] = alpha[2] > beta[2]; gamma[3] = alpha[3] > beta[3];
 #elif defined(_SIMD_02_)
@@ -591,7 +534,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bg_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bg_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] > beta; gamma[1] = alpha[1] > beta; gamma[2] = alpha[2] > beta; gamma[3] = alpha[3] > beta;
 #elif defined(_SIMD_02_)
@@ -604,7 +547,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bg_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bg_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha > beta[0]; gamma[1] = alpha > beta[1]; gamma[2] = alpha > beta[2]; gamma[3] = alpha > beta[3];
 #elif defined(_SIMD_02_)
@@ -617,7 +560,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] >= beta[0]; gamma[1] = alpha[1] >= beta[1]; gamma[2] = alpha[2] >= beta[2]; gamma[3] = alpha[3] >= beta[3];
 #elif defined(_SIMD_02_)
@@ -630,7 +573,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] >= beta; gamma[1] = alpha[1] >= beta; gamma[2] = alpha[2] >= beta; gamma[3] = alpha[3] >= beta;
 #elif defined(_SIMD_02_)
@@ -643,7 +586,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_bq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_bq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha >= beta[0]; gamma[1] = alpha >= beta[1]; gamma[2] = alpha >= beta[2]; gamma[3] = alpha >= beta[3];
 #elif defined(_SIMD_02_)
@@ -656,7 +599,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sm_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sm_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] < beta[0]; gamma[1] = alpha[1] < beta[1]; gamma[2] = alpha[2] < beta[2]; gamma[3] = alpha[3] < beta[3];
 #elif defined(_SIMD_02_)
@@ -669,7 +612,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sm_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sm_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] < beta; gamma[1] = alpha[1] < beta; gamma[2] = alpha[2] < beta; gamma[3] = alpha[3] < beta;
 #elif defined(_SIMD_02_)
@@ -682,7 +625,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sm_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sm_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha < beta[0]; gamma[1] = alpha < beta[1]; gamma[2] = alpha < beta[2]; gamma[3] = alpha < beta[3];
 #elif defined(_SIMD_02_)
@@ -695,7 +638,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sq_v(Data* const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] <= beta[0]; gamma[1] = alpha[1] <= beta[1]; gamma[2] = alpha[2] <= beta[2]; gamma[3] = alpha[3] <= beta[3];
 #elif defined(_SIMD_02_)
@@ -708,7 +651,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sq_sb(Data* const& alpha, Data const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha[0] <= beta; gamma[1] = alpha[1] <= beta; gamma[2] = alpha[2] <= beta; gamma[3] = alpha[3] <= beta;
 #elif defined(_SIMD_02_)
@@ -721,7 +664,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_sq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_sq_sf(Data const& alpha, Data* const& beta, bool* const& gamma) {
 #if defined(_SIMD_01_)
 		gamma[0] = alpha <= beta[0]; gamma[1] = alpha <= beta[1]; gamma[2] = alpha <= beta[2]; gamma[3] = alpha <= beta[3];
 #elif defined(_SIMD_02_)
@@ -734,7 +677,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_abs(Data* const& alpha, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_abs(Data* const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple abs at %p~\n", alpha);
 #endif
@@ -775,7 +718,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_rand(Data* const& gamma, Data const& alpha, Data const& beta) {
+	static inline __attribute__((__always_inline__)) void tuple_rand(Data* const& gamma, Data const& alpha, Data const& beta) {
 #if defined(_SIMD_01_)
 		gamma[0] = Basic_Math::random(alpha, beta); gamma[1] = Basic_Math::random(alpha, beta);
 		gamma[2] = Basic_Math::random(alpha, beta); gamma[3] = Basic_Math::random(alpha, beta);
@@ -792,7 +735,7 @@ namespace Basic_Math {
 	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_set(Data* const& gamma, Data const& alpha) {
+	static inline __attribute__((__always_inline__)) void tuple_set(Data* const& gamma, Data const& alpha) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple set at %p~\n", gamma);
 #endif
@@ -818,10 +761,10 @@ namespace Basic_Math {
 		printf("~tuple set finish~\n");
 #endif
 		return;
-	}
+		}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
-	inline void tuple_load(Data* const& alpha, Data* const& gamma) {
+	static inline __attribute__((__always_inline__)) void tuple_load(Data* const& alpha, Data* const& gamma) {
 #ifdef _DEBUG_MODE_
 		printf("~tuple load from %p to %p~\n", alpha, gamma);
 #endif
@@ -844,9 +787,9 @@ namespace Basic_Math {
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 #endif
 		return;
-	}
+		}
 #endif //THREAD MODE
-}
+	}
 namespace Linalg {
 	//the shape of Matrix
 	typedef struct
@@ -876,20 +819,15 @@ namespace Linalg {
 	template <typename Data>
 	void AddRow_(Matrix<Data>&, Vector<Data> const&);
 }
-#define Mm Memory_Maintain
 #define Ln Linalg
-#define Bs Basic_Math
-#define V(tp) Vector<##tp##> 
-#define M(tp) Matrix<##tp##>
-#define T(tp) Tensor<##tp##>
 namespace Memory_Maintain {
 	/*you don't need to know what this mean*/
 	typedef enum { Vi, Vb, Vf, Mi, Mb, Mf, Ti, Tb, Tf, S }_mmy_type;
 	/*you don't need to know what this mean*/
 	typedef union {
-		Ln::V(int)* vi; Ln::V(bool)* vb; Ln::V(float)* vf;
-		Ln::M(int)* mi; Ln::M(bool)* mb; Ln::M(float)* mf;
-		Ln::T(int)* ti; Ln::T(bool)* tb; Ln::T(float)* tf;
+		Ln::Vector<int>* vi; Ln::Vector<bool>* vb; Ln::Vector<float>* vf;
+		Ln::Matrix<int>* mi; Ln::Matrix<bool>* mb; Ln::Matrix<float>* mf;
+		Ln::Tensor<int>* ti; Ln::Tensor<bool>* tb; Ln::Tensor<float>* tf;
 		Ln::Teshape* s;
 	}_mmy_pointer;
 	/*you don't need to know what this mean*/
@@ -898,9 +836,9 @@ namespace Memory_Maintain {
 		_mmy_pointer ptr;
 	}_mmy_data;
 	/*you don't need to know what this mean*/
-	typedef struct {
-		_mmy_node* front = nullptr;
-		_mmy_node* back = nullptr;
+	typedef struct _mmy_node {
+		struct _mmy_node* front = nullptr;
+		struct _mmy_node* back = nullptr;
 		int size = 0;
 		_mmy_data data;
 	}_mmy_node;
@@ -914,22 +852,22 @@ namespace Memory_Maintain {
 	extern _mmy_node* _mmy_buttom;
 	/*below is the function you don't need to use*/
 	template <typename Data>
-	inline bool _mmy_order(_mmy_data& alpha, Data const& beta) {
-		if constexpr (std::is_same_v<Data, Ln::V(int)*>) { alpha.type = Vi; alpha.ptr.vi = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::V(bool)*>) { alpha.type = Vb; alpha.ptr.vb = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::V(float)*>) { alpha.type = Vf; alpha.ptr.vf = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::M(int)*>) { alpha.type = Mi; alpha.ptr.mi = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::M(bool)*>) { alpha.type = Mb; alpha.ptr.mb = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::M(float)*>) { alpha.type = Mf; alpha.ptr.mf = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::T(int)*>) { alpha.type = Ti; alpha.ptr.ti = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::T(bool)*>) { alpha.type = Tb; alpha.ptr.tb = beta; return true; }
-		else if constexpr (std::is_same_v<Data, Ln::T(float)*>) { alpha.type = Tf; alpha.ptr.tf = beta; return true; }
+	static inline __attribute__((__always_inline__)) bool _mmy_order(_mmy_data& alpha, Data const& beta) {
+		if constexpr (std::is_same_v<Data, Ln::Vector<int>*>) { alpha.type = Vi; alpha.ptr.vi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Vector<bool>*>) { alpha.type = Vb; alpha.ptr.vb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Vector<float>*>) { alpha.type = Vf; alpha.ptr.vf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<int>*>) { alpha.type = Mi; alpha.ptr.mi = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<bool>*>) { alpha.type = Mb; alpha.ptr.mb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<float>*>) { alpha.type = Mf; alpha.ptr.mf = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<int>*>) { alpha.type = Ti; alpha.ptr.ti = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<bool>*>) { alpha.type = Tb; alpha.ptr.tb = beta; return true; }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<float>*>) { alpha.type = Tf; alpha.ptr.tf = beta; return true; }
 		else if constexpr (std::is_same_v<Data, Ln::Teshape*>) { alpha.type = S; alpha.ptr.s = beta; return true; }
 		else { return false; }
 	}
 	/*below is the function you don't need to use*/
 	template <typename Data>
-	inline bool _mmy_catch(_mmy_data const& alpha, Data& beta) {
+	static inline __attribute__((__unused__)) bool _mmy_catch(_mmy_data const& alpha, Data& beta) {
 		if (alpha.type == Vi) { beta = alpha.ptr.vi; return true; }
 		else if (alpha.type == Vb) { beta = alpha.ptr.vb; return true; }
 		else if (alpha.type == Vf) { beta = alpha.ptr.vb; return true; }
@@ -944,17 +882,17 @@ namespace Memory_Maintain {
 	}
 	/*below is the function you don't need to use*/
 	template <typename Data>
-	inline bool _mmy_cmp(_mmy_data const& alpha, Data const& beta) {
-		if (alpha.type == Vi) { return (alpha.ptr.vi == beta); }
-		else if (alpha.type == Vb) { return (alpha.ptr.vb == beta); }
-		else if (alpha.type == Vf) { return (alpha.ptr.vf == beta); }
-		else if (alpha.type == Mi) { return (alpha.ptr.mi == beta); }
-		else if (alpha.type == Mb) { return (alpha.ptr.mb == beta); }
-		else if (alpha.type == Mf) { return (alpha.ptr.mf == beta); }
-		else if (alpha.type == Ti) { return (alpha.ptr.ti == beta); }
-		else if (alpha.type == Tb) { return (alpha.ptr.tb == beta); }
-		else if (alpha.type == Tf) { return (alpha.ptr.tf == beta); }
-		else if (alpha.type == S) { return (alpha.ptr.s == beta); }
+	static inline __attribute__((__always_inline__)) bool _mmy_cmp(_mmy_data const& alpha, Data const& beta) {
+		if constexpr (std::is_same_v<Data, Ln::Vector<int>*>) { return (alpha.ptr.vi == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Vector<bool>*>) { return (alpha.ptr.vb == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Vector<float>*>) { return (alpha.ptr.vf == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<int>*>) { return (alpha.ptr.mi == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<bool>*>) { return (alpha.ptr.mb == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Matrix<float>*>) { return (alpha.ptr.mf == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<int>*>) { return (alpha.ptr.ti == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<bool>*>) { return (alpha.ptr.tb == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Tensor<float>*>) { return (alpha.ptr.tf == beta); }
+		else if constexpr (std::is_same_v<Data, Ln::Teshape*>) { return (alpha.ptr.s == beta); }
 		else { return false; }
 	}
 	/*to sign up for memory manage*/
@@ -1017,7 +955,7 @@ namespace Memory_Maintain {
 					_mmy_block -= 1;
 					_mmy_heap -= omega->size;
 					_mmy_top = gamma;
-					gamma->data = nullptr;
+					gamma->front = nullptr;
 					delete omega;
 					return true;
 				}
@@ -1041,21 +979,76 @@ namespace Memory_Maintain {
 					return true;
 				}
 			}
+			omega = omega->back;
 		}
 		return false;
 	}
 	/*check how much block in usage*/
-	inline unsigned long long _mmy_usage(){return _mmy_heap;}
+	inline unsigned long long _mmy_usage() { return _mmy_heap; }
 	/*check how much block in usage*/
-	inline int _mmy_zone(){return _mmy_block;}
+	inline int _mmy_zone() { return _mmy_block; }
 	/*show all the usage*/
-	
-	//to this
+	inline void _mmy_all() {
+		_mmy_node* alpha = _mmy_top;
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { printf("-"); }
+		printf("\n%d blocks and %lld bytes were alloced in total\n", _mmy_block, _mmy_heap);
+		while (alpha != nullptr) {
+			printf("ID: %p uses %d bytes ", alpha, alpha->size);
+			if (alpha->data.type == Vi) { printf("type: Vector<int>\n"); }
+			else if (alpha->data.type == Vf) { printf("type: Vector<float>\n"); }
+			else if (alpha->data.type == Vb) { printf("type: Vector<bool>\n"); }
+			else if (alpha->data.type == Mi) { printf("type: Matrix<int>\n"); }
+			else if (alpha->data.type == Mf) { printf("type: Matrix<float>\n"); }
+			else if (alpha->data.type == Mb) { printf("type: Matrix<bool>\n"); }
+			else if (alpha->data.type == Ti) { printf("type: Tensor<int>\n"); }
+			else if (alpha->data.type == Tf) { printf("type: Tensor<float>\n"); }
+			else if (alpha->data.type == Tb) { printf("type: Tensor<bool>\n"); }
+			else if (alpha->data.type == S) { printf("type: Teshape\n"); }
+			else { printf("type: unknown\n"); }
+			alpha = alpha->back;
+		}
+		for (int i = 0; i < Basic_Math::terminal_width; i++) { printf("-"); }
+		printf("\n");
+		return;
+	}
 }
-#undef Mm
 #undef Ln
-#undef Bs
-#undef V(tp)
-#undef M(tp)
-#undef T(tp)
+namespace Basic_Math {
+	/*status
+	Enter: 1.flag
+	show the status of mode and memory, if the flag is true, then show the memory detail
+	no return*/
+	static inline __attribute__((__always_inline__, __used__)) void status(bool const& alpha) {
+		printf("\n");
+		for (int i = 0; i < terminal_width; i++) printf("-");
+		printf("\n");
+		if (set_seed.load()) {
+			printf("have set seed\n");
+		}
+		else {
+			printf("no set seed\n");
+		}
+#ifdef _THREAD_MODE_
+		printf("_THREAD_MODE_\nalign_size: %d\n", align_size);
+#else
+		printf("_THREAD_OFF_\n");
+#endif
+#if defined(_SIMD_01_)
+		printf("_SIMD_MODE_01_\n");
+#elif defined(_SIMD_02_) 
+		printf("_SIMD_MODE_02_\n");
+#else
+		printf("_SIMD_OFF_\n");
+#endif
+		if (alpha) {
+			Memory_Maintain::_mmy_all();
+		}
+		else {
+			printf("memory block: %d memory usage: %lld bytes\n", Memory_Maintain::_mmy_block, Memory_Maintain::_mmy_heap);
+		}
+		for (int i = 0; i < terminal_width; i++) printf("-");
+		printf("\n\n");
+		return;
+	}
+}
 #endif //BASIC_H

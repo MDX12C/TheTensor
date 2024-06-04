@@ -50,5 +50,7 @@ START:
     else {
         goto START;
     }
+    auto ans = mmy_ans(space);
+    cout << ans << '\n';
     return 0;
 }
