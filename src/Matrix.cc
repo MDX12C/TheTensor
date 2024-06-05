@@ -31,12 +31,13 @@ namespace Linalg
                 std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time * Basic_Math::set_delay));
             }
 #else 
-            this->storage_space = (Data*) malloc(this->_size * sizeof(Data));
+            this->storage_space = new Data[this->_size];
             Memory_Maintain::_mmy_sign(this->_size * sizeof(Data), this);
             for (int i = 0; i < this->_size; i++) {
                 this->storage_space[i] = static_cast<Data>(0);
             }
 #endif 
+            return;
         }
         this->_shape = beta;
         this->_size = this->_shape.lines * this->_shape.rows;
@@ -51,15 +52,42 @@ namespace Linalg
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
         Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
-        int w = this->_real_shape.lines / Basic_Math::align_size - 1, h = this->_shape.rows, dex = 0, r = 0;
-        std::thread run_array[w * h];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j += 1, dex += Basic_Math::align_size) {
-
+        int wide = this->_real_shape.lines / Basic_Math::align_size - 1, v_dex = 0, d_dex = 0, t_dex = 0;
+        const int side = Basic_Math::vec_len - (this->_real_shape.lines - this->_shape.lines);
+        std::thread run_array_1[wide * this->_shape.rows];
+        std::thread run_array_2[(this->_real_shape.rows - this->_shape.rows) * (wide + 1)];
+        for (int i = 0; i < this->_shape.rows; i++) {
+            for (int j = 0; j < wide; j++) {
+                run_array_1[t_dex] = std::thread(Basic_Math::tuple_load<Data>, &alpha[d_dex], &this->storage_space[v_dex]);
+                run_array_1[t_dex].detach();
+                t_dex++; d_dex += Basic_Math::vec_len; v_dex += Basic_Math::vec_len;
             }
+            for (int j = 0; j < side; j++) {
+                this->storage_space[v_dex] = alpha[d_dex];
+                d_dex++; v_dex++;
+            }
+            v_dex += Basic_Math::vec_le - side;
+        }
+        t_dex = 0;
+        while (v_dex < this->_real_shape) {
+            run_array_2[t_dex] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[v_dex], static_cast<Data>(0));
+            run_array_2[t_dex].detach();
+            t_dex++; v_dex += Basic_Math::vec_len;
+        }
+        if constexpr (Basic_Math::check_simd<Data>) {
+            std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time * Basic_Math::set_delay));
         }
 #else
+        this->storage_space = new Data[this->_size];
+        Memory_Maintain::_mmy_sign(this->_size, this);
+        for (int i = 0; i < this->_size; i++) {
+            this->storage_space[i] = alpha[i];
+        }
 #endif 
+        return;
     }
     /*Constructor_Shape
     Enter 1.Matrix_shape
