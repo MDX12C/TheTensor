@@ -1538,7 +1538,7 @@ namespace Linalg {
             run_array[j] = std::thread(Basic_Math::tuple_mul<Data>, &alpha.storage_space[i], &beta.storage_space[i], &temp.storage_space[i]);
             run_array[j].detach();
         }
-        if (Basic_Math::check_simd<Data>) {
+        if constexpr (Basic_Math::check_simd<Data>) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
@@ -1585,7 +1585,7 @@ namespace Linalg {
                 temp.storage_space[j] = alpha + beta.storage_space[j];
             }
         }
-        if (Basic_Math::check_simd<op_pls>) {
+        if constexpr (Basic_Math::check_simd<op_pls>) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
@@ -1627,7 +1627,7 @@ namespace Linalg {
                 temp.storage_space[j] = alpha - beta.storage_space[j];
             }
         }
-        if (Basic_Math::check_simd<op_mns>) {
+        if constexpr (Basic_Math::check_simd<op_mns>) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
@@ -1660,7 +1660,7 @@ namespace Linalg {
             run_arry[j] = std::thread(Basic_Math::tuple_mul_s_<op_mul>, &beta.storage_space[i], alpha, &temp.storage_space[i]);
             run_arry[j].detach();
         }
-        if (Basic_Math::check_simd<op_mul>) {
+        if constexpr (Basic_Math::check_simd<op_mul>) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {
@@ -1702,7 +1702,7 @@ namespace Linalg {
                 temp.storage_space[j] = alpha / beta.storage_space[j];
             }
         }
-        if (std::is_same_v<op_div, float> && Basic_Math::SIMD_ON) {
+        if constexpr (Basic_Math::check_simd<op_div>) {
             std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time));
         }
         else {

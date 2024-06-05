@@ -24,7 +24,19 @@ namespace Linalg
                 run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
                 run_arry[j].detach();
             }
-            /**/
+            if constexpr (Basic_Math::check_simd<Data>) {
+                std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time));
+            }
+            else {
+                std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time * Basic_Math::set_delay));
+            }
+#else 
+            this->storage_space = (Data*) malloc(this->_size * sizeof(Data));
+            Memory_Maintain::_mmy_sign(this->_size * sizeof(Data), this);
+            for (int i = 0; i < this->_size; i++) {
+                this->storage_space[i] = static_cast<Data>(0);
+            }
+#endif 
         }
         this->_shape = beta;
         this->_size = this->_shape.lines * this->_shape.rows;
