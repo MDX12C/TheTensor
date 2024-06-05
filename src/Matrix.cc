@@ -51,6 +51,13 @@ namespace Linalg
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
         Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
+        int w = this->_real_shape.lines / Basic_Math::align_size - 1, h = this->_shape.rows, dex = 0, r = 0;
+        std::thread run_array[w * h];
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j += 1, dex += Basic_Math::align_size) {
+
+            }
+        }
 #else
 #endif 
     }
