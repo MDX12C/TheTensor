@@ -9,19 +9,38 @@ namespace Linalg
     template <typename Data>
     Matrix<Data>::Matrix(MaShape const& beta, Data* const& alpha)
     {
+        if (!check_legal(beta)) {
+            this->_shape = MaShape{ Basic_Math::align_size, Basic_Math::align_size };
+            this->_size = this->_shape.lines * this->_shape.rows;
+#ifdef _THREAD_MODE_
+            this->_real_shape.lines = this->_shape.lines;
+            this->_real_shape.rows = this->_shape.rows;
+            this->_real_size = this->_size;
+            this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data), Basic_Math::align_size);
+            Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
+            int run_times = this->_real_size / Basic_Math::align_size;
+            std::thread run_arry[run_times];
+            for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::align_size, j++) {
+                run_arry[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
+                run_arry[j].detach();
+            }
+            /**/
+        }
         this->_shape = beta;
-        if (this->_shape.rows <= 0 || this->_shape.lines <= 0) {
-            this->_shape.lines = this->_shape.rows = this->_size = 1;
-            this->storage_space = new Data[1];
-            this->storage_space[0] = static_cast<Data>(0);
-            return;
-        }
         this->_size = this->_shape.lines * this->_shape.rows;
-        this->storage_space = new Data[this->_size];
-        for (int i = 0; i < this->_size; i++) {
-            this->storage_space[i] = alpha[i];
+#ifdef _THREAD_MODE_
+        this->_real_shape.lines = Basic_Math::size_check(this->_shape.lines);
+        this->_real_shape.rows = Basic_Math::size_check(this->_shape.rows);
+        this->_real_shape = this->_real_shape.lines * this->_real_shape.rows;
+        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         }
-        return;
+        else {
+            this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+        }
+        Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
+#else
+#endif 
     }
     /*Constructor_Shape
     Enter 1.Matrix_shape

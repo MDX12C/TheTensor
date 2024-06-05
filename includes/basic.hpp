@@ -2,6 +2,18 @@
 #define BASIC_H
 #include"./define.hpp"
 namespace Basic_Math {
+	/*base for 'check_simd'*/
+	template <class T>
+	struct is_simd_on {
+#ifdef _SIMD_MODE_
+		constexpr static bool value = is_same_v<T, float>;
+#else 
+		constexpr static bool value = false;
+#endif
+	};
+	/*check if the type is support for SIMD*/
+	template <class T>
+	constexpr bool check_simd = is_simd_on<T>::value;
 	// the value do as you think
 	constexpr int Float16_Accuracy = 3;
 	// the value do as you think
@@ -761,7 +773,7 @@ namespace Basic_Math {
 		printf("~tuple set finish~\n");
 #endif
 		return;
-		}
+	}
 	/*below are the functions you don't need to use*/
 	template <typename Data>
 	static inline __attribute__((__always_inline__)) void tuple_load(Data* const& alpha, Data* const& gamma) {
@@ -801,6 +813,7 @@ namespace Linalg {
 	bool operator<(MaShape const&, MaShape const&);
 	bool operator<=(MaShape const&, MaShape const&);
 	std::ostream& operator<<(std::ostream&, MaShape const&);
+	inline __attribute__((__always_inline__)) bool check_legal(MaShape const& alpha) { return alpha.rows > 0 && alpha.lines > 0; }
 	//Datas with 1 Dimantion
 	template <typename Data>
 	class Vector;

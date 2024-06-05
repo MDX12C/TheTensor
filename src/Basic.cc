@@ -34,7 +34,7 @@ namespace Linalg {
     return true if the first one is smaller than the second one */
     bool operator<(MaShape const& alpha, MaShape const& beta)
     {
-        return (alpha.lines < beta.lines) && (alpha.rows < beta.rows) && (alpha.lines > 0) && (alpha.rows > 0);
+        return (alpha.lines < beta.lines) && (alpha.rows < beta.rows);
     }
     /*MaShape operator<=
     Enter: 1.MaShape 2.MaShape
@@ -42,6 +42,6 @@ namespace Linalg {
     return true if the first one is smaller than or equal to the second one */
     bool operator<=(MaShape const& alpha, MaShape const& beta)
     {
-        return (alpha.lines <= beta.lines) && (alpha.rows <= beta.rows) && (alpha.lines > 0) && (alpha.rows > 0);
+        return (alpha.lines <= beta.lines) && (alpha.rows <= beta.rows);
     }
 }
