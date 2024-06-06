@@ -1,5 +1,5 @@
-﻿#include"./define.hpp"
-#ifndef BASIC_H
+﻿#ifndef BASIC_H
+#include"./define.hpp"
 #define BASIC_H
 namespace Basic_Math {
 	/*base for 'check_simd'*/
