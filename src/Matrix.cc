@@ -1,4 +1,6 @@
 ﻿#include "../includes/matrix.hpp"
+#include "../includes/basic.hpp"
+#define MATRIX_C
 /*Define Matrix*/
 namespace Linalg
 {
@@ -10,13 +12,18 @@ namespace Linalg
     Matrix<Data>::Matrix(MaShape const& beta, Data* const& alpha)
     {
         if (!check_legal(beta)) {
-            this->_shape = MaShape{ Basic_Math::align_size, Basic_Math::align_size };
-            this->_size = this->_shape.lines * this->_shape.rows;
+            this->_shape = MaShape{ 1,1 };
+            this->_size = 1;
 #ifdef _THREAD_MODE_
-            this->_real_shape.lines = this->_shape.lines;
-            this->_real_shape.rows = this->_shape.rows;
-            this->_real_size = this->_size;
-            this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data), Basic_Math::align_size);
+            this->_real_shape.lines = Basic_Math::vec_len;
+            this->_real_shape.rows = Basic_Math::vec_len;
+            this->_real_size = Basic_Math::vec_len * Basic_Math::vec_len;
+            if constexpr (Basic_Math::check_simd<Data>) {
+                this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
+            }
+            else {
+                this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
+            }
             Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
             int run_times = this->_real_size / Basic_Math::align_size;
             std::thread run_arry[run_times];
@@ -45,28 +52,31 @@ namespace Linalg
         this->_real_shape.lines = Basic_Math::size_check(this->_shape.lines);
         this->_real_shape.rows = Basic_Math::size_check(this->_shape.rows);
         this->_real_shape = this->_real_shape.lines * this->_real_shape.rows;
-        if constexpr (std::is_same_v<Data, float> && Basic_Math::SIMD_ON) {
+        if constexpr (Basic_Math::check_simd<Data>) {
             this->storage_space = (Data*) _mm_malloc(this->_real_shape * sizeof(Data), Basic_Math::align_size);
         }
         else {
             this->storage_space = (Data*) malloc(this->_real_shape * sizeof(Data));
         }
         Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
-        int wide = this->_real_shape.lines / Basic_Math::align_size - 1, v_dex = 0, d_dex = 0, t_dex = 0;
-        const int side = Basic_Math::vec_len - (this->_real_shape.lines - this->_shape.lines);
+        int  v_dex = 0, d_dex = 0, t_dex = 0, j;
+        const int side = Basic_Math::vec_len - (this->_real_shape.lines - this->_shape.lines), wide = this->_real_shape.lines / Basic_Math::align_size - 1;
         std::thread run_array_1[wide * this->_shape.rows];
         std::thread run_array_2[(this->_real_shape.rows - this->_shape.rows) * (wide + 1)];
         for (int i = 0; i < this->_shape.rows; i++) {
-            for (int j = 0; j < wide; j++) {
+            for (j = 0; j < wide; j++) {
                 run_array_1[t_dex] = std::thread(Basic_Math::tuple_load<Data>, &alpha[d_dex], &this->storage_space[v_dex]);
                 run_array_1[t_dex].detach();
                 t_dex++; d_dex += Basic_Math::vec_len; v_dex += Basic_Math::vec_len;
             }
-            for (int j = 0; j < side; j++) {
+            for (j = 0; j < side; j++) {
                 this->storage_space[v_dex] = alpha[d_dex];
                 d_dex++; v_dex++;
             }
-            v_dex += Basic_Math::vec_le - side;
+            for (; j < Basic_Math::vec_len; j++) {
+                this->storage_space[v_dex] = static_cast<Data>(0);
+                v_dex++;
+            }
         }
         t_dex = 0;
         while (v_dex < this->_real_shape) {
@@ -95,12 +105,43 @@ namespace Linalg
     no return */
     template <typename Data>
     Matrix<Data>::Matrix(MaShape const& alpha) {
-        this->_shape.lines = alpha.lines > 0 ? alpha.lines : 1;
-        this->_shape.rows = alpha.rows > 0 ? alpha.rows : 1;
-        this->_size = this->_shape.lines * this->_shape.rows;
+        if (!check_legal(alpha)) {
+            this->_shape = Mashape{ 1,1 };
+            this->_size = 1;
+        }
+        else {
+            this->_shape = alpha;
+        }
+#ifdef _THREAD_MODE_
+        this->_real_shape.lines = Basic_Math::size_check(this->_shape.lines);
+        this->_real_shape.rows = Basic_Math::size_check(this->_shape.rows);
+        this->_real_size = this->_real_shape.rows * this->_real_shape.lines;
+        if constexpr (Basic_Math::check_simd<Data>) {
+            this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data), Basic_Math::align_size);
+        }
+        else {
+            this->storage_space = (Data*) malloc(this->_real_size * sizeof(Data));
+        }
+        Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this);
+        const int run_times = this->_real_size / Basic_Math::vec_len;
+        std::thread run_array[run_times];
+        for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::vec_len, j++) {
+            run_array[j] = std::thread(Basic_Math::tuple_set<Data>, &this->storage_space[i], static_cast<Data>(0));
+            run_array[j].detach();
+        }
+        if constexpr (Basic_Math::check_simd<Data>) {
+            std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time));
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microsecond(Basic_Math::wait_time * Basic_Math::set_delay));
+        }
+#else
         this->storage_space = new Data[this->_size];
-        for (int i = 0; i < this->_size; i++)
+        Memory_Maintain::_mmy_sign(this->_size, this);
+        for (int i = 0; i < this->_size; i++) {
             this->storage_space[i] = static_cast<Data>(0);
+        }
+#endif
         return;
     }
     /*Default constructor

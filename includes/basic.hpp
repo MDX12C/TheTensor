@@ -1,6 +1,6 @@
-﻿#ifndef BASIC_H
+﻿#include"./define.hpp"
+#ifndef BASIC_H
 #define BASIC_H
-#include"./define.hpp"
 namespace Basic_Math {
 	/*base for 'check_simd'*/
 	template <class T>
@@ -799,9 +799,9 @@ namespace Basic_Math {
 		gamma[0] = alpha[0]; gamma[1] = alpha[1]; gamma[2] = alpha[2]; gamma[3] = alpha[3];
 #endif
 		return;
-		}
-#endif //THREAD MODE
 	}
+#endif //THREAD MODE
+}
 namespace Linalg {
 	//the shape of Matrix
 	typedef struct
