@@ -175,7 +175,8 @@ template <typename Data> Matrix<Data>::Matrix() {
     this->storage_space = (Data *)malloc(this->_real_size);
   }
   if (!Memory_Maintain::_mmy_sign(this->_real_size, this)) {
-    std::cerr << "~!bad alloc!~\n";
+    std::cerr << "~!bad sign!~\n";
+    exit(1);
   }
   const int alpha = this->_real_size / Basic_Math::vec_len;
   std::thread beta[alpha];
@@ -192,7 +193,16 @@ template <typename Data> Matrix<Data>::Matrix() {
         Basic_Math::wait_time * Basic_Math::set_delay));
   }
 #else
+  this->storage_space = new Data[this->_size];
+  if (!Memory_Maintain::_mmy_sign(this->_size, this)) {
+    std::cerr << "~!bad sign!~\n";
+    exit(1);
+  }
+  for (int i = 0; i < this->_size; i++) {
+    this->storage_space[i] = static_cast<Data>(0);
+  }
 #endif
+  return;
 }
 /*Copy constructor
 Enter: 1.Matrix
