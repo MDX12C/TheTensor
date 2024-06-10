@@ -181,9 +181,9 @@ template <typename Data> Matrix<Data>::Matrix() {
   const int alpha = this->_real_size / Basic_Math::vec_len;
   std::thread beta[alpha];
   for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::vec_len, j++) {
-    beta[alpha] = std::thread(Basic_Math::tuple_set<Data>,
-                              &(this->storage_space[i]), static_cast<Data>(0));
-    beta[alpha].detach();
+    beta[j] = std::thread(Basic_Math::tuple_set<Data>,
+                          &(this->storage_space[i]), static_cast<Data>(0));
+    beta[j].detach();
   }
   if constexpr (Basic_Math::check_simd<Data>) {
     std::this_thread::sleep_for(
@@ -211,9 +211,44 @@ no return */
 template <typename Data> Matrix<Data>::Matrix(const Matrix &alpha) {
   this->_shape = alpha._shape;
   this->_size = alpha._size;
+#ifdef _SIMD_MODE_
+  this->_real_size = alpha._real_size;
+  this->_real_shape = alpha._real_shape;
+  if constexpr (Basic_Math::check_simd<Data>) {
+    this->storage_space = (Data *)_mm_malloc(this->_real_size * sizeof(Data),
+                                             Basic_Math::align_size);
+  } else {
+    this->storage_space = (Data *)malloc(this->_real_size * sizeof(Data));
+  }
+  if (!Memory_Maintain::_mmy_sign(this->_real_size * sizeof(Data), this)) {
+    std::cerr << "~!bad sign!~\n";
+    exit(1);
+  }
+  const int beta = this->_real_size / Basic_Math::vec_len;
+  std::thread gamma[beta];
+  for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::vec_len, j++) {
+    gamma[j] =
+        std::thread(Basic_Math::tuple_load<Data>, &(alpha.storage_space[i]),
+                    &(this->storage_space[i]));
+    gamma[j].detach();
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    std::this_thread::sleep_for(
+        std::chrono::microseconds(Basic_Math::wait_time));
+  } else {
+    std::this_thread::sleep_for(std::chrono::microseconds(
+        Basic_Math::wait_time * Basic_Math::set_delay));
+  }
+#else
   this->storage_space = new Data[this->_size];
-  for (int i = 0; i < this->_size; i++)
-    this->storage_space[i] = alpha.storage_space[i];
+  if (!Memory_Maintain::_mmy_sign(this->_size * sizeof(Data), this)) {
+    std::cerr << "~!bad sign!~\n";
+    exit(1);
+  }
+  for (int i = 0; i < this->_size; i++) {
+    this->storage_space[i] = static_cast<Data>(0);
+  }
+#endif
   return;
 }
 /*Destructor
