@@ -163,10 +163,36 @@ Enter: none
 construct an Matrix with 1*1 and init it with 0
 no return */
 template <typename Data> Matrix<Data>::Matrix() {
-  this->_shape.rows = this->_shape.lines = this->_size = 1;
-  this->storage_space = new Data[1];
-  this->storage_space[0] = static_cast<Data>(0);
-  return;
+  this->_shape = MaShape{1, 1};
+  this->_size = 1;
+#ifdef _SIMD_MODE_
+  this->_real_shape = MaShape{Basic_Math::vec_len, Basic_Math::vec_len};
+  this->_real_size = Basic_Math::vec_len * Basic_Math::vec_len;
+  if constexpr (Basic_Math::check_simd<Data>) {
+    this->storage_space = (Data *)_mm_malloc(this->_real_size * sizeof(Data),
+                                             Basic_Math::align_size);
+  } else {
+    this->storage_space = (Data *)malloc(this->_real_size);
+  }
+  if (!Memory_Maintain::_mmy_sign(this->_real_size, this)) {
+    std::cerr << "~!bad alloc!~\n";
+  }
+  const int alpha = this->_real_size / Basic_Math::vec_len;
+  std::thread beta[alpha];
+  for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::vec_len, j++) {
+    beta[alpha] = std::thread(Basic_Math::tuple_set<Data>,
+                              &(this->storage_space[i]), static_cast<Data>(0));
+    beta[alpha].detach();
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    std::this_thread::sleep_for(
+        std::chrono::microseconds(Basic_Math::wait_time));
+  } else {
+    std::this_thread::sleep_for(std::chrono::microseconds(
+        Basic_Math::wait_time * Basic_Math::set_delay));
+  }
+#else
+#endif
 }
 /*Copy constructor
 Enter: 1.Matrix
