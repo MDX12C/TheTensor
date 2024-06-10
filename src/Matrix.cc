@@ -256,8 +256,15 @@ Enter: none
 destruct the Matrix
 no return */
 template <typename Data> Matrix<Data>::~Matrix() {
-  if (this->_size)
-    delete[] this->storage_space;
+#ifdef _SIMD_MODE_
+  if constexpr (Basic_Math::check_simd<Data>) {
+    _mm_free(this->storage_space);
+  } else {
+    free(this->storage_space);
+  }
+#else
+  delete[] this->storage_space;
+#endif
   return;
 }
 /*Operator []
