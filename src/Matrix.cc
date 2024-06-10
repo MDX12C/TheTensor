@@ -288,6 +288,47 @@ template <typename Data> Data &Matrix<Data>::operator[](MaShape const &alpha) {
     return Basic_Math::float_leak;
   }
 }
+/*Sum
+ * Enter: none
+ * add the whole Matrix
+ * return the sum of Matrix*/
+template <typename Data> Data Matrix<Data>::sum() {
+#ifdef _SIMD_MODE_
+  if constexpr (std::is_same_v<Data, bool>) {
+    int gamma = 0, alpha = 0, j = 0;
+    const int beta = this->_real_shape.lines - this->_shape.lines;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < this->_shape.lines; j++, alpha++)
+        gamma += this->storage_space[alpha] ? 1 : -1;
+      alpha += beta;
+    }
+    return static_cast<Data>((gamma > 0) ? true : false);
+  } else {
+    int alpha = 0, j = 0;
+    const int beta = this->_real_shape.lines - this->_shape.lines;
+    Data gamma = static_cast<Data>(0);
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < this->_shape.lines; j++, alpha++)
+        gamma += this->storage_space[alpha];
+      alpha += beta;
+    }
+    return gamma;
+  }
+#else
+  if constexpr (std::is_same_v<Data, bool>) {
+    int gamma = 0;
+    for (int i = 0; i < this->_real_size; i++) {
+      gamma += this->storage_space[i] ? 1 : -1;
+    }
+    return static_cast<Data>((gamma > 0) ? true : false);
+  } else {
+    Data gamma = static_cast<Data>(0);
+    for (int i = 0; i < this->_real_size; i++) {
+      gamma += this->storage_space[i];
+    }
+    return gamma;
+  }
+}
 /*Transpose matrix
 Enter: none
 flip the matrix
