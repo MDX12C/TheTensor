@@ -328,6 +328,7 @@ template <typename Data> Data Matrix<Data>::sum() {
     }
     return gamma;
   }
+#endif
 }
 /*Transpose matrix
 Enter: none
