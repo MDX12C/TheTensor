@@ -272,8 +272,14 @@ Enter: 1.coordinate
 do nothing
 return the data in the coordinate*/
 template <typename Data> Data &Matrix<Data>::operator[](MaShape const &alpha) {
-  if (alpha < this->_shape)
+#ifdef _SIMD_MODE_
+  if ((alpha < this->_shape) && (check_legal(alpha)))
+    return this
+        ->storage_space[alpha.rows * this->_real_shape.lines + alpha.lines];
+#else
+  if ((alpha < this->_shape) && (check_legal(alpha)))
     return this->storage_space[alpha.rows * this->_shape.lines + alpha.lines];
+#endif
   if constexpr (std::is_same_v<Data, int>) {
     return Basic_Math::int_leak;
   } else if constexpr (std::is_same_v<Data, bool>) {
