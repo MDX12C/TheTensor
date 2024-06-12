@@ -349,10 +349,16 @@ endow the value at the coordinate
 return if endow is successful*/
 template <typename Data>
 bool Matrix<Data>::endow_(MaShape const &alpha, Data const &beta) {
-  if ((alpha < this->_shape)) {
-    return false;
+  if ((alpha < this->_shape) && (Linalg::check_legal(alpha))) {
+#ifdef _THREAD_MODE_
+    this->storage_space[this->_real_shape.lines * alpha.rows + alpha.lines] =
+        beta;
+#else
+    this->storage_space[this->_shape.lines * alpha.rows + alpha.lines] = beta;
+#endif
+    return true;
   }
-  return true;
+  return false;
 }
 /*flat
 Enter: none
