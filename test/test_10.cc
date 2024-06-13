@@ -17,7 +17,7 @@ signed main() {
   for (int i = 0; i < 20; i += 4) {
     cerr << "loop in " << i + 1 << " load from " << &alpha[i] << " to  "
          << &alpha[i + 1] << endl;
-    _mm_storeu_ps(&alpha[i + 1], _mm_load_ps(&alpha[i]));
+    _mm_storeu_ps(alpha + i + 1, _mm_load_ps(alpha + i));
   }
   for (auto i = 0; i < VEC_SIZE; i++)
     cout << "alpha " << i + 1 << '=' << alpha[i] << endl;

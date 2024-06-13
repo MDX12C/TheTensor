@@ -1698,9 +1698,25 @@ tuple_transpose(Data *const &alpha, Data *const &beta,
   const int gamma = phi.rows * omega.lines + phi.lines,
             delta = phi.lines * omega.rows + phi.rows;
 #if defined(_SIMD_01_)
+  _mm_store_ps(beta + delta,
+               _mm_set_ps(alpha + gamma + omega.lines * 3,
+                          alpha + gamma + omega.lines * 2,
+                          alpha + gamma + omega.lines, alpha + gamma));
 #elif defined(_SIMD_02_)
+  _mm256_store_ps(
+      beta + delta,
+      _mm256_set_ps(
+          alpha + gamma + omega.lines * 7, alpha + gamma + omega.lines * 6,
+          alpha + gamma + omega.lines * 5, alpha + gamma + omega.lines * 4,
+          alpha + gamma + omega.lines * 3, alpha + gamma + omega.lines * 2,
+          alpha + gamma + omega.lines, alpha + gamma));
 #else
+  beta[delta] = alpha[gamma];
+  beta[delta + 1] = alpha[gamma + omega.lines];
+  beta[delta + 2] = alpha[gamma + omega.lines * 2];
+  beta[delta + 3] = alpha[gamma + omega.lines * 3];
 #endif
+  return;
 }
 } // namespace Basic_Math
 #endif // BASIC_H
