@@ -1302,6 +1302,43 @@ tuple_load(Data *const &alpha, Data *const &gamma) {
 #endif
   return;
 }
+/*below are the functions you don't need to use*/
+template <typename Data>
+static inline __attribute__((__always_inline__)) void
+tuple_loadu(Data *const &alpha, Data *const &gamma) {
+#ifdef _DEBUG_MODE_
+  printf("~tuple load from %p to %p~\n", alpha, gamma);
+#endif
+#if defined(_SIMD_01_)
+  if constexpr (std::is_same_v<Data, float>) {
+    _mm_storeu_ps(gamma, _mm_loadu_ps(alpha));
+  } else {
+    gamma[0] = alpha[0];
+    gamma[1] = alpha[1];
+    gamma[2] = alpha[2];
+    gamma[3] = alpha[3];
+  }
+#elif defined(_SIMD_02_)
+  if constexpr (std::is_same_v<Data, float>) {
+    _mm256_storeu_ps(gamma, _mm256_loadu_ps(alpha));
+  } else {
+    gamma[0] = alpha[0];
+    gamma[1] = alpha[1];
+    gamma[2] = alpha[2];
+    gamma[3] = alpha[3];
+    gamma[4] = alpha[4];
+    gamma[5] = alpha[5];
+    gamma[6] = alpha[6];
+    gamma[7] = alpha[7];
+  }
+#else
+  gamma[0] = alpha[0];
+  gamma[1] = alpha[1];
+  gamma[2] = alpha[2];
+  gamma[3] = alpha[3];
+#endif
+  return;
+}
 #endif // THREAD MODE
 } // namespace Basic_Math
 namespace Linalg {
