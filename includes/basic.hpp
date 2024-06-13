@@ -1653,5 +1653,17 @@ status(bool const &alpha) {
   printf("\n\n");
   return;
 }
+/*below are the function you don't need to use*/
+template <typename Data>
+static inline __attribute__((__always_inline__, __used__)) void
+tuple_transpose(Data *const &alpha, Data *const &beta,
+                Linalg::MaShape const &omega, Linalg::MaShape const &phi) {
+  const int gamma = phi.rows * omega.lines + phi.lines,
+            delta = phi.lines * omega.rows + phi.rows;
+#if defined(_SIMD_01_)
+#elif defined(_SIMD_02_)
+#else
+#endif
+}
 } // namespace Basic_Math
 #endif // BASIC_H
