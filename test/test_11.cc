@@ -8,7 +8,7 @@ using namespace std;
 const int sart = 43;
 const int zero = 48;
 const int terminal_ = 50;
-string s = "/home/logman/proj/cpp/file_020/NNN/log/log_00000.txt";
+string s = "/home/logman/proj/cpp/file_020/NNN/log/log_00000000.txt";
 signed main() {
   int a;
   fstream road;
@@ -27,7 +27,7 @@ signed main() {
   }
   road << a + 1;
   road.close();
-  for (int i = 47; i >= 43; i--) {
+  for (int i = 50; i >= 43; i--) {
     s[i] = char(48 + (a % 10));
     a /= 10;
   }
