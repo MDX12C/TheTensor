@@ -1,4 +1,5 @@
-﻿#ifndef BASIC_H
+﻿#include <thread>
+#ifndef BASIC_H
 #include "./define.hpp"
 #define BASIC_H
 namespace Basic_Math {
@@ -1667,4 +1668,15 @@ tuple_transpose(Data *const &alpha, Data *const &beta,
   return;
 }
 } // namespace Basic_Math
+#define __SIMD                                                                 \
+  std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time))
+#define __SET                                                                  \
+  std::this_thread::sleep_for(                                                 \
+      std::chrono::microseconds(Basic_Math::wait_time *Basic_Math::set_delay))
+#define __OPR                                                                  \
+  std::this_thread::sleep_for(std::chrono::microseconds(                       \
+      Basic_Math::wait_time *Basic_Math::operate_delay))
+#define __FUN                                                                  \
+  std::this_thread::sleep_for(std::chrono::microseconds(                       \
+      Basic_Math::wait_time *Basic_Math::function_delay))
 #endif // BASIC_H

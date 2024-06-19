@@ -354,11 +354,9 @@ template <typename Data> Matrix<Data> Matrix<Data>::T() {
     }
   }
   if constexpr (Basic_Math::check_simd<Data>) {
-    std::this_thread::sleep_for(
-        std::chrono::microseconds(Basic_Math::wait_time));
+    __SIMD;
   } else {
-    std::this_thread::sleep_for(std::chrono::microseconds(
-        Basic_Math::wait_time * Basic_Math::set_delay));
+    __SET;
   }
 #else
   for (int i = 0; i < this->_shape.rows; i++) {
