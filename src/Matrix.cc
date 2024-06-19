@@ -1,6 +1,7 @@
 ﻿#include "../includes/matrix.hpp"
 #include "../includes/basic.hpp"
 #include <chrono>
+#include <thread>
 #define MATRIX_C
 /*Define Matrix*/
 namespace Linalg {
@@ -336,11 +337,36 @@ flip the matrix
 return the transpose of matrix*/
 template <typename Data> Matrix<Data> Matrix<Data>::T() {
   Matrix<Data> temp(MaShape{this->_shape.lines, this->_shape.rows});
+#ifdef _THREAD_MODE_
+  const int run_time = this->_real_size / Basic_Math::vec_len;
+  MaShape coord;
+  std::thread run_arry[run_time];
+  int times = 0;
+  for (coord.rows = 0; coord.rows < this->_real_shape.rows;
+       coord.rows += Basic_Math::vec_len) {
+    for (coord.lines = 0; coord.lines < this->_real_shape.lines;
+         coord.lines += Basic_Math::vec_len) {
+      run_arry[times] =
+          std::thread(Basic_Math::tuple_transpose<Data>, this->storage_space,
+                      temp.storage_space, this->_real_shape, coord);
+      run_arry[times].detach();
+      times += 1;
+    }
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    std::this_thread::sleep_for(
+        std::chrono::microseconds(Basic_Math::wait_time));
+  } else {
+    std::this_thread::sleep_for(std::chrono::microseconds(
+        Basic_Math::wait_time * Basic_Math::set_delay));
+  }
+#else
   for (int i = 0; i < this->_shape.rows; i++) {
     for (int j = 0; j < this->_shape.lines; j++)
       temp.storage_space[j * temp._shape.lines + i] =
           this->storage_space[i * this->_shape.lines + j];
   }
+#endif
   return temp;
 }
 /*endow_
