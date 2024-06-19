@@ -1,6 +1,7 @@
 ﻿#ifndef MATH_H
 #define MATH_H
 #include "./basic.hpp"
+#include "./define.hpp"
 #include "./matrix.hpp"
 #include "./tensor.hpp"
 #include "./vector.hpp"

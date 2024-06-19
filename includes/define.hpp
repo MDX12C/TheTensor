@@ -7,6 +7,8 @@
 #define _AVX2_WILL_BE_USED_ON_ // open AVX2
 /*end of constants*/
 
+#define LIMIT
+
 /*control block*/
 #ifdef _SIMD_MODE_
 #define _THREAD_MODE_

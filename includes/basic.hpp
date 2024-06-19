@@ -1,5 +1,4 @@
-﻿#include "math.hpp"
-#ifndef BASIC_H
+﻿#ifndef BASIC_H
 #include "./define.hpp"
 #define BASIC_H
 namespace Basic_Math {
@@ -1650,7 +1649,6 @@ inline void _mmy_all() {
   printf("\n");
   return;
 }
-extern inline void _mmy_clean();
 } // namespace Memory_Maintain
 #undef Ln
 namespace Basic_Math {
