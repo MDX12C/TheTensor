@@ -389,7 +389,41 @@ Enter: none
 flat the Matrix into Vector
 return the Vector*/
 template <typename Data> Vector<Data> Matrix<Data>::flat() {
-  Vector<Data> temp(this->_size, this->storage_space);
+  Vector<Data> temp(this->_size);
+#ifdef _THREAD_MODE_
+  const int step = this->_real_shape.lines - this->_shape.lines,
+            times =
+                this->_shape.rows * (this->_shape.lines / Basic_Math::vec_len);
+  int v_dex = 0, m_dex = 0, t_dex = 0, j = 0;
+  std::thread run_arry[times];
+  for (int i = 0; i < this->_shape.rows; i++) {
+    for (j = 0; j < this->_shape.lines + step - Basic_Math::vec_len;
+         j += Basic_Math::vec_len) {
+      run_arry[t_dex] =
+          std::thread(Basic_Math::tuple_loadu<Data>,
+                      this->storage_space + m_dex, temp.storage_space + v_dex);
+      run_arry[t_dex].detach();
+      t_dex++;
+      m_dex += Basic_Math::vec_len;
+      v_dex += Basic_Math::vec_len;
+    }
+    for (; j < this->_shape.lines; j++) {
+      temp.storage_space[v_dex] = this->storage_space[m_dex];
+      v_dex++;
+      m_dex++;
+    }
+    m_dex += step;
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    __SIMD;
+  } else {
+    __SET;
+  }
+#else
+  for (int i = 0; i < this->_size; i++) {
+    temp.storage_space[i] = this->storage_space[i];
+  }
+#endif
   return temp;
 }
 /*stand
