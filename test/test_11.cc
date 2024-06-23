@@ -2,17 +2,21 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 using namespace std;
-const int sart = 43;
+const int start = 8;
+const int with = 8;
 const int zero = 48;
 const int terminal_ = 50;
-string s = "/home/logman/proj/cpp/file_020/NNN/log/log_00000000.txt";
+string s = "log/log_00000000.txt";
 signed main() {
+  filesystem::path now = filesystem::current_path();
+  filesystem::path auto_path = now / s;
   int a;
   fstream road;
-  road.open(s, ios::in);
+  road.open(auto_path, ios::in);
   if (!road.is_open()) {
     cout << "in fail\n";
     exit(1);
@@ -27,13 +31,14 @@ signed main() {
   }
   road << a + 1;
   road.close();
-  for (int i = 50; i >= 43; i--) {
+  for (int i = start + with - 1; i >= start; i--) {
     s[i] = char(48 + (a % 10));
     a /= 10;
   }
+  auto_path = now / s;
   road.open(s, ios::out);
   if (road.fail()) {
-    cout << "out fail\n";
+    cout << "create fail\n";
     exit(1);
   }
   for (int i = 0; i < terminal_; i++) {

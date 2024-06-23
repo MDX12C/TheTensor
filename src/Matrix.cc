@@ -1,6 +1,7 @@
 ﻿#include "../includes/matrix.hpp"
 #include "../includes/basic.hpp"
 #include <chrono>
+#include <thread>
 #define MATRIX_C
 /*Define Matrix*/
 namespace Linalg {
@@ -336,11 +337,34 @@ flip the matrix
 return the transpose of matrix*/
 template <typename Data> Matrix<Data> Matrix<Data>::T() {
   Matrix<Data> temp(MaShape{this->_shape.lines, this->_shape.rows});
+#ifdef _THREAD_MODE_
+  const int run_time = this->_real_size / Basic_Math::vec_len;
+  MaShape coord;
+  std::thread run_arry[run_time];
+  int times = 0;
+  for (coord.rows = 0; coord.rows < this->_real_shape.rows;
+       coord.rows += Basic_Math::vec_len) {
+    for (coord.lines = 0; coord.lines < this->_real_shape.lines;
+         coord.lines += Basic_Math::vec_len) {
+      run_arry[times] =
+          std::thread(Basic_Math::tuple_transpose<Data>, this->storage_space,
+                      temp.storage_space, this->_real_shape, coord);
+      run_arry[times].detach();
+      times += 1;
+    }
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    __SIMD;
+  } else {
+    __SET;
+  }
+#else
   for (int i = 0; i < this->_shape.rows; i++) {
     for (int j = 0; j < this->_shape.lines; j++)
       temp.storage_space[j * temp._shape.lines + i] =
           this->storage_space[i * this->_shape.lines + j];
   }
+#endif
   return temp;
 }
 /*endow_
@@ -365,7 +389,41 @@ Enter: none
 flat the Matrix into Vector
 return the Vector*/
 template <typename Data> Vector<Data> Matrix<Data>::flat() {
-  Vector<Data> temp(this->_size, this->storage_space);
+  Vector<Data> temp(this->_size);
+#ifdef _THREAD_MODE_
+  const int step = this->_real_shape.lines - this->_shape.lines,
+            times =
+                this->_shape.rows * (this->_shape.lines / Basic_Math::vec_len);
+  int v_dex = 0, m_dex = 0, t_dex = 0, j = 0;
+  std::thread run_arry[times];
+  for (int i = 0; i < this->_shape.rows; i++) {
+    for (j = 0; j < this->_shape.lines + step - Basic_Math::vec_len;
+         j += Basic_Math::vec_len) {
+      run_arry[t_dex] =
+          std::thread(Basic_Math::tuple_loadu<Data>,
+                      this->storage_space + m_dex, temp.storage_space + v_dex);
+      run_arry[t_dex].detach();
+      t_dex++;
+      m_dex += Basic_Math::vec_len;
+      v_dex += Basic_Math::vec_len;
+    }
+    for (; j < this->_shape.lines; j++) {
+      temp.storage_space[v_dex] = this->storage_space[m_dex];
+      v_dex++;
+      m_dex++;
+    }
+    m_dex += step;
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    __SIMD;
+  } else {
+    __SET;
+  }
+#else
+  for (int i = 0; i < this->_size; i++) {
+    temp.storage_space[i] = this->storage_space[i];
+  }
+#endif
   return temp;
 }
 /*stand

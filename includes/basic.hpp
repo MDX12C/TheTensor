@@ -1,4 +1,4 @@
-﻿#include "math.hpp"
+﻿#include <thread>
 #ifndef BASIC_H
 #include "./define.hpp"
 #define BASIC_H
@@ -1360,10 +1360,6 @@ check_legal(MaShape const &alpha) {
 template <typename Data> class Vector;
 // Datas with 2 Dimantion
 template <typename Data> class Matrix;
-// Datas with 3 Dimantion but is not supportable for operate
-template <typename Data> class Tensor;
-// Shape of Tensor
-class Teshape;
 // a function which can and a Vector into a Matrix
 template <typename Data> void AddLine_(Matrix<Data> &, Vector<Data> const &);
 // a function which can and a Vector into a Matrix
@@ -1372,7 +1368,7 @@ template <typename Data> void AddRow_(Matrix<Data> &, Vector<Data> const &);
 #define Ln Linalg
 namespace Memory_Maintain {
 /*you don't need to know what this mean*/
-typedef enum { Vi, Vb, Vf, Mi, Mb, Mf, Ti, Tb, Tf, S } _mmy_type;
+typedef enum { Vi, Vb, Vf, Mi, Mb, Mf } _mmy_type;
 /*you don't need to know what this mean*/
 typedef union {
   Ln::Vector<int> *vi;
@@ -1381,10 +1377,6 @@ typedef union {
   Ln::Matrix<int> *mi;
   Ln::Matrix<bool> *mb;
   Ln::Matrix<float> *mf;
-  Ln::Tensor<int> *ti;
-  Ln::Tensor<bool> *tb;
-  Ln::Tensor<float> *tf;
-  Ln::Teshape *s;
 } _mmy_pointer;
 /*you don't need to know what this mean*/
 typedef struct {
@@ -1434,22 +1426,6 @@ _mmy_order(_mmy_data &alpha, Data const &beta) {
     alpha.type = Mf;
     alpha.ptr.mf = beta;
     return true;
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<int> *>) {
-    alpha.type = Ti;
-    alpha.ptr.ti = beta;
-    return true;
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<bool> *>) {
-    alpha.type = Tb;
-    alpha.ptr.tb = beta;
-    return true;
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<float> *>) {
-    alpha.type = Tf;
-    alpha.ptr.tf = beta;
-    return true;
-  } else if constexpr (std::is_same_v<Data, Ln::Teshape *>) {
-    alpha.type = S;
-    alpha.ptr.s = beta;
-    return true;
   } else {
     return false;
   }
@@ -1476,18 +1452,6 @@ _mmy_catch(_mmy_data const &alpha, Data &beta) {
   } else if (alpha.type == Mf) {
     beta = alpha.ptr.mf;
     return true;
-  } else if (alpha.type == Ti) {
-    beta = alpha.ptr.ti;
-    return true;
-  } else if (alpha.type == Tb) {
-    beta = alpha.ptr.tb;
-    return true;
-  } else if (alpha.type == Tf) {
-    beta = alpha.ptr.tf;
-    return true;
-  } else if (alpha.type == S) {
-    beta = alpha.ptr.s;
-    return true;
   } else {
     return false;
   }
@@ -1508,14 +1472,6 @@ _mmy_cmp(_mmy_data const &alpha, Data const &beta) {
     return (alpha.ptr.mb == beta);
   } else if constexpr (std::is_same_v<Data, Ln::Matrix<float> *>) {
     return (alpha.ptr.mf == beta);
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<int> *>) {
-    return (alpha.ptr.ti == beta);
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<bool> *>) {
-    return (alpha.ptr.tb == beta);
-  } else if constexpr (std::is_same_v<Data, Ln::Tensor<float> *>) {
-    return (alpha.ptr.tf == beta);
-  } else if constexpr (std::is_same_v<Data, Ln::Teshape *>) {
-    return (alpha.ptr.s == beta);
   } else {
     return false;
   }
@@ -1631,14 +1587,6 @@ inline void _mmy_all() {
       printf("type: Matrix<float>\n");
     } else if (alpha->data.type == Mb) {
       printf("type: Matrix<bool>\n");
-    } else if (alpha->data.type == Ti) {
-      printf("type: Tensor<int>\n");
-    } else if (alpha->data.type == Tf) {
-      printf("type: Tensor<float>\n");
-    } else if (alpha->data.type == Tb) {
-      printf("type: Tensor<bool>\n");
-    } else if (alpha->data.type == S) {
-      printf("type: Teshape\n");
     } else {
       printf("type: unknown\n");
     }
@@ -1650,7 +1598,6 @@ inline void _mmy_all() {
   printf("\n");
   return;
 }
-extern inline void _mmy_clean();
 } // namespace Memory_Maintain
 #undef Ln
 namespace Basic_Math {
@@ -1721,4 +1668,15 @@ tuple_transpose(Data *const &alpha, Data *const &beta,
   return;
 }
 } // namespace Basic_Math
+#define __SIMD                                                                 \
+  std::this_thread::sleep_for(std::chrono::microseconds(Basic_Math::wait_time))
+#define __SET                                                                  \
+  std::this_thread::sleep_for(                                                 \
+      std::chrono::microseconds(Basic_Math::wait_time *Basic_Math::set_delay))
+#define __OPR                                                                  \
+  std::this_thread::sleep_for(std::chrono::microseconds(                       \
+      Basic_Math::wait_time *Basic_Math::operate_delay))
+#define __FUN                                                                  \
+  std::this_thread::sleep_for(std::chrono::microseconds(                       \
+      Basic_Math::wait_time *Basic_Math::function_delay))
 #endif // BASIC_H
