@@ -6,15 +6,14 @@
 #include <fstream>
 #include <iostream>
 using namespace std;
-const int start = 8;
-const int with = 8;
-const int zero = 48;
-const int terminal_ = 50;
+constexpr int start = 8;
+constexpr int with = 8;
+constexpr int terminal_ = 50;
 string s = "log/log_00000000.txt";
 signed main() {
   filesystem::path now = filesystem::current_path();
   filesystem::path auto_path = now / s;
-  int a;
+  unsigned long long a, b;
   fstream road;
   road.open(auto_path, ios::in);
   if (!road.is_open()) {
@@ -32,8 +31,14 @@ signed main() {
   road << a + 1;
   road.close();
   for (int i = start + with - 1; i >= start; i--) {
-    s[i] = char(48 + (a % 10));
-    a /= 10;
+    b = a % 36;
+    if (b >= 10) {
+      b -= 10;
+      s[i] = char(int('A') + b);
+    } else {
+      s[i] = char(int('0') + b);
+    }
+    a /= 36;
   }
   auto_path = now / s;
   road.open(s, ios::out);
