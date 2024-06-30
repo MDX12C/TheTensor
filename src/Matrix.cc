@@ -432,15 +432,76 @@ stand the Vector into Matrix
 return if stand is successful*/
 template <typename Data>
 bool Matrix<Data>::stand_(Vector<Data> const &alpha, MaShape const &beta) {
-  if (alpha._shape != (beta.rows * beta.lines))
+  if (alpha._shape != beta.rows * beta.lines)
     return false;
-  if (this->_size)
-    delete[] this->storage_space;
   this->_shape = beta;
-  this->_size = beta.rows * beta.lines;
+  this->_size = beta.lines * beta.rows;
+#ifdef _THREAD_MODE_
+  this->_real_shape.lines = Basic_Math::size_check(this->_shape.lines);
+  this->_real_shape.rows = Basic_Math::size_check(this->_shape.rows);
+  this->_real_size = this->_real_shape.rows * this->_real_shape.lines;
+  if constexpr (Basic_Math::check_simd<Data>) {
+    _mm_free(this->storage_space);
+    this->storage_space = (Data *)_mm_malloc(this->_real_size * sizeof(Data),
+                                             Basic_Math::align_size);
+    Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
+  } else {
+    free(this->storage_space);
+    this->storage_space = (Data *)malloc(this->_real_size * sizeof(Data));
+    Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
+  }
+  const int step = Basic_Math::vec_len *
+                   (this->_shape.lines / Basic_Math::vec_len),
+            runtimes1 = step * this->_shape.rows,
+            runtimes2 = (this->_real_shape.rows - this->_shape.rows) *
+                        (this->_real_shape.lines / Basic_Math::vec_len);
+  int v_dex = 0, t_dex = 0, m_dex = 0, i = 0, j = 0;
+  std::thread run_arry[runtimes1 + runtimes2];
+  while (i < this->_shape.rows) {
+    while (j < step) {
+      run_arry[t_dex] =
+          std::thread(Basic_Math::tuple_load<Data>, alpha.storage_space + v_dex,
+                      this->storage_space + m_dex);
+      run_arry[t_dex].detach();
+      t_dex++;
+      v_dex += Basic_Math::vec_len;
+      m_dex += Basic_Math::vec_len;
+      j += Basic_Math::vec_len;
+    }
+    while (j < this->_shape.lines) {
+      this->storage_space[m_dex] = alpha.storage_space[v_dex];
+      m_dex++;
+      v_dex++;
+      j++;
+    }
+    while (j < this->_real_shape.lines) {
+      this->storage_space[m_dex] = static_cast<Data>(0);
+      m_dex++;
+      j++;
+    }
+    i++;
+  }
+  while (m_dex < this->_real_size) {
+    run_arry[t_dex] =
+        std::thread(Basic_Math::tuple_set<Data>, this->storage_space + m_dex,
+                    static_cast<Data>(0));
+    run_arry[t_dex].detach();
+    t_dex++;
+    m_dex += Basic_Math::vec_len;
+  }
+  if constexpr (Basic_Math::check_simd<Data>) {
+    __SIMD;
+  } else {
+    __SET;
+  }
+#else
+  delete[] this->storage_space;
   this->storage_space = new Data[this->_size];
-  for (int i = 0; i < this->_size; i++)
+  Memory_Maintain::_mmy_modify(this->size * sizeof(Data), this);
+  for (auto i = 0; i < this->_size; i++) {
     this->storage_space[i] = alpha.storage_space[i];
+  }
+#endif
   return true;
 }
 /*operator=
