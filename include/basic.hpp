@@ -40,8 +40,12 @@
   }
 
 namespace basic_math {
-extern std::atomic<bool> set_seed;
 extern std::mt19937 generator;
+
+static inline __attribute__((__constructor__(101), __used__)) void init() {
+  generator.seed(static_cast<unsigned long long>(time(0)));
+  return;
+}
 
 template <typename T>
 inline int intDigits(T const& alpha) {
@@ -63,10 +67,6 @@ inline int intDigits(T const& alpha) {
  */
 template <typename T>
 inline T random(T const& min, T const& max) {
-  if (!set_seed.load()) {
-    generator.seed(static_cast<unsigned long long>(time(0)));
-    set_seed.store(true);
-  }
   if constexpr (std::is_same_v<T, int>) {
     std::uniform_int_distribution<int> dist(min, max);
     return dist(generator);
