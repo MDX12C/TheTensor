@@ -1,18 +1,7 @@
 #ifndef BASIC_H
 #define BASIC_H
 
-#include <cpuid.h>
-
-#include <atomic>
-#include <climits>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <random>
-#include <type_traits>
-#include <utility>
+#include "define.hpp"
 
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
