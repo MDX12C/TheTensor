@@ -530,21 +530,22 @@ namespace Linalg {
   return this*/
   template <typename Data>
   Matrix<Data>& Matrix<Data>::operator=(Matrix const& alpha) {
-    this->_shape=alpha._shape;
-    this->_size=alpha._size;
-    #ifdef _THREAD_MODE_
-    this->_real_shape=alpha._real_shape;
-    this->_real_size=alpha._real_size;
+    this->_shape = alpha._shape;
+    this->_size = alpha._size;
+#ifdef _THREAD_MODE_
+    this->_real_shape = alpha._real_shape;
+    this->_real_size = alpha._real_size;
     if constexpr (Basic_Math::check_simd<Data>) {
       _mm_free(this->storage_space);
-      this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data),Basic_Math::align_size);
+      this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data), Basic_Math::align_size);
       Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
-    }else{
+    }    
+else {
       free(this->storage_space);
       this->storage_space = (Data*) malloc(this->_real_size * sizeof(Data));
       Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
     }
-    const int run_times=this->_real_size / Basic_Math::vec_len;
+    const int run_times = this->_real_size / Basic_Math::vec_len;
     std::thread run_arry[run_times];
     for (int i = 0, j = 0; i < this->_real_size; i += Basic_Math::vec_len, j++) {
       run_arry[j] = std::thread(Basic_Math::tuple_load<Data>, alpha.storage_space + i, this->storage_space + i);
@@ -556,14 +557,14 @@ namespace Linalg {
     else {
       __SET;
     }
-    #else
+#else
     delete[] this->storage_space;
     this->storage_space = new Data[this->_size];
     Memory_Maintain::_mmy_modify(this->_size * sizeof(Data), this);
     for (auto i = 0; i < this->_size; i++) {
       this->storage_space[i] = alpha.storage_space[i];
     }
-    #endif 
+#endif 
   }
   /*operator=
   Enter: 1.Matrix 2.value
@@ -571,19 +572,35 @@ namespace Linalg {
   return this*/
   template <typename Data>
   Matrix<Data>& Matrix<Data>::operator=(Data const& alpha) {
-    #ifdef _THREAD_MODE_
-    const int step= this->_shape.lines/Basic_Math::vec_len,;
-    std::thread run_array[step*this->_shape.rows];
-    int t_dex=0,m_dex=0,j;
-    for(int i=0;i<this->_shape.rows;i++){
-      for(j=0;j<step;j++){
-        run_array[t_dex]=std::thread(Basic_Math::tuple_set<Data>,this->storage_space+m_dex,static_cast<Data>(alpha));
+#ifdef _THREAD_MODE_
+    const int step = this->_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_set<Data>, this->storage_space + m_dex, static_cast<Data>(alpha));
         run_array[t_dex].detach();
         t_dex++;
-        m_dex+=Basic_Math::vec_len;
+        m_dex += Basic_Math::vec_len;
       }
-
+      for (j = 0; j < len; j++) {
+        this->storage_space[m_dex] = static_cast<Data>(alpha);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __SET;
+    }
+#else
+    for (auto i = 0; i < this->_size; i++) {
+      this->storage_space[i] = alpha;
+    }
+#endif
+    return *this;
   }
   /*operator+
   Enter: 1.Matrix 2.Matrix
