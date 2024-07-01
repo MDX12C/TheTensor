@@ -1,7 +1,30 @@
-﻿#include <thread>
-#ifndef BASIC_H
+﻿#ifndef BASIC_H
 #include "./define.hpp"
 #define BASIC_H
+#define __ADD(first, second, third, type)                                      \
+  if constexpr (std::is_same_v<type, bool>) {                                  \
+    third = first || second;                                                   \
+  } else {                                                                     \
+    third = first + second;                                                    \
+  }
+#define __MNS(first, second, third, type)                                      \
+  if constexpr (std::is_same_v<type, bool>) {                                  \
+    third = first || (!second);                                                \
+  } else {                                                                     \
+    third = first - second;                                                    \
+  }
+#define __MUT(first, second, third, type)                                      \
+  if constexpr (std::is_same_v<type, bool>) {                                  \
+    third = first && second;                                                   \
+  } else {                                                                     \
+    third = first / second;                                                    \
+  }
+#define __DIV(first, second, third, type)                                      \
+  if constexpr (std::is_same_v<type, bool>) {                                  \
+    third = (first || second) && (!(first && second));                         \
+  } else {                                                                     \
+    third = first / second;                                                    \
+  }
 namespace Basic_Math {
 /*base for 'check_simd'*/
 template <class T> struct is_simd_on {
