@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 CXX = g++
-CXXFLAGS = -Wall -g -mavx2
+CXXFLAGS = -Wall -g
 
 TARGET = theTensor.out
 
@@ -13,13 +13,17 @@ override MAINFILE ?= $(MAINFILE)
 
 OBJS = $(SRCS:.cc=.o)
 
+# Check for SIMD flag
+ifdef SIMD
+	CXXFLAGS += $(SIMD)
+endif
 
 $(TARGET): $(OBJS)
 	@if [ ! -d "dist" ]; then \
 		echo "creating dist/ folder"; \
 		mkdir dist; \
 	fi
-	$(CXX) $(CXXFLAGS) -o $(FileName) dist/$(TARGET) $(OBJS) $(MAINFILE)
+	$(CXX) $(CXXFLAGS) -o dist/$(TARGET) $(OBJS) $(MAINFILE)
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@

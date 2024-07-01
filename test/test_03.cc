@@ -1,39 +1,35 @@
-#include "../includes/math.hpp"
-#include <iostream>
+#include <stdio.h>
+class __gobal__ {
+private:
+  static int __status;
 
-#define float _Float32
-
-#define show(x)                                                                \
-  { std::cout << #x << ':' << '\n' << x << '\n'; }
-const int Max_hight = 10;
-const int Max_wide = 10;
-const int Int_Val = 30;
-const float Float_Val = 30.0;
-
-int random(int const &);
-float random(float const &);
-Linalg::Matrix<float> initialize(const Linalg::MaShape &, bool);
-
+public:
+  static void __switch(int);
+  static int __get();
+};
+int __gobal__::__status = 0;
+void __gobal__::__switch(int a) {
+  __gobal__::__status = a;
+  return;
+}
+int __gobal__::__get() { return __gobal__::__status; }
+__attribute__((__constructor__(105), __used__)) void init() {
+  printf("~construct~\n");
+  return;
+}
 signed main() {
-  Linalg::Matrix<float> A = initialize({3, 3}, 1.0);
-  Linalg::Matrix<float> B = initialize({3, 3}, 1.0);
-  Linalg::Matrix<float> C = Linalg::dot(A, B);
-  show(C);
+  printf("~main function~\n");
+  printf("value=%d\n", __gobal__::__get());
+  int a = 5;
+  __gobal__::__switch(a);
+  printf("now value=%d\n", __gobal__::__get());
+  return 0;
 }
-
-int random(int const &alpha) { return std::rand() % (alpha + 1); }
-
-float random(float const &alpha) {
-  return (static_cast<float>(std::rand()) / RAND_MAX) * alpha;
+__attribute__((__destructor__(105), __used__)) void over() {
+  printf("~destruct~\n");
+  return;
 }
-
-Linalg::Matrix<float> initialize(const Linalg::MaShape &alpha, bool) {
-  Linalg::Matrix<float> temp(alpha);
-  Linalg::MaShape beta;
-  for (beta.rows = 0; beta.rows < alpha.rows; beta.rows++) {
-    for (beta.lines = 0; beta.lines < alpha.lines; beta.lines++) {
-      temp.endow_(beta, random(Float_Val));
-    }
-  }
-  return temp;
+__attribute__((__constructor__(101), __destructor__(109), __used__)) void
+lam() {
+  printf("bbll\n");
 }

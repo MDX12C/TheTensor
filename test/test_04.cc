@@ -1,22 +1,18 @@
-#include<iostream>
-#include<type_traits>
+#include <iostream>
+#include <type_traits>
 using namespace std;
-template<typename T>
-T tho(const T& alpha) {
-    if constexpr (is_same_v<T, int>) {
-        cout << "int:";
-    }
-    else if (is_same_v<T, float>) {
-        cout << "float:";
-    }
-    else {
-        cout << "defult:";
-    }
-    return static_cast<T>(10.5);
+template <typename T> T tho(const T &alpha) {
+  if constexpr (is_same_v<T, int>) {
+    cout << "int:";
+  } else if constexpr (is_same_v<T, float>) {
+    cout << "float:";
+  } else {
+    cout << "defult:";
+  }
+  return static_cast<T>(10.5);
 }
 signed main() {
-    double a;
-    a = tho(a);
-    cout << a;
-    return 0;
+  double a;
+  cout << tho(a);
+  return 0;
 }
