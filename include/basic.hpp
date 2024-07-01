@@ -38,8 +38,8 @@ static inline __attribute__((__constructor__(101), __used__)) void init() {
 
 template <typename T>
 inline int intDigits(T const& alpha) {
-  if constexpr (alpha == 0) return 1;
   if constexpr (std::is_same_v<T, bool>) return 1;
+  if (alpha > -1 && alpha < 1) return 1;
   return static_cast<int>(std::floor(std::log10(std::abs(alpha)) + 1));
 }
 
