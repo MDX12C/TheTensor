@@ -60,7 +60,19 @@
     "thread": "cpp",
     "variant": "cpp",
     "format": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "any": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "cstring": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "unordered_set": "cpp",
+    "fstream": "cpp",
+    "future": "cpp",
+    "stdfloat": "cpp",
+    "text_encoding": "cpp",
+    "cinttypes": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
