@@ -37,7 +37,7 @@ static inline __attribute__((__constructor__(101), __used__)) void init() {
 }
 
 template <typename T>
-inline int intDigits(T const& alpha) {
+inline int intDigits(T const &alpha) {
   if constexpr (std::is_same_v<T, bool>) return 1;
   if (alpha > -1 && alpha < 1) return 1;
   return static_cast<int>(std::floor(std::log10(std::abs(alpha)) + 1));
@@ -55,7 +55,7 @@ inline int intDigits(T const& alpha) {
  * @throws None
  */
 template <typename T>
-inline T random(T const& min, T const& max) {
+inline T random(T const &min, T const &max) {
   if constexpr (std::is_same_v<T, int>) {
     std::uniform_int_distribution<int> dist(min, max);
     return dist(generator);
@@ -72,5 +72,17 @@ inline T random(T const& min, T const& max) {
   }
 }
 }  // namespace basic_math
+
+namespace linalg {
+typedef struct MatrixShape {
+  unsigned int rows;
+  unsigned int cols;
+} MaShape;
+
+bool operator==(MaShape const &, MaShape const &);
+bool operator<(MaShape const &, MaShape const &);
+bool operator<=(MaShape const &, MaShape const &);
+std::ostream &operator<<(std::ostream &, MaShape const &);
+}  // namespace linalg
 
 #endif
