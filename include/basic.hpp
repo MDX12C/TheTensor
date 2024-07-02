@@ -83,6 +83,11 @@ bool operator==(MaShape const &, MaShape const &);
 bool operator<(MaShape const &, MaShape const &);
 bool operator<=(MaShape const &, MaShape const &);
 std::ostream &operator<<(std::ostream &, MaShape const &);
+
+template <typename T>
+class Vector;
+template <typename T>
+class Matrix;
 }  // namespace linalg
 
-#endif
+#endif  // BASIC_H
