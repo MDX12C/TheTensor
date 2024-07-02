@@ -539,8 +539,8 @@ namespace Linalg {
       _mm_free(this->storage_space);
       this->storage_space = (Data*) _mm_malloc(this->_real_size * sizeof(Data), Basic_Math::align_size);
       Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
-    }    
-else {
+    }
+    else {
       free(this->storage_space);
       this->storage_space = (Data*) malloc(this->_real_size * sizeof(Data));
       Memory_Maintain::_mmy_modify(this->_real_size * sizeof(Data), this);
@@ -611,9 +611,34 @@ else {
     if (!(this->_shape == alpha._shape))
       return *this;
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] += alpha.storage_space[i];
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len - 1, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread runArray[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        runArray[t_dex] = std::thread(Basic_Math::tuple_add<Data>, this->storage_space + m_dex, alpha.storage_space + m_dex, temp.storage_space + m_dex);
+        runArray[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __ADD(this->storage_space[m_dex], alpha.storage_space[m_dex], temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __ADD(this->storage_space[i], alpha.storage_space[i], temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator+
@@ -623,9 +648,34 @@ else {
   template <typename Data>
   Matrix<Data> Matrix<Data>::operator+(Data const& alpha) {
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] += alpha;
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len - 1, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_add_s_<Data>, this->storage_space + m_dex, static_cast<Data>(alpha), temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __ADD(this->storage_space[m_dex], static_cast<Data>(alpha), temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __ADD(this->storage_space[i], static_cast<Data>(alpha), temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator-
@@ -637,9 +687,34 @@ else {
     if (!(this->_shape == alpha._shape))
       return *this;
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] -= alpha.storage_space[i];
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_sub<Data>, this->storage_space + m_dex, alpha.storage_space + m_dex, temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __MNS(this->storage_space[m_dex], alpha.storage_space[m_dex], temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __MNS(this->storage_space[i], alpha.storage_space[i], temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator-
@@ -649,9 +724,34 @@ else {
   template <typename Data>
   Matrix<Data> Matrix<Data>::operator-(Data const& alpha) {
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] -= alpha;
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_sub_sb_<Data>, this->storage_space + m_dex, static_cast<Data>(alpha), temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __MNS(this->storage_space[m_dex], static_cast<Data>(alpha), temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __MNS(this->storage_space[i], static_cast<Data>(alpha), temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator*
@@ -663,9 +763,34 @@ else {
     if (!(this->_shape == alpha._shape))
       return *this;
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] *= alpha.storage_space[i];
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_mul<Data>, this->storage_space + m_dex, alpha.storage_space + m_dex, temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __MUT(this->storage_space[m_dex], alpha.storage_space[m_dex], temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __MUT(this->storage_space[i], alpha.storage_space[i], temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator*
@@ -675,9 +800,34 @@ else {
   template <typename Data>
   Matrix<Data> Matrix<Data>::operator*(Data const& alpha) {
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] *= alpha;
+    #ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_mul_s_<Data>, this->storage_space + m_dex, alpha, temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __MUL(this->storage_space[m_dex], alpha, temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __MUL(this->storage_space[i], alpha, temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator/
@@ -689,9 +839,34 @@ else {
     if (!(this->_shape == alpha._shape))
       return *this;
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] /= alpha.storage_space[i];
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_div<Data>, this->storage_space + m_dex, alpha.storage_space + m_dex, temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __DIV(this->storage_space[m_dex], alpha.storage_space[m_dex], temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __DIV(this->storage_space[i], alpha.storage_space[i], temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator/
@@ -701,9 +876,34 @@ else {
   template <typename Data>
   Matrix<Data> Matrix<Data>::operator/(Data const& alpha) {
     Matrix<Data> temp(*this);
-    for (int i = 0; i < temp._size; i++) {
-      temp.storage_space[i] /= alpha;
+#ifdef _THREAD_MODE_
+    const int step = this->_real_shape.lines / Basic_Math::vec_len, config = this->_real_shape.lines - this->_shape.lines, len = Basic_Math::vec_len - config;
+    std::thread run_array[step * this->_shape.rows];
+    int t_dex = 0, m_dex = 0, j;
+    for (int i = 0; i < this->_shape.rows; i++) {
+      for (j = 0; j < step; j++) {
+        run_array[t_dex] = std::thread(Basic_Math::tuple_div_sb_<Data>, this->storage_space + m_dex, alpha, temp.storage_space + m_dex);
+        run_array[t_dex].detach();
+        t_dex++;
+        m_dex += Basic_Math::vec_len;
+      }
+      for (j = 0; j < len; j++) {
+        __DIV(this->storage_space[m_dex], alpha, temp.storage_space[m_dex], Data);
+        m_dex++;
+      }
+      m_dex += config;
     }
+    if constexpr (Basic_Math::check_simd<Data>) {
+      __SIMD;
+    }
+    else {
+      __OPR;
+    }
+#else
+    for (int i = 0; i < this->_size; i++) {
+      __DIV(this->storage_space[i], alpha, temp.storage_space[i], Data);
+    }
+#endif
     return temp;
   }
   /*operator+=
