@@ -1,7 +1,20 @@
 #include "memory.h"
 
+#include "basic.hpp"
+
 namespace memory_maintainer {
 
+/**
+ * Registers a block of memory with the MemoryManager.
+ *
+ * @param size The size of the memory block in bytes.
+ * @param data A shared pointer to the memory block.
+ *
+ * @return True if the memory block was successfully registered, false
+ * otherwise.
+ *
+ * @throws None.
+ */
 template <typename T>
 bool MemoryManager::signUp(int size, std::shared_ptr<T> data) {
   std::lock_guard<std::mutex> lock(mtx);
@@ -17,6 +30,16 @@ bool MemoryManager::signUp(int size, std::shared_ptr<T> data) {
   return true;
 }
 
+/**
+ * Modifies the size of a registered memory block in the MemoryManager.
+ *
+ * @param newSize The new size of the memory block in bytes.
+ * @param data A shared pointer to the memory block.
+ *
+ * @return True if the memory block was successfully modified, false otherwise.
+ *
+ * @throws None.
+ */
 template <typename T>
 bool MemoryManager::modify(int newSize, std::shared_ptr<T> data) {
   std::lock_guard<std::mutex> lock(mtx);
@@ -32,6 +55,15 @@ bool MemoryManager::modify(int newSize, std::shared_ptr<T> data) {
   return true;
 }
 
+/**
+ * Releases a registered memory block from the MemoryManager.
+ *
+ * @param data A shared pointer to the memory block.
+ *
+ * @return True if the memory block was successfully released, false otherwise.
+ *
+ * @throws None.
+ */
 template <typename T>
 bool MemoryManager::release(std::shared_ptr<T> data) {
   std::lock_guard<std::mutex> lock(mtx);
@@ -48,16 +80,35 @@ bool MemoryManager::release(std::shared_ptr<T> data) {
   return true;
 }
 
+/**
+ * Returns the total usage of memory in bytes.
+ *
+ * @return The total usage of memory in bytes.
+ *
+ * @throws None.
+ */
 unsigned long long MemoryManager::getTotalUsage() const {
   std::lock_guard<std::mutex> lock(mtx);
   return totalUsage;
 }
 
+/**
+ * Returns the number of memory blocks registered in the MemoryManager.
+ *
+ * @return The number of memory blocks.
+ *
+ * @throws None.
+ */
 int MemoryManager::getBlockCount() const {
   std::lock_guard<std::mutex> lock(mtx);
   return blockCount;
 }
 
+/**
+ * Displays the usage of memory blocks in the MemoryManager.
+ *
+ * @throws None.
+ */
 void MemoryManager::displayUsage() const {
   std::lock_guard<std::mutex> lock(mtx);
 
@@ -70,15 +121,13 @@ void MemoryManager::displayUsage() const {
 }
 
 MemoryType MemoryManager::getMemoryType(std::type_index typeIdx) const {
-  if (typeIdx == typeid(std::vector<int>)) return MemoryType::VectorInt;
-  if (typeIdx == typeid(std::vector<bool>)) return MemoryType::VectorBool;
-  if (typeIdx == typeid(std::vector<float>)) return MemoryType::VectorFloat;
-  if (typeIdx == typeid(std::vector<std::vector<int>>))
-    return MemoryType::MatrixInt;
-  if (typeIdx == typeid(std::vector<std::vector<bool>>))
-    return MemoryType::MatrixBool;
-  if (typeIdx == typeid(std::vector<std::vector<float>>))
-    return MemoryType::MatrixFloat;
+  if (typeIdx == typeid(linalg::Vector<int>)) return MemoryType::VectorInt;
+  if (typeIdx == typeid(linalg::Vector<bool>)) return MemoryType::VectorBool;
+  if (typeIdx == typeid(linalg::Vector<float>)) return MemoryType::VectorFloat;
+  if (typeIdx == typeid(linalg::Matrix<int>)) return MemoryType::MatrixInt;
+  if (typeIdx == typeid(linalg::Matrix<bool>)) return MemoryType::MatrixBool;
+  return MemoryType::MatrixBool;
+  if (typeIdx == typeid(linalg::Matrix<float>)) return MemoryType::MatrixFloat;
   throw std::invalid_argument("Unsupported type");
 }
 }  // namespace memory_maintainer
