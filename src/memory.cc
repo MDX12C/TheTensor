@@ -31,7 +31,7 @@ bool MemoryManager::signUp(int size, std::shared_ptr<T> data) {
 }
 
 /**
- * Modifies the size of a registered memory block in the MemoryManager.
+ * Modifies the size of a registered memory block stored   in the MemoryManager.
  *
  * @param newSize The new size of the memory block in bytes.
  * @param data A shared pointer to the memory block.
@@ -120,6 +120,15 @@ void MemoryManager::displayUsage() const {
   }
 }
 
+/**
+ * Determines the MemoryType of the provided type index.
+ *
+ * @param typeIdx The type index to determine the MemoryType for.
+ *
+ * @return The MemoryType corresponding to the type index.
+ *
+ * @throws std::invalid_argument if the type index is unsupported.
+ */
 MemoryType MemoryManager::getMemoryType(std::type_index typeIdx) const {
   if (typeIdx == typeid(linalg::Vector<int>)) return MemoryType::VectorInt;
   if (typeIdx == typeid(linalg::Vector<bool>)) return MemoryType::VectorBool;
