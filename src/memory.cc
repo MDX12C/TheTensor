@@ -77,6 +77,7 @@ bool MemoryManager::release(std::shared_ptr<T> data) {
   totalUsage -= it->second.size;
   memoryMap.erase(it);
   blockCount--;
+  delete rawPtr;
   return true;
 }
 
