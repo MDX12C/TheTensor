@@ -113,6 +113,26 @@ Vector<T>::Vector(int size, Data* const& data)
 
   memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
 }
+
+template <typename T>
+Vector<T>::Vector(int size) : size(size), data_(new T[size]) {
+  memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
+}
+
+template <typename T>
+Vector<T>::Vector() : size(0), data_(nullptr) {
+  memory_maintainer::MemoryManager::signUp<T>(0, std::shared_ptr<T>(data_));
+}
+
+template <typename T>
+Vector<T>::Vector(const Vector& other) : size(other.size_), data_(new T[size]) {
+  std::copy(other.data_, other.data_ + size, data_);
+  memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
+}
+
+template <typename T>
+Vector<T>::~Vector() {
+  memory_maintainer::MemoryManager::release<T>(std::shared_ptr<T>(data_));
 }
 
 }  // namespace linalg
