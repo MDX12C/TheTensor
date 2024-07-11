@@ -20,14 +20,14 @@ enum class MemoryType {
 
 class MemoryManager {
  public:
-  template <typename T>
-  static bool signUp(int size, std::shared_ptr<T> data);
+  template <typename U>
+  static bool signUp(int size, std::shared_ptr<U> data);
 
-  template <typename T>
-  static bool modify(int newSize, std::shared_ptr<T> data);
+  template <typename U>
+  static bool modify(int newSize, std::shared_ptr<U> data);
 
-  template <typename T>
-  static bool release(std::shared_ptr<T> data);
+  template <typename U>
+  static bool release(U* data);
 
   static unsigned long long getTotalUsage();
   static int getBlockCount();
@@ -61,14 +61,14 @@ namespace memory_maintainer {
  *
  * @throws None.
  */
-template <typename T>
-bool MemoryManager::signUp(int size, std::shared_ptr<T> data) {
+template <typename U>
+bool MemoryManager::signUp(int size, std::shared_ptr<U> data) {
   std::lock_guard<std::mutex> lock(mtx);
 
   if (size <= 0 || !data) return false;
 
   void* rawPtr = data.get();
-  MemoryType type = getMemoryType(typeid(T));
+  MemoryType type = getMemoryType(typeid(U));
 
   memoryMap[rawPtr] = {size, type};
   totalUsage += size;
@@ -86,8 +86,8 @@ bool MemoryManager::signUp(int size, std::shared_ptr<T> data) {
  *
  * @throws None.
  */
-template <typename T>
-bool MemoryManager::modify(int newSize, std::shared_ptr<T> data) {
+template <typename U>
+bool MemoryManager::modify(int newSize, std::shared_ptr<U> data) {
   std::lock_guard<std::mutex> lock(mtx);
 
   if (newSize <= 0 || !data) return false;
@@ -110,20 +110,19 @@ bool MemoryManager::modify(int newSize, std::shared_ptr<T> data) {
  *
  * @throws None.
  */
-template <typename T>
-bool MemoryManager::release(std::shared_ptr<T> data) {
+template <typename U>
+bool MemoryManager::release(U* data) {
   std::lock_guard<std::mutex> lock(mtx);
 
   if (!data) return false;
 
-  void* rawPtr = data.get();
+  void* rawPtr = static_cast<void*>(data);
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
   totalUsage -= it->second.size;
   memoryMap.erase(it);
   blockCount--;
-  delete rawPtr;
   return true;
 }
 

@@ -1,50 +1,59 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <algorithm>
+#include <iostream>
+#include <memory>
+
 #include "basic.hpp"
 #include "memory.hpp"
 
 namespace linalg {
+
 template <typename T>
-class Vector {
+class Vector : public std::enable_shared_from_this<Vector<T>> {
  private:
   T* data_;   // pointer to the data
   int size_;  // size of the vector
 
-  template <typename T>
-  friend std::ostream& operator<<(std::ostream&, Vector<T> const&);
+  template <typename U>
+  friend std::ostream& operator<<(std::ostream&, Vector<U> const&);
 
-  template <typename T>
-  friend T dot(Vector<T> const&, Vector<T> const&);
+  template <typename U>
+  friend U dot(Vector<U> const&, Vector<U> const&);
 
-  template <typename T>
-  friend Vector<T> cross(Vector<T> const&, Vector<T> const&);
+  template <typename U>
+  friend Vector<U> cross(Vector<U> const&, Vector<U> const&);
 
-  friend class linalg::Matrix<T>;
-
-  template <typename T>
-  friend Vector<T> basic_math::random(int, T const&, T const&);
-
-  // TODO: AddRow and AddColumn for Matrix
+  template <typename U>
+  friend Vector<U> basic_math::random(int, U const&, U const&);
 
  public:
-  Vector(int size, Data* const& data);
+  // Factory functions to create and initialize a Vector instance
+  static std::shared_ptr<Vector<T>> create(int size, T* const& data);
+  static std::shared_ptr<Vector<T>> create(int size);
+  static std::shared_ptr<Vector<T>> create();
+
+  // Constructors
+  Vector(int size, T* const& data);
   Vector(int size);
   Vector();
   Vector(const Vector& other);
   ~Vector();
 
+  void initialize();  // Method to register with MemoryManager
+
   // Member functions
   inline int size() const { return this->size_; }
-  Data sum() const;
+  T sum() const;
   void freedom();
-  bool endow(int index, Data const& value);
+  bool endow(int index, T const& value);
   bool resize(int newSize);
-  bool load(int size, Data* const& data);
+  bool load(int size, T* const& data);
 
   // Operator overloads
-  Data& operator[](int index);
-  const Data& operator[](int index) const;
+  T& operator[](int index);
+  const T& operator[](int index) const;
   Vector& operator=(const Vector& other);
   Vector& operator+=(const Vector& other);
   Vector& operator-=(const Vector& other);
@@ -63,23 +72,23 @@ class Vector {
   Vector<bool> operator>(const Vector& other) const;
   Vector<bool> operator>=(const Vector& other) const;
 
-  Vector& operator=(Data const& value);
-  Vector& operator+=(Data const& value);
-  Vector& operator-=(Data const& value);
-  Vector& operator*=(Data const& value);
-  Vector& operator/=(Data const& value);
+  Vector& operator=(T const& value);
+  Vector& operator+=(T const& value);
+  Vector& operator-=(T const& value);
+  Vector& operator*=(T const& value);
+  Vector& operator/=(T const& value);
 
-  Vector operator+(Data const& value) const;
-  Vector operator-(Data const& value) const;
-  Vector operator*(Data const& value) const;
-  Vector operator/(Data const& value) const;
+  Vector operator+(T const& value) const;
+  Vector operator-(T const& value) const;
+  Vector operator*(T const& value) const;
+  Vector operator/(T const& value) const;
 
-  Vector<bool> operator==(Data const& value) const;
-  Vector<bool> operator!=(Data const& value) const;
-  Vector<bool> operator<(Data const& value) const;
-  Vector<bool> operator<=(Data const& value) const;
-  Vector<bool> operator>(Data const& value) const;
-  Vector<bool> operator>=(Data const& value) const;
+  Vector<bool> operator==(T const& value) const;
+  Vector<bool> operator!=(T const& value) const;
+  Vector<bool> operator<(T const& value) const;
+  Vector<bool> operator<=(T const& value) const;
+  Vector<bool> operator>(T const& value) const;
+  Vector<bool> operator>=(T const& value) const;
 };
 
 template <typename Data>
@@ -87,90 +96,80 @@ std::ostream& operator<<(std::ostream&, const Vector<Data>&);
 
 template <typename Data>
 Data dot(const Vector<Data>&, const Vector<Data>&);
+
 }  // namespace linalg
 
+// Implementation
 namespace linalg {
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
+  os << "(" << vec.size() << ")";
   os << "[";
   for (int i = 0; i < vec.size(); i++) {
-    os << vec[i];
+    os << vec.data_[i];
     if (i != vec.size() - 1) os << ", ";
   }
   os << "]";
   return os;
 }
 
-/**
- * Constructs a Vector object with the specified size and initializes its data
- * with the provided array. If the provided array is nullptr, the data is
- * initialized with zeros. The MemoryManager is then called to sign up the
- * allocated memory.
- *
- * @param size The size of the Vector.
- * @param data The array of data to initialize the Vector with.
- *
- * @throws None.
- */
 template <typename T>
-Vector<T>::Vector(int size, Data* const& data)
-    : size(size), data_(new T[size]) {
+std::shared_ptr<Vector<T>> Vector<T>::create(int size, T* const& data) {
+  auto vec = std::make_shared<Vector<T>>(size, data);
+  vec->initialize();
+  return vec;
+}
+
+template <typename T>
+std::shared_ptr<Vector<T>> Vector<T>::create(int size) {
+  auto vec = std::make_shared<Vector<T>>(size);
+  vec->initialize();
+  return vec;
+}
+
+template <typename T>
+std::shared_ptr<Vector<T>> Vector<T>::create() {
+  auto vec = std::make_shared<Vector<T>>();
+  vec->initialize();
+  return vec;
+}
+
+template <typename T>
+Vector<T>::Vector(int size, T* const& data) : size_(size), data_(new T[size]) {
   if (data == nullptr) {
     for (int i = 0; i < size; i++) data_[i] = 0;
   } else {
     std::copy(data, data + size, data_);
   }
-
-  memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
 }
 
-/**
- * Constructor for Vector class with a specified size.
- *
- * @param size The size of the Vector.
- *
- * @return None.
- *
- * @throws None.
- */
 template <typename T>
-Vector<T>::Vector(int size) : size(size), data_(new T[size]) {
+Vector<T>::Vector(int size) : size_(size), data_(new T[size]) {
   for (int i = 0; i < size; i++) data_[i] = 0;
-  memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
 }
 
-/**
- * Constructor for Vector class with default initialization.
- *
- * @param None.
- *
- * @return None.
- *
- * @throws None.
- */
 template <typename T>
-Vector<T>::Vector() : size(0), data_(nullptr) {
-  memory_maintainer::MemoryManager::signUp<T>(0, std::shared_ptr<T>(data_));
-}
+Vector<T>::Vector() : size_(0), data_(nullptr) {}
 
-/**
- * Copy constructor for the Vector class.
- *
- * @param other The Vector object to be copied.
- *
- * @throws None.
- */
 template <typename T>
-Vector<T>::Vector(const Vector& other) : size(other.size_), data_(new T[size]) {
-  std::copy(other.data_, other.data_ + size, data_);
-  memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
+Vector<T>::Vector(const Vector& other)
+    : size_(other.size_), data_(new T[other.size_]) {
+  std::copy(other.data_, other.data_ + other.size_, data_);
 }
 
 template <typename T>
 Vector<T>::~Vector() {
-  memory_maintainer::MemoryManager::release<T>(std::shared_ptr<T>(data_));
+  memory_maintainer::MemoryManager::release<linalg::Vector<T>>(this);
+  delete[] data_;
+}
+
+template <typename T>
+void Vector<T>::initialize() {
+  memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
+      size_, this->shared_from_this());
 }
 
 }  // namespace linalg
+
 #endif  // VECTOR_H

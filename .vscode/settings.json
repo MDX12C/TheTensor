@@ -73,7 +73,8 @@
     "stdfloat": "cpp",
     "text_encoding": "cpp",
     "cinttypes": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "*.inc": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

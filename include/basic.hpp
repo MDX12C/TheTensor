@@ -36,9 +36,9 @@ static inline __attribute__((__constructor__(101), __used__)) void init() {
   return;
 }
 
-template <typename T>
-inline int intDigits(T const &alpha) {
-  if constexpr (std::is_same_v<T, bool>) return 1;
+template <typename U>
+inline int intDigits(U const &alpha) {
+  if constexpr (std::is_same_v<U, bool>) return 1;
   if (alpha > -1 && alpha < 1) return 1;
   return static_cast<int>(std::floor(std::log10(std::abs(alpha)) + 1));
 }
@@ -54,20 +54,20 @@ inline int intDigits(T const &alpha) {
  *
  * @throws None
  */
-template <typename T>
-inline T random(T const &min, T const &max) {
-  if constexpr (std::is_same_v<T, int>) {
+template <typename U>
+inline U random(U const &min, U const &max) {
+  if constexpr (std::is_same_v<U, int>) {
     std::uniform_int_distribution<int> dist(min, max);
     return dist(generator);
-  } else if constexpr (std::is_same_v<T, float>) {
+  } else if constexpr (std::is_same_v<U, float>) {
     std::uniform_real_distribution<float> dist(min, max);
     return dist(generator);
-  } else if constexpr (std::is_same_v<T, bool>) {
+  } else if constexpr (std::is_same_v<U, bool>) {
     std::uniform_int_distribution<int> dist(0, 1);
     return static_cast<bool>(dist(generator));
   } else {
-    static_assert(std::is_arithmetic_v<T>, "Unsupported type");
-    std::uniform_real_distribution<T> dist(min, max);
+    static_assert(std::is_arithmetic_v<U>, "Unsupported type");
+    std::uniform_real_distribution<U> dist(min, max);
     return dist(generator);
   }
 }
@@ -84,9 +84,9 @@ bool operator<(MaShape const &, MaShape const &);
 bool operator<=(MaShape const &, MaShape const &);
 std::ostream &operator<<(std::ostream &, MaShape const &);
 
-template <typename T>
+template <typename U>
 class Vector;
-template <typename T>
+template <typename U>
 class Matrix;
 }  // namespace linalg
 
