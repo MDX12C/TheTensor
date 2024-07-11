@@ -102,6 +102,17 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
   return os;
 }
 
+/**
+ * Constructs a Vector object with the specified size and initializes its data
+ * with the provided array. If the provided array is nullptr, the data is
+ * initialized with zeros. The MemoryManager is then called to sign up the
+ * allocated memory.
+ *
+ * @param size The size of the Vector.
+ * @param data The array of data to initialize the Vector with.
+ *
+ * @throws None.
+ */
 template <typename T>
 Vector<T>::Vector(int size, Data* const& data)
     : size(size), data_(new T[size]) {
@@ -114,16 +125,42 @@ Vector<T>::Vector(int size, Data* const& data)
   memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
 }
 
+/**
+ * Constructor for Vector class with a specified size.
+ *
+ * @param size The size of the Vector.
+ *
+ * @return None.
+ *
+ * @throws None.
+ */
 template <typename T>
 Vector<T>::Vector(int size) : size(size), data_(new T[size]) {
+  for (int i = 0; i < size; i++) data_[i] = 0;
   memory_maintainer::MemoryManager::signUp<T>(size, std::shared_ptr<T>(data_));
 }
 
+/**
+ * Constructor for Vector class with default initialization.
+ *
+ * @param None.
+ *
+ * @return None.
+ *
+ * @throws None.
+ */
 template <typename T>
 Vector<T>::Vector() : size(0), data_(nullptr) {
   memory_maintainer::MemoryManager::signUp<T>(0, std::shared_ptr<T>(data_));
 }
 
+/**
+ * Copy constructor for the Vector class.
+ *
+ * @param other The Vector object to be copied.
+ *
+ * @throws None.
+ */
 template <typename T>
 Vector<T>::Vector(const Vector& other) : size(other.size_), data_(new T[size]) {
   std::copy(other.data_, other.data_ + size, data_);
