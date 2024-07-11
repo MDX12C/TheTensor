@@ -21,17 +21,17 @@ enum class MemoryType {
 class MemoryManager {
  public:
   template <typename T>
-  bool signUp(int size, std::shared_ptr<T> data);
+  static bool signUp(int size, std::shared_ptr<T> data);
 
   template <typename T>
-  bool modify(int newSize, std::shared_ptr<T> data);
+  static bool modify(int newSize, std::shared_ptr<T> data);
 
   template <typename T>
-  bool release(std::shared_ptr<T> data);
+  static bool release(std::shared_ptr<T> data);
 
-  unsigned long long getTotalUsage() const;
-  int getBlockCount() const;
-  void displayUsage() const;
+  static unsigned long long getTotalUsage() const;
+  static int getBlockCount() const;
+  static void displayUsage() const;
 
  private:
   struct MemoryBlock {
@@ -39,12 +39,12 @@ class MemoryManager {
     MemoryType type;
   };
 
-  unsigned long long totalUsage = 0;
-  int blockCount = 0;
-  std::unordered_map<void*, MemoryBlock> memoryMap;
-  mutable std::mutex mtx;
+  static long long totalUsage = 0;
+  static blockCount = 0;
+  static ::unordered_map<void*, MemoryBlock> memoryMap;
+  static std::mutex mtx;
 
-  MemoryType getMemoryType(std::type_index typeIdx) const;
+  getMemoryType(std::type_index typeIdx) const;
 };
 }  // namespace memory_maintainer
 
