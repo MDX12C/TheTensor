@@ -11,3 +11,6 @@ add_library(memory_maintainer STATIC src/memory.cc)
 
 add_executable(test_basic_hpp test/test_basic_hpp.cc)
 target_link_libraries(test_basic_hpp basic_hpp)
+
+add_executable(test_vector test/test_vector.cc)
+target_link_libraries(test_vector basic_hpp memory_maintainer)
