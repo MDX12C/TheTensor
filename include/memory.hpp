@@ -104,7 +104,7 @@ bool MemoryManager::modify(int newSize, std::shared_ptr<U> data) {
 /**
  * Releases a registered memory block from the MemoryManager.
  *
- * @param data A shared pointer to the memory block.
+ * @param data A pointer to the memory block.
  *
  * @return True if the memory block was successfully released, false otherwise.
  *

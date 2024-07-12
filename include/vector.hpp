@@ -46,7 +46,7 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   // Member functions
   inline int size() const { return this->size_; }
   T sum() const;
-  void freedom();
+  void freedom();  // Method to unregister with MemoryManager
   bool endow(int index, T const& value);
   bool resize(int newSize);
   bool load(int size, T* const& data);
@@ -168,6 +168,20 @@ template <typename T>
 void Vector<T>::initialize() {
   memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
       size_, this->shared_from_this());
+}
+
+template <typename T>
+T sum(const Vector<T>& vec) {
+  T sum = 0;
+  for (int i = 0; i < vec.size(); i++) sum += vec.data_[i];
+  return sum;
+}
+
+template <typename T>
+T dot(const Vector<T>& a, const Vector<T>& b) {
+  T sum = 0;
+  for (int i = 0; i < a.size(); i++) sum += a.data_[i] * b.data_[i];
+  return sum;
 }
 
 }  // namespace linalg
