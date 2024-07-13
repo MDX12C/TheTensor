@@ -218,13 +218,41 @@ void Vector<T>::endow(int const& index, T const& value) {
 template <typename T>
 void Vector<T>::resize(int newSize) {
   if (newSize <= 0) throw std::invalid_argument("New size must be positive");
+
   T* newData = new T[newSize];
-  std::copy(data_, data_ + size_, newData);
+
+  // Copy only up to the smaller of the old and new sizes
+  int copySize = std::min(size_, newSize);
+  std::copy(data_, data_ + copySize, newData);
+
+  // If the new size is larger, initialize the new elements
+  for (int i = copySize; i < newSize; ++i) {
+    newData[i] = T();  // Default-initialize new elements
+  }
+
   delete[] data_;
   memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
       newSize, this->shared_from_this());
   data_ = newData;
   size_ = newSize;
+}
+
+template <typename T>
+void Vector<T>::load(int size, T* const& data) {
+  if (size < 0 || size >= size_)
+    throw std::invalid_argument(
+        "Size must be non-negative and less than the size of the vector");
+  if (data == nullptr) throw std::invalid_argument("Data cannot be null");
+
+  T* newData = new T[size];
+  std::copy(data, data + size, newData);
+
+  delete[] data_;
+  data_ = newData;
+  size_ = size;
+
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
+      size, this->shared_from_this());
 }
 
 }  // namespace linalg

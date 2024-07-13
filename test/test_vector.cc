@@ -31,5 +31,9 @@ int main() {
   a->resize(5);
   std::cout << *a << std::endl;
 
+  std::cout << "Test: load() for vector" << std::endl;
+  a->load(3, new int[3]{1, 2, 3});
+  std::cout << *a << std::endl;
+
   return 0;
 }
