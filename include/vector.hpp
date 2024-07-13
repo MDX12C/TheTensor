@@ -172,6 +172,14 @@ void Vector<T>::initialize() {
 }
 
 template <typename T>
+void Vector<T>::freedom() {
+  delete[] data_;
+  data_ = new T[size_];
+  for (int i = 0; i < size_; i++) data_[i] = 0;
+  memory_maintainer::MemoryManager::release<linalg::Vector<T>>(this);
+}
+
+template <typename T>
 T& Vector<T>::operator[](int i) {
   return data_[i];
 }
@@ -340,6 +348,168 @@ Vector<T> Vector<T>::operator/(T const& value) const {
   return result;
 }
 
+template <typename T>
+Vector<bool> Vector<T>::operator==(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++)
+    result.data_[i] = (data_[i] == other.data_[i]);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator==(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] == value);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator!=(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++)
+    result.data_[i] = (data_[i] != other.data_[i]);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator!=(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] != value);
+  return result;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator+=(const Vector<T>& other) {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  for (int i = 0; i < size_; i++) __ADD(data_[i], other.data_[i], data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator+=(T const& value) {
+  for (int i = 0; i < size_; i++) __ADD(data_[i], value, data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator-=(const Vector<T>& other) {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  for (int i = 0; i < size_; i++) __MNS(data_[i], other.data_[i], data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator-=(T const& value) {
+  for (int i = 0; i < size_; i++) __MNS(data_[i], value, data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator*=(const Vector<T>& other) {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  for (int i = 0; i < size_; i++) __MUL(data_[i], other.data_[i], data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator*=(T const& value) {
+  for (int i = 0; i < size_; i++) __MUL(data_[i], value, data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator/=(const Vector<T>& other) {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  for (int i = 0; i < size_; i++) __DIV(data_[i], other.data_[i], data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator/=(T const& value) {
+  for (int i = 0; i < size_; i++) __DIV(data_[i], value, data_[i], T);
+  return *this;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator-() const {
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = -data_[i];
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator<(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] < other.data_[i]);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator>(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] > other.data_[i]);
+  return result;
+}
+
+tamplate<typename T> Vector<bool> Vector<T>::operator<=(
+    const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++)
+    result.data_[i] = (data_[i] <= other.data_[i]);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator>=(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++)
+    result.data_[i] = (data_[i] >= other.data_[i]);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator<(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] < value);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator>(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] > value);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator<=(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] <= value);
+  return result;
+}
+
+template <typename T>
+Vector<bool> Vector<T>::operator>=(T const& value) const {
+  Vector<bool> result(size_);
+  for (int i = 0; i < size_; i++) result.data_[i] = (data_[i] >= value);
+  return result;
+}
 }  // namespace linalg
 
 #endif  // VECTOR_H
