@@ -201,6 +201,13 @@ T dot(const Vector<T>& a, const Vector<T>& b) {
   return sum;
 }
 
+template <typename T>
+bool Vector<T>::endow(int const& index, T const& value) {
+  if (index < 0 || index >= size_) return false;
+  data_[index] = value;
+  return true;
+}
+
 }  // namespace linalg
 
 #endif  // VECTOR_H
