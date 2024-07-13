@@ -84,6 +84,8 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   Vector operator*(T const& value) const;
   Vector operator/(T const& value) const;
 
+  Vector operator-() const;
+
   Vector<bool> operator==(T const& value) const;
   Vector<bool> operator!=(T const& value) const;
   Vector<bool> operator<(T const& value) const;
