@@ -47,7 +47,7 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   inline int size() const { return this->size_; }
   T sum() const;
   void freedom();
-  bool endow(int index, T const& value);
+  bool endow(int index, T const& value);  // Modifies the value at the index
   bool resize(int newSize);
   bool load(int size, T* const& data);
 
@@ -182,6 +182,12 @@ T const& Vector<T>::operator[](int i) const {
 
 template <typename T>
 T Vector<T>::sum() const {
+  if (std::is_same_v<T, bool>) {
+    T sum = 0;
+    for (int i = 0; i < size(); i++) sum += data_[i] ? 1 : -1;
+    return static_cast<bool>(sum);
+  }
+
   T sum = 0;
   for (int i = 0; i < size(); i++) sum += data_[i];
   return sum;
