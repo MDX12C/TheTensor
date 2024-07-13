@@ -11,15 +11,15 @@
   }
 #define __MNS(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first || (!second);               \
+    third = first && (!second);               \
   } else {                                    \
     third = first - second;                   \
   }
-#define __MUT(first, second, third, type)     \
+#define __MUL(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
     third = first && second;                  \
   } else {                                    \
-    third = first / second;                   \
+    third = first * second;                   \
   }
 #define __DIV(first, second, third, type)              \
   if constexpr (std::is_same_v<type, bool>) {          \

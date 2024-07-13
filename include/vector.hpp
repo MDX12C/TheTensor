@@ -255,6 +255,91 @@ void Vector<T>::load(int size, T* const& data) {
       size, this->shared_from_this());
 }
 
+template <typename T>
+Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
+  if (this != &other) {
+    delete[] data_;
+    data_ = new T[other.size_];
+    std::copy(other.data_, other.data_ + other.size_, data_);
+    size_ = other.size_;
+  }
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator=(T const& value) {
+  for (int i = 0; i < size_; i++) data_[i] = value;
+  return *this;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator+(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++)
+    __ADD(data_[i], other.data_[i], result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator+(T const& value) const {
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++) __ADD(data_[i], value, result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator-(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++)
+    __MNS(data_[i], other.data_[i], result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator-(T const& value) const {
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++) __MNS(data_[i], value, result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator*(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++)
+    __MUL(data_[i], other.data_[i], result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator*(T const& value) const {
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++) __MUL(data_[i], value, result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator/(const Vector<T>& other) const {
+  if (size_ != other.size_)
+    throw std::invalid_argument("Vectors must have the same size");
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++)
+    __DIV(data_[i], other.data_[i], result.data_[i], T);
+  return result;
+}
+
+template <typename T>
+Vector<T> Vector<T>::operator/(T const& value) const {
+  Vector<T> result(size_);
+  for (int i = 0; i < size_; i++) __DIV(data_[i], value, result.data_[i], T);
+  return result;
+}
+
 }  // namespace linalg
 
 #endif  // VECTOR_H
