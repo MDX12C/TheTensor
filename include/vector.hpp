@@ -463,8 +463,8 @@ Vector<bool> Vector<T>::operator>(const Vector<T>& other) const {
   return result;
 }
 
-tamplate<typename T> Vector<bool> Vector<T>::operator<=(
-    const Vector<T>& other) const {
+template <typename T>
+Vector<bool> Vector<T>::operator<=(const Vector<T>& other) const {
   if (size_ != other.size_)
     throw std::invalid_argument("Vectors must have the same size");
   Vector<bool> result(size_);
