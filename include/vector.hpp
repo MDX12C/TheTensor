@@ -47,9 +47,10 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   inline int size() const { return this->size_; }
   T sum() const;
   void freedom();
-  bool endow(int index, T const& value);  // Modifies the value at the index
-  bool resize(int newSize);
-  bool load(int size, T* const& data);
+  void endow(int const& index,
+             T const& value);  // Modifies the value at the index
+  void resize(int newSize);
+  void load(int size, T* const& data);
 
   // Operator overloads
   T& operator[](int index);
@@ -208,10 +209,22 @@ T dot(const Vector<T>& a, const Vector<T>& b) {
 }
 
 template <typename T>
-bool Vector<T>::endow(int const& index, T const& value) {
-  if (index < 0 || index >= size_) return false;
+void Vector<T>::endow(int const& index, T const& value) {
+  if (index < 0 || index >= size_)
+    throw std::out_of_range("Index out of range");
   data_[index] = value;
-  return true;
+}
+
+template <typename T>
+void Vector<T>::resize(int newSize) {
+  if (newSize <= 0) throw std::invalid_argument("New size must be positive");
+  T* newData = new T[newSize];
+  std::copy(data_, data_ + size_, newData);
+  delete[] data_;
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
+      newSize, this->shared_from_this());
+  data_ = newData;
+  size_ = newSize;
 }
 
 }  // namespace linalg
