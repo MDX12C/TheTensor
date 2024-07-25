@@ -3,7 +3,6 @@
 
 /*constants*/
 #define _DEBUG_MODE_
-#define _THREAD_MODE_           // open thread mode
 #define _SIMD_MODE_             // open SIMD mode
 #define _AVX2_WILL_BE_USED_ON_  // open AVX2
 /*end of constants*/
@@ -12,7 +11,6 @@
 
 /*control block*/
 #ifdef _SIMD_MODE_
-#define _THREAD_MODE_
 #ifdef _AVX2_WILL_BE_USED_ON_
 #define _SIMD_02_
 #else
@@ -35,7 +33,6 @@
 #include <set>
 #include <type_traits>
 #include <utility>
-#ifdef _THREAD_MODE_
 #include <xmmintrin.h>
 
 #include <atomic>
@@ -43,7 +40,6 @@
 #include <functional>
 #include <mutex>
 #include <thread>
-#endif  //_THREAD_MODE_
 #ifdef _SIMD_MODE_
 #include <immintrin.h>
 #include <x86intrin.h>
