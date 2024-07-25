@@ -23,9 +23,6 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   friend U dot(Vector<U> const&, Vector<U> const&);
 
   template <typename U>
-  friend Vector<U> cross(Vector<U> const&, Vector<U> const&);
-
-  template <typename U>
   friend Vector<U> basic_math::random(int, U const&, U const&);
 
  public:
