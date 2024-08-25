@@ -74,7 +74,9 @@
     "text_encoding": "cpp",
     "cinttypes": "cpp",
     "typeindex": "cpp",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "bitset": "cpp",
+    "valarray": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

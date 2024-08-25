@@ -21,10 +21,10 @@ enum class MemoryType {
 class MemoryManager {
  public:
   template <typename U>
-  static bool signUp(int size, std::shared_ptr<U> data);
+  static bool signUp(unsigned int size, std::shared_ptr<U> data);
 
   template <typename U>
-  static bool modify(int newSize, std::shared_ptr<U> data);
+  static bool modify(unsigned int newSize, std::shared_ptr<U> data);
 
   template <typename U>
   static bool release(U* data);
@@ -35,12 +35,12 @@ class MemoryManager {
 
  private:
   struct MemoryBlock {
-    int size;
+    unsigned int size;
     MemoryType type;
   };
 
-  static long long totalUsage;
-  static int blockCount;
+  static unsigned long long totalUsage;
+  static unsigned int blockCount;
   static std::unordered_map<void*, MemoryManager::MemoryBlock> memoryMap;
   static std::mutex mtx;
 
@@ -62,12 +62,14 @@ namespace memory_maintainer {
  * @throws None.
  */
 template <typename U>
-bool MemoryManager::signUp(int size, std::shared_ptr<U> data) {
+bool MemoryManager::signUp(unsigned int size, std::shared_ptr<U> data) {
   std::lock_guard<std::mutex> lock(mtx);
 
-  if (size <= 0 || !data) return false;
+  if (!data) return false;
 
   void* rawPtr = data.get();
+  auto it = memoryMap.find(rawPtr);
+  if (it != memoryMap.end()) return false;
   MemoryType type = getMemoryType(typeid(U));
 
   memoryMap[rawPtr] = {size, type};
@@ -87,10 +89,10 @@ bool MemoryManager::signUp(int size, std::shared_ptr<U> data) {
  * @throws None.
  */
 template <typename U>
-bool MemoryManager::modify(int newSize, std::shared_ptr<U> data) {
+bool MemoryManager::modify(unsigned int newSize, std::shared_ptr<U> data) {
   std::lock_guard<std::mutex> lock(mtx);
 
-  if (newSize <= 0 || !data) return false;
+  if (!data) return false;
 
   void* rawPtr = data.get();
   auto it = memoryMap.find(rawPtr);

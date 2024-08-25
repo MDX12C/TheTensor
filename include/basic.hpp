@@ -36,11 +36,20 @@ static inline __attribute__((__constructor__(101), __used__)) void init() {
   return;
 }
 
+/**
+ * Returns the number of digits in an integer.
+ * 
+ * @param alpha The number to determine the number of digits in
+ * 
+ * @return The number of digits in alpha, only return number of digits before the decimal point
+ * 
+ * @throws None
+ */
 template <typename U>
-inline int intDigits(U const &alpha) {
+inline unsigned int intDigits(U const &alpha) {
   if constexpr (std::is_same_v<U, bool>) return 1;
   if (alpha > -1 && alpha < 1) return 1;
-  return static_cast<int>(std::floor(std::log10(std::abs(alpha)) + 1));
+  return static_cast<unsigned int>(std::floor(std::log10(std::abs(alpha)) + 1));
 }
 
 /**

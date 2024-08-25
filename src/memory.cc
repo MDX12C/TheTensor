@@ -4,8 +4,8 @@
 #include "vector.hpp"
 
 namespace memory_maintainer {
-long long MemoryManager::totalUsage = 0;
-int MemoryManager::blockCount = 0;
+unsigned long long MemoryManager::totalUsage = 0;
+unsigned int MemoryManager::blockCount = 0;
 std::unordered_map<void*, MemoryManager::MemoryBlock> MemoryManager::memoryMap;
 std::mutex MemoryManager::mtx;
 
@@ -28,7 +28,7 @@ unsigned long long MemoryManager::getTotalUsage() {
  *
  * @throws None.
  */
-int MemoryManager::getBlockCount() {
+unsigned int MemoryManager::getBlockCount() {
   std::lock_guard<std::mutex> lock(mtx);
   return blockCount;
 }
@@ -64,8 +64,7 @@ MemoryType MemoryManager::getMemoryType(std::type_index typeIdx) {
   if (typeIdx == typeid(linalg::Vector<float>)) return MemoryType::VectorFloat;
   // if (typeIdx == typeid(linalg::Matrix<int>)) return MemoryType::MatrixInt;
   // if (typeIdx == typeid(linalg::Matrix<bool>)) return MemoryType::MatrixBool;
-  // if (typeIdx == typeid(linalg::Matrix<float>)) return
-  // MemoryType::MatrixFloat;
+  // if (typeIdx == typeid(linalg::Matrix<float>)) return MemoryType::MatrixFloat;
   throw std::invalid_argument("Unsupported type");
 }
 }  // namespace memory_maintainer
