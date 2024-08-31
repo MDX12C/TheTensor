@@ -3,8 +3,8 @@
 
 /*constants*/
 #define _DEBUG_MODE_
-#define _SIMD_MODE_             // open SIMD mode
-#define _AVX2_WILL_BE_USED_ON_  // open AVX2
+//#define _SIMD_MODE_             // open SIMD mode
+//#define _AVX2_WILL_BE_USED_ON_  // open AVX2
 /*end of constants*/
 
 #define LIMIT

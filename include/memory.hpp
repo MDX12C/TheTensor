@@ -30,7 +30,7 @@ class MemoryManager {
   static bool release(U* data);
 
   static unsigned long long getTotalUsage();
-  static int getBlockCount();
+  static unsigned int getBlockCount();
   static void displayUsage();
 
  private:
