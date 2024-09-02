@@ -3,8 +3,8 @@
 
 /*constants*/
 #define _DEBUG_MODE_
-//#define _SIMD_MODE_             // open SIMD mode
-//#define _AVX2_WILL_BE_USED_ON_  // open AVX2
+// #define _SIMD_MODE_             // open SIMD mode
+// #define _AVX2_WILL_BE_USED_ON_  // open AVX2
 /*end of constants*/
 
 #define LIMIT
@@ -22,24 +22,24 @@
 #ifndef __GNUC__
 #define __attribute__(x)
 #endif
+#include <xmmintrin.h>
+
+#include <atomic>
 #include <cfloat>
+#include <chrono>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <functional>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <set>
+#include <thread>
 #include <type_traits>
 #include <utility>
-#include <xmmintrin.h>
-
-#include <atomic>
-#include <chrono>
-#include <functional>
-#include <mutex>
-#include <thread>
 #ifdef _SIMD_MODE_
 #include <immintrin.h>
 #include <x86intrin.h>
