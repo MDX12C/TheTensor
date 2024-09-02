@@ -38,11 +38,12 @@ static inline __attribute__((__constructor__(101), __used__)) void init() {
 
 /**
  * Returns the number of digits in an integer.
- * 
+ *
  * @param alpha The number to determine the number of digits in
- * 
- * @return The number of digits in alpha, only return number of digits before the decimal point
- * 
+ *
+ * @return The number of digits in alpha, only return number of digits before
+ * the decimal point
+ *
  * @throws None
  */
 template <typename U>
