@@ -12,13 +12,12 @@ void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
 int main() {
   auto p = new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   printf("make an array of 10 int elements\n");
-  auto a = linalg::Vector<int>::create(10, p);
+  auto a = new linalg::Vector<int>(10, p);
   printf("create a vector from the array\n");
-  tester("Create and std output", a);
 
-  auto b = linalg::Vector<int>::create(10, p);
-
-  auto c = linalg::dot<int>(*a, *b);
+  auto b = new linalg::Vector<int>(10, p);
+  delete p;
+  auto c = ((*a) * (*b)).sum();
 
   std::cout << "Test: Dot product " << std::endl << c << std::endl;
 
@@ -33,8 +32,11 @@ int main() {
   std::cout << *a << std::endl;
 
   std::cout << "Test: load() for vector" << std::endl;
-  a->load(3, new int[3]{1, 2, 3});
+  p = new int[3]{1, 2, 3};
+  a->load(3, p);
+  delete p;
   std::cout << *a << std::endl;
-
+  delete a;
+  delete b;
   return 0;
 }

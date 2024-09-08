@@ -11,7 +11,7 @@
 namespace linalg {
 
 template <typename T>
-class Vector : public std::enable_shared_from_this<Vector<T>> {
+class Vector {
  private:
   T* data_;            // pointer to the data
   unsigned int size_;  // size of the vector
@@ -20,26 +20,15 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
   friend std::ostream& operator<<(std::ostream&, Vector<U> const&);
 
   template <typename U>
-  friend U dot(Vector<U> const&, Vector<U> const&);
-
-  template <typename U>
   friend Vector<U> basic_math::random(unsigned int const&, U const&, U const&);
 
  public:
-  // Factory functions to create and initialize a Vector instance
-  static std::shared_ptr<Vector<T>> create(unsigned int const& size,
-                                           T* const& data);
-  static std::shared_ptr<Vector<T>> create(unsigned int const& size);
-  static std::shared_ptr<Vector<T>> create();
-
   // Constructors
   Vector(unsigned int const& size, T* const& data);
   Vector(unsigned int const& size);
   Vector();
   Vector(const Vector& other);
   ~Vector();
-
-  void initialize();  // Method to register with MemoryManager
 
   // Member functions
   inline unsigned int size() const { return this->size_; }
@@ -92,9 +81,6 @@ class Vector : public std::enable_shared_from_this<Vector<T>> {
 template <typename Data>
 std::ostream& operator<<(std::ostream&, const Vector<Data>&);
 
-template <typename Data>
-Data dot(const Vector<Data>&, const Vector<Data>&);
-
 }  // namespace linalg
 
 // Implementation
@@ -113,46 +99,40 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 }
 
 template <typename T>
-std::shared_ptr<Vector<T>> Vector<T>::create(unsigned int const& size,
-                                             T* const& data) {
-  return std::make_shared<Vector<T>>(size, data);
-}
-
-template <typename T>
-std::shared_ptr<Vector<T>> Vector<T>::create(unsigned int const& size) {
-  return std::make_shared<Vector<T>>(size);
-}
-
-template <typename T>
-std::shared_ptr<Vector<T>> Vector<T>::create() {
-  return std::make_shared<Vector<T>>();
-}
-
-template <typename T>
-Vector<T>::Vector(unsigned int const& size, T* const& data)
-    : size_(size), data_(new T[size]) {
+Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
   if (size == 0) throw std::invalid_argument("Size cannot be zero");
+  this->data_ = new T[size];
   if (data == nullptr) {
     throw std::invalid_argument("Pointer to array cannot be null");
   } else {
     std::copy(data, data + size, data_);
   }
-  this->initialize();
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
+                                                                   this)) {
+    throw std::invalid_argument("Memory manager failed to sign up vector");
+  }
   return;
 }
 
 template <typename T>
-Vector<T>::Vector(unsigned int const& size) : size_(size), data_(new T[size]) {
+Vector<T>::Vector(unsigned int const& size) : size_(size) {
   if (size == 0) throw std::invalid_argument("Size cannot be zero");
-  for (auto i = 0; i < size; i++) data_[i] = 0;
-  this->initialize();
+  this->data_ = new T[size];
+  for (auto i = 0; i < size; i++) data_[i] = static_cast<T>(0);
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
+                                                                   this)) {
+    throw std::invalid_argument("Memory manager failed to sign up vector");
+  }
   return;
 }
 
 template <typename T>
 Vector<T>::Vector() : size_(1), data_(new T[1]) {
   data_[0] = 0;
-  this->initialize();
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
+                                                                   this)) {
+    throw std::invalid_argument("Memory manager failed to sign up vector");
+  }
   return;
 }
 
@@ -160,7 +140,10 @@ template <typename T>
 Vector<T>::Vector(const Vector& other)
     : size_(other.size_), data_(new T[other.size_]) {
   std::copy(other.data_, other.data_ + other.size_, data_);
-  this->initialize();
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
+                                                                   this)) {
+    throw std::invalid_argument("Memory manager failed to sign up vector");
+  }
   return;
 }
 
@@ -171,17 +154,12 @@ Vector<T>::~Vector() {
 }
 
 template <typename T>
-void Vector<T>::initialize() {
-  memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
-      size_, this->shared_from_this());
-}
-
-template <typename T>
 void Vector<T>::freedom() {
   delete[] data_;
+  size_ = 1;
   data_ = new T[size_];
-  for (auto i = 0; i < size_; i++) data_[i] = 0;
-  memory_maintainer::MemoryManager::release<linalg::Vector<T>>(this);
+  data_[0] = static_cast<T>(0);
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size_, this);
 }
 
 template <typename T>
@@ -204,14 +182,6 @@ T Vector<T>::sum() const {
 }
 
 template <typename T>
-T dot(const Vector<T>& a, const Vector<T>& b) {
-  if (a.size() != b.size())
-    throw std::invalid_argument("Vectors must have the same size");
-  auto c = a * b;
-  return c.sum();
-}
-
-template <typename T>
 void Vector<T>::resize(unsigned int const& newSize) {
   if (newSize == 0) throw std::invalid_argument("Size cannot be zero");
   if (newSize == size_) return;
@@ -227,8 +197,7 @@ void Vector<T>::resize(unsigned int const& newSize) {
   }
 
   delete[] data_;
-  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
-      newSize, this->shared_from_this());
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(newSize, this);
   data_ = newData;
   size_ = newSize;
   return;
@@ -245,8 +214,7 @@ void Vector<T>::load(unsigned int const& size, T* const& data) {
   data_ = newData;
   size_ = size;
 
-  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
-      size, this->shared_from_this());
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size, this);
 }
 
 template <typename T>
