@@ -21,13 +21,13 @@ enum class MemoryType {
 class MemoryManager {
  public:
   template <typename U>
-  static bool signUp(unsigned int size, std::shared_ptr<U> data);
+  static bool signUp(unsigned int const& size, U* const& data);
 
   template <typename U>
-  static bool modify(unsigned int newSize, std::shared_ptr<U> data);
+  static bool modify(unsigned int const& newSize, U* const& data);
 
   template <typename U>
-  static bool release(U* data);
+  static bool release(U* const& data);
 
   static unsigned long long getTotalUsage();
   static unsigned int getBlockCount();
@@ -53,7 +53,7 @@ namespace memory_maintainer {
 /**
  * Registers a block of memory with the MemoryManager.
  *
- * @param size The size of the memory block in bytes.
+ * @param size The size of the memory block in per class.
  * @param data A shared pointer to the memory block.
  *
  * @return True if the memory block was successfully registered, false
@@ -62,18 +62,17 @@ namespace memory_maintainer {
  * @throws None.
  */
 template <typename U>
-bool MemoryManager::signUp(unsigned int size, std::shared_ptr<U> data) {
+bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
   std::lock_guard<std::mutex> lock(mtx);
 
-  if (!data) return false;
+  if (data == nullptr) return false;
 
-  void* rawPtr = data.get();
-  auto it = memoryMap.find(rawPtr);
-  if (it != memoryMap.end()) return false;
+  void* rawPtr = static_cast<void*>(data);
+  if (memoryMap.find(rawPtr) != memoryMap.end()) return false;
   MemoryType type = getMemoryType(typeid(U));
 
-  memoryMap[rawPtr] = {size, type};
-  totalUsage += size;
+  memoryMap[rawPtr] = {size * sizeof(U), type};
+  totalUsage += size * sizeof(U);
   blockCount++;
   return true;
 }
@@ -81,7 +80,7 @@ bool MemoryManager::signUp(unsigned int size, std::shared_ptr<U> data) {
 /**
  * Modifies the size of a registered memory block stored   in the MemoryManager.
  *
- * @param newSize The new size of the memory block in bytes.
+ * @param newSize The new size of the memory block in per class.
  * @param data A shared pointer to the memory block.
  *
  * @return True if the memory block was successfully modified, false otherwise.
@@ -89,17 +88,17 @@ bool MemoryManager::signUp(unsigned int size, std::shared_ptr<U> data) {
  * @throws None.
  */
 template <typename U>
-bool MemoryManager::modify(unsigned int newSize, std::shared_ptr<U> data) {
+bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
   std::lock_guard<std::mutex> lock(mtx);
 
-  if (!data) return false;
+  if (data == nullptr) return false;
 
-  void* rawPtr = data.get();
+  void* rawPtr = static_cast<void*>(data);
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
-  totalUsage += newSize - it->second.size;
-  it->second.size = newSize;
+  totalUsage += newSize * sizeof(U) - it->second.size;
+  it->second.size = newSize * sizeof(U);
   return true;
 }
 
@@ -113,16 +112,16 @@ bool MemoryManager::modify(unsigned int newSize, std::shared_ptr<U> data) {
  * @throws None.
  */
 template <typename U>
-bool MemoryManager::release(U* data) {
+bool MemoryManager::release(U* const& data) {
   std::lock_guard<std::mutex> lock(mtx);
 
-  if (!data) return false;
+  if (data == nullptr) return false;
 
   void* rawPtr = static_cast<void*>(data);
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
-  totalUsage -= it->second.size;
+  totalUsage -= it->second.size * sizeof(U);
   memoryMap.erase(it);
   blockCount--;
   return true;

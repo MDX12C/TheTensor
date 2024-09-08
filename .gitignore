@@ -12,6 +12,7 @@ Makefile
 *.lib
 *.so
 *.dylib
+dist
 
 # Ignore object files
 *.o
