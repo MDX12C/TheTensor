@@ -1,8 +1,7 @@
 #include <iostream>
 #include <memory>
 
-#include "basic.hpp"
-#include "vector.hpp"
+#include "../include/interface.hpp"
 
 void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
   std::cout << "Test: " << name << std::endl;
@@ -10,13 +9,14 @@ void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
 }
 
 int main() {
+  INITIALIZE;
   auto p = new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   printf("make an array of 10 int elements\n");
   auto a = new linalg::Vector<int>(10, p);
   printf("create a vector from the array\n");
 
   auto b = new linalg::Vector<int>(10, p);
-  delete p;
+  delete[] p;
   auto c = ((*a) * (*b)).sum();
 
   std::cout << "Test: Dot product " << std::endl << c << std::endl;
@@ -34,8 +34,12 @@ int main() {
   std::cout << "Test: load() for vector" << std::endl;
   p = new int[3]{1, 2, 3};
   a->load(3, p);
-  delete p;
+  delete[] p;
   std::cout << *a << std::endl;
+  std::cout << "Total block count: "
+            << memory_maintainer::MemoryManager::getBlockCount() << std::endl;
+  std::cout << "Total usage: "
+            << memory_maintainer::MemoryManager::getTotalUsage() << std::endl;
   delete a;
   delete b;
   return 0;

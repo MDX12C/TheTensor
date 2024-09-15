@@ -1,5 +1,5 @@
 #ifndef DEFINE_H
-#define DEFINE_H
+#define DEFINE_H 1
 
 /*constants*/
 #define _DEBUG_MODE_

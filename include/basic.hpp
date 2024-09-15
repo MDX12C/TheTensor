@@ -1,5 +1,5 @@
 #ifndef BASIC_H
-#define BASIC_H
+#define BASIC_H 1
 
 #include "define.hpp"
 
@@ -29,13 +29,15 @@
   }
 
 namespace basic_math {
-extern std::mt19937 generator;
 
-static inline __attribute__((__constructor__(101), __used__)) void init() {
-  generator.seed(static_cast<unsigned long long>(time(0)));
-  return;
-}
-
+class BasicSupport {
+ public:
+  static std::mt19937 generator;
+  static void init() {
+    BasicSupport::generator.seed(static_cast<unsigned long long>(time(0)));
+    return;
+  }
+};
 /**
  * Returns the number of digits in an integer.
  *
@@ -68,17 +70,17 @@ template <typename U>
 inline U random(U const &min, U const &max) {
   if constexpr (std::is_same_v<U, int>) {
     std::uniform_int_distribution<int> dist(min, max);
-    return dist(generator);
+    return dist(BasicSupport::generator);
   } else if constexpr (std::is_same_v<U, float>) {
     std::uniform_real_distribution<float> dist(min, max);
-    return dist(generator);
+    return dist(BasicSupport::generator);
   } else if constexpr (std::is_same_v<U, bool>) {
     std::uniform_int_distribution<int> dist(0, 1);
-    return static_cast<bool>(dist(generator));
+    return static_cast<bool>(dist(BasicSupport::generator));
   } else {
     static_assert(std::is_arithmetic_v<U>, "Unsupported type");
     std::uniform_real_distribution<U> dist(min, max);
-    return dist(generator);
+    return dist(BasicSupport::generator);
   }
 }
 }  // namespace basic_math

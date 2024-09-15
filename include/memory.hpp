@@ -1,5 +1,5 @@
 #ifndef MEMORY_H
-#define MEMORY_H
+#define MEMORY_H 1
 
 #include <iostream>
 #include <memory>
@@ -71,8 +71,8 @@ bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
   if (memoryMap.find(rawPtr) != memoryMap.end()) return false;
   MemoryType type = getMemoryType(typeid(U));
 
-  memoryMap[rawPtr] = {size * sizeof(U), type};
-  totalUsage += size * sizeof(U);
+  memoryMap[rawPtr] = {size, type};
+  totalUsage += size;
   blockCount++;
   return true;
 }
@@ -97,8 +97,8 @@ bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
-  totalUsage += newSize * sizeof(U) - it->second.size;
-  it->second.size = newSize * sizeof(U);
+  totalUsage += newSize - it->second.size;
+  it->second.size = newSize;
   return true;
 }
 
@@ -121,7 +121,7 @@ bool MemoryManager::release(U* const& data) {
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
-  totalUsage -= it->second.size * sizeof(U);
+  totalUsage -= it->second.size;
   memoryMap.erase(it);
   blockCount--;
   return true;

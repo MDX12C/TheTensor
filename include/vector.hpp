@@ -1,5 +1,5 @@
 #ifndef VECTOR_H
-#define VECTOR_H
+#define VECTOR_H 1
 
 #include <algorithm>
 #include <iostream>
@@ -107,8 +107,8 @@ Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
   } else {
     std::copy(data, data + size, data_);
   }
-  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
-                                                                   this)) {
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
+          size_ * sizeof(T), this)) {
     throw std::invalid_argument("Memory manager failed to sign up vector");
   }
   return;
@@ -119,8 +119,8 @@ Vector<T>::Vector(unsigned int const& size) : size_(size) {
   if (size == 0) throw std::invalid_argument("Size cannot be zero");
   this->data_ = new T[size];
   for (auto i = 0; i < size; i++) data_[i] = static_cast<T>(0);
-  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
-                                                                   this)) {
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
+          size_ * sizeof(T), this)) {
     throw std::invalid_argument("Memory manager failed to sign up vector");
   }
   return;
@@ -129,8 +129,8 @@ Vector<T>::Vector(unsigned int const& size) : size_(size) {
 template <typename T>
 Vector<T>::Vector() : size_(1), data_(new T[1]) {
   data_[0] = 0;
-  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
-                                                                   this)) {
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
+          size_ * sizeof(T), this)) {
     throw std::invalid_argument("Memory manager failed to sign up vector");
   }
   return;
@@ -140,8 +140,8 @@ template <typename T>
 Vector<T>::Vector(const Vector& other)
     : size_(other.size_), data_(new T[other.size_]) {
   std::copy(other.data_, other.data_ + other.size_, data_);
-  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(size_,
-                                                                   this)) {
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
+          size_ * sizeof(T), this)) {
     throw std::invalid_argument("Memory manager failed to sign up vector");
   }
   return;
@@ -159,7 +159,8 @@ void Vector<T>::freedom() {
   size_ = 1;
   data_ = new T[size_];
   data_[0] = static_cast<T>(0);
-  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size_, this);
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size_ * sizeof(T),
+                                                              this);
 }
 
 template <typename T>
@@ -197,7 +198,8 @@ void Vector<T>::resize(unsigned int const& newSize) {
   }
 
   delete[] data_;
-  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(newSize, this);
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
+      newSize * sizeof(T), this);
   data_ = newData;
   size_ = newSize;
   return;
@@ -214,7 +216,8 @@ void Vector<T>::load(unsigned int const& size, T* const& data) {
   data_ = newData;
   size_ = size;
 
-  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size, this);
+  memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(size * sizeof(T),
+                                                              this);
 }
 
 template <typename T>

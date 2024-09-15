@@ -76,7 +76,8 @@
     "typeindex": "cpp",
     "*.inc": "cpp",
     "bitset": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "filesystem": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
