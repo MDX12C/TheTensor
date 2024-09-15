@@ -97,7 +97,8 @@ bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
   auto it = memoryMap.find(rawPtr);
   if (it == memoryMap.end()) return false;
 
-  totalUsage += newSize - it->second.size;
+  totalUsage += newSize;
+  totalUsage -= it->second.size;
   it->second.size = newSize;
   return true;
 }
