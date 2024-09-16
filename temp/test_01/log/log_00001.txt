@@ -1,0 +1,26 @@
+code version: Sun Sep 15 10:46:05 2024
+run at: Mon Sep 16 14:47:35 2024
+--------------------------------------------------
+run by : ./virtrul_log.cc
+--------------------------------------------------
+C:a= 1203
+
+line: 230 function: main
+file: ./virtrul_log.cc
+--------------------------------------------------
+C:a= 5
+c= asdf
+
+line: 236 function: main
+file: ./virtrul_log.cc
+--------------------------------------------------
+C:hello
+
+line: 222 function: hello
+file: ./virtrul_log.cc
+--------------------------------------------------
+C:all pass
+
+line: 238 function: main
+file: ./virtrul_log.cc
+--------------------------------------------------
