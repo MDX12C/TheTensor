@@ -192,7 +192,7 @@ inline void logInit() {
 #ifdef DEBUG
   printf("make thread\n");
 #endif
-  std::thread taskThread = std::thread(LogSupport::worker, fileLocation);
+  std::thread taskThread = std::thread(LogSupport::logWorker, fileLocation);
   taskThread.detach();
   LogSupport::formatBuffer = new char[FORMAT_LENTH];
 #ifdef DEBUG
@@ -256,8 +256,7 @@ inline void logPack() {
             "%s\nline: %d function: %s\nfile: %s\n",      \ 
           log_file::LogSupport::formatBuffer,                               \
             __LINE__, __FUNCTION__, __FILE__);                              \
-    #ifdef DEBUG printf("push:\n%s", log_file::LogSupport::mainBuffer);     \
-    #endif log_file::LogSupport::queueLock.lock();                          \
+    log_file::LogSupport::queueLock.lock();                                 \
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
@@ -279,8 +278,7 @@ inline void logPack() {
   do {                                                                      \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
     sprintf(log_file::LogSupport::mainBuffer, "run by : %s\n", __FILE__);   \
-    #ifdef DEBUG printf("push:\n%s", log_file::LogSupport::mainBuffer);     \
-    #endif log_file::LogSupport::queueLock.lock();                          \
+    log_file::LogSupport::queueLock.lock();                                 \
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
