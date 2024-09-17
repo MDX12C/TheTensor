@@ -194,9 +194,9 @@ inline void logPack() {
     sprintf(log_file::LogSupport::formatBuffer, FMT, ##__VA_ARGS__);        \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
     sprintf(log_file::LogSupport::mainBuffer,                               \
-            "%s\nline: %d function: %s\nfile: %s\n",      \ 
+            "%s\n%s : %d\nfile: %s\n",      \ 
           log_file::LogSupport::formatBuffer,                               \
-            __LINE__, __FUNCTION__, __FILE__);                              \
+            __FUNCTION__, __LINE__, __FILE__);                              \
     log_file::LogSupport::queueLock.lock();                                 \
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
