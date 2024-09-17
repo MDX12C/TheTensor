@@ -32,6 +32,12 @@ class MemoryManager {
   static unsigned long long getTotalUsage();
   static unsigned int getBlockCount();
   static void displayUsage();
+  static inline void init() {
+    MemoryManager::blockCount = 0;
+    MemoryManager::totalUsage = 0;
+    MemoryManager::memoryMap.clear();
+    return;
+  }
 
  private:
   struct MemoryBlock {
@@ -129,5 +135,10 @@ bool MemoryManager::release(U* const& data) {
 }
 
 }  // namespace memory_maintainer
+
+/**
+ * init of memory.hpp
+ */
+#define MEMORY_CON  memory_maintainer::MemoryManager::init();
 
 #endif  // MEMORY_H

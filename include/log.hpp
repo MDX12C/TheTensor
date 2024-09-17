@@ -1,5 +1,5 @@
-#ifndef LOG_DIVIDE_H
-#define LOG_DIVIDE_H 1
+#ifndef LOG_H
+#define LOG_H 1
 #include <chrono>
 #include <cmath>
 #include <cstdarg>
@@ -102,7 +102,7 @@ inline void logInit() {
     carryMap.insert(std::pair(static_cast<char>(48 + i), i));
   for (int i = 0; i < CARRY - 10; i++)
     carryMap.insert(std::pair(static_cast<char>(65 + i), i + 10));
-  std::string filename = "log/log_00000.txt";
+  std::string filename = "../log/log_00000.txt";
   std::filesystem::path fileLocation =
       std::filesystem::current_path() / filename;
   int serial = 0, temp, serialTemp;
@@ -128,7 +128,7 @@ inline void logInit() {
   writer.close();
   CHECK_C(writer);
   serialTemp = serial;
-  for (int i = 12; i > 12 - FILE_DIGITS; i--) {
+  for (int i = 15; i > 15 - FILE_DIGITS; i--) {
     filename[i] = CARRY_ARRAY[serialTemp % CARRY];
     serialTemp /= CARRY;
   }
@@ -215,8 +215,9 @@ inline void logPack() {
 /**
  * the initalize of the logfile, please use it in the front of main function
  */
-#define LOG_INIT                                                            \
+#define LOG_CON                                                             \
   do {                                                                      \
+    log_file::logInit();                                                    \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
     sprintf(log_file::LogSupport::mainBuffer, "run by : %s\n", __FILE__);   \
     log_file::LogSupport::queueLock.lock();                                 \
@@ -224,4 +225,6 @@ inline void logPack() {
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
 
-#endif  // LOG_DIVIDE_H
+#define LOG_DES log_file::logPack();
+
+#endif

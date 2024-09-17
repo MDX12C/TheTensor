@@ -102,4 +102,9 @@ template <typename U>
 class Matrix;
 }  // namespace linalg
 
+/**
+ * init of basic.hpp
+ */
+#define BASIC_CON basic_math::BasicSupport::init();
+
 #endif  // BASIC_H

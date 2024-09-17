@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../include/interface.hpp"
+#include "../include/vector.hpp"
 
 void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
   std::cout << "Test: " << name << std::endl;
@@ -9,7 +9,7 @@ void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
 }
 
 int main() {
-  INITIALIZE;
+  BASIC_CON;
   memory_maintainer::MemoryManager::displayUsage();
   auto p = new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   printf("make an array of 10 int elements\n");
@@ -31,7 +31,7 @@ int main() {
   memory_maintainer::MemoryManager::displayUsage();
   std::cout << "Test: resize() for vector" << std::endl;
   a->resize(5);
-  memory_maintainer::MemoryManager::displayUsage(); 
+  memory_maintainer::MemoryManager::displayUsage();
   std::cout << *a << std::endl;
 
   std::cout << "Test: load() for vector" << std::endl;
