@@ -11,10 +11,10 @@ add_library(memory_maintainer STATIC src/memory.cc)
 add_library(logger STATIC src/log.cc)
 
 add_executable(test_basic_hpp test/test_basic_hpp.cc)
-target_link_libraries(test_basic_hpp basic_hpp)
+target_link_libraries(test_basic_hpp basic_hpp logger memory_maintainer)
 
 add_executable(test_vector test/test_vector.cc)
-target_link_libraries(test_vector basic_hpp memory_maintainer)
+target_link_libraries(test_vector basic_hpp memory_maintainer logger)
 
 add_executable(test_logger test/test_log.cc)
-target_link_libraries(test_logger logger)
+target_link_libraries(test_logger logger memory_maintainer basic_hpp)

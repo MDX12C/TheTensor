@@ -35,7 +35,7 @@ constexpr int CARRY = 16;
 constexpr int FILE_DIGITS = 5;
 constexpr int FORMAT_LENTH = 256;
 constexpr int BUFFER_LENTH = 512;
-constexpr int DOCS_WIDE = 50;
+constexpr int DOCS_WIDE = 80;
 constexpr int WAIT_TIME = 150;
 constexpr int WHOLE_NUMBER = std::pow(CARRY, FILE_DIGITS);
 
