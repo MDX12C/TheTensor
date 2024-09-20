@@ -15,6 +15,8 @@
 #include <queue>
 #include <thread>
 
+#include "define.hpp"
+
 /**
  * the system space
  */
@@ -79,9 +81,9 @@ class LogSupport {
           workSpace = nullptr;
           return;
         }
-        for (auto i = 0; i < std::strlen(workSpace); i++)
+        for (unsigned int i = 0; i < std::strlen(workSpace); i++)
           writer.put(workSpace[i]);
-        for (auto i = 0; i < DOCS_WIDE; i++) writer.put('-');
+        for (int i = 0; i < DOCS_WIDE; i++) writer.put('-');
         writer.put('\n');
         delete[] workSpace;
       }
@@ -201,6 +203,12 @@ inline void logPack() {
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
+#if _SPEED_MODE_
+#define LOG(_FORMAT, ...)                           \
+  if ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E')) { \
+    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);            \
+  }
+#else
 /**
  * @brief write the log in the logfile
  * @param _FORMAT the format string.
@@ -212,6 +220,7 @@ inline void logPack() {
  * @param FN finish: the reserved word, don't use it
  */
 #define LOG(_FORMAT, ...) __LOG_MAKER(_FORMAT, ##__VA_ARGS__)
+#endif
 /**
  * the initalize of the logfile, please use it in the front of main function
  */

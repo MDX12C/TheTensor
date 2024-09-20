@@ -2,6 +2,7 @@
 #define BASIC_H 1
 
 #include "define.hpp"
+#include "log.hpp"
 
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
@@ -35,6 +36,7 @@ class BasicSupport {
   static std::mt19937 generator;
   static void init() {
     BasicSupport::generator.seed(static_cast<unsigned long long>(time(0)));
+    LOG("C:set seed");
     return;
   }
 };
@@ -50,6 +52,7 @@ class BasicSupport {
  */
 template <typename U>
 inline unsigned int intDigits(U const &alpha) {
+  LOG("C:");
   if constexpr (std::is_same_v<U, bool>) return 1;
   if (alpha > -1 && alpha < 1) return 1;
   return static_cast<unsigned int>(std::floor(std::log10(std::abs(alpha)) + 1));
@@ -69,18 +72,26 @@ inline unsigned int intDigits(U const &alpha) {
 template <typename U>
 inline U random(U const &min, U const &max) {
   if constexpr (std::is_same_v<U, int>) {
+    LOG("C:random<int>");
     std::uniform_int_distribution<int> dist(min, max);
     return dist(BasicSupport::generator);
   } else if constexpr (std::is_same_v<U, float>) {
+    LOG("C:random<float>");
     std::uniform_real_distribution<float> dist(min, max);
     return dist(BasicSupport::generator);
   } else if constexpr (std::is_same_v<U, bool>) {
+    LOG("C:random<bool>");
     std::uniform_int_distribution<int> dist(0, 1);
     return static_cast<bool>(dist(BasicSupport::generator));
   } else {
-    static_assert(std::is_arithmetic_v<U>, "Unsupported type");
-    std::uniform_real_distribution<U> dist(min, max);
-    return dist(BasicSupport::generator);
+    LOG("C:random<U>");
+    if (std::is_arithmetic_v<U>) {
+      std::uniform_real_distribution<U> dist(min, max);
+      return dist(BasicSupport::generator);
+    } else {
+      LOG("B:unarithmetic type");
+      return static_cast<U>(0);
+    }
   }
 }
 }  // namespace basic_math

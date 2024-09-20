@@ -12,7 +12,6 @@ Makefile
 *.lib
 *.so
 *.dylib
-dist
 
 # Ignore object files
 *.o
@@ -26,6 +25,8 @@ dist
 *.log
 *.swp
 *.swo
+dist
+log
 
 # Ignore dependency files
 *.d

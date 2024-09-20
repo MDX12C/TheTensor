@@ -6,6 +6,30 @@
 #include "memory.hpp"
 #include "vector.hpp"
 
+#ifndef _SPEED_MODE_
+#define _SPEED_MODE_ 0
+#endif
+#ifndef _AVX2_WILL_BE_USED_ON_
+#define _AVX2_WILL_BE_USED_ON_ 0
+#endif
+#ifndef _SIMD_MODE_
+#define _SIMD_MODE_ 0
+#endif
+#ifndef BASIC_H
+#define BASIC_H 0
+#endif
+#ifndef LOG_H
+#define LOG_H 0
+#endif
+#ifndef MEMORY_H
+#define MEMORY_H 0
+#endif
+#ifndef VECTOR_H
+#define VECTOR_H 0
+#endif
+#ifndef DEFINE_H
+#define DEFINE_H 0
+#endif
 #ifndef BASIC_CON
 #define BASIC_CON
 #endif
@@ -34,18 +58,21 @@
 /**
  * @brief initialize all the constants
  */
-#define CONSTRUCT           \
-  if constexpr (LOG_H) {    \
-    LOG_CON;                \
-  }                         \
-  if constexpr (BASIC_H) {  \
-    BASIC_CON;              \
-  }                         \
-  if constexpr (MEMORY_H) { \
-    MEMORY_CON;             \
-  }                         \
-  if constexpr (VECTOR_H) { \
-    VECTOR_CON;             \
+#define CONSTRUCT                 \
+  if constexpr (LOG_H) {          \
+    LOG_CON;                      \
+    if constexpr (_SPEED_MODE_) { \
+      LOG("SPEED MODE\n");        \
+    }                             \
+  }                               \
+  if constexpr (BASIC_H) {        \
+    BASIC_CON;                    \
+  }                               \
+  if constexpr (MEMORY_H) {       \
+    MEMORY_CON;                   \
+  }                               \
+  if constexpr (VECTOR_H) {       \
+    VECTOR_CON;                   \
   }
 
 /**
@@ -64,5 +91,11 @@
   if constexpr (BASIC_H) {  \
     BASIC_DES;              \
   }
+
+inline void finishOfMainFunction() {
+  LOG("B:!!Urgent Exit!!");
+  DESTRUCT;
+  return;
+}
 
 #endif

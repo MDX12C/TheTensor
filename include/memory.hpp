@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "log.hpp"
+
 namespace memory_maintainer {
 enum class MemoryType {
   VectorInt,
@@ -69,6 +71,7 @@ namespace memory_maintainer {
  */
 template <typename U>
 bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
+  LOG("C:");
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;
@@ -95,6 +98,7 @@ bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
  */
 template <typename U>
 bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
+  LOG("C:");
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;
@@ -120,6 +124,7 @@ bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
  */
 template <typename U>
 bool MemoryManager::release(U* const& data) {
+  LOG("C:");
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;
@@ -139,6 +144,6 @@ bool MemoryManager::release(U* const& data) {
 /**
  * init of memory.hpp
  */
-#define MEMORY_CON  memory_maintainer::MemoryManager::init();
+#define MEMORY_CON memory_maintainer::MemoryManager::init();
 
 #endif  // MEMORY_H

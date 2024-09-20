@@ -1,15 +1,10 @@
 #include <iostream>
 #include <memory>
 
-#include "../include/vector.hpp"
-
-void tester(std::string name, std::shared_ptr<linalg::Vector<int>> a) {
-  std::cout << "Test: " << name << std::endl;
-  std::cout << *a << std::endl;
-}
+#include "../include/interface.hpp"
 
 int main() {
-  BASIC_CON;
+  CONSTRUCT;
   memory_maintainer::MemoryManager::displayUsage();
   auto p = new int[10]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   printf("make an array of 10 int elements\n");
@@ -26,7 +21,8 @@ int main() {
   std::cout << a->sum() << std::endl;
 
   std::cout << "Test: operator[] for vector" << std::endl;
-  for (auto i = 0; i < a->size(); i++) std::cout << (*a)[i] << std::endl;
+  for (unsigned int i = 0; i < a->size(); i++)
+    std::cout << (*a)[i] << std::endl;
 
   memory_maintainer::MemoryManager::displayUsage();
   std::cout << "Test: resize() for vector" << std::endl;
@@ -35,12 +31,22 @@ int main() {
   std::cout << *a << std::endl;
 
   std::cout << "Test: load() for vector" << std::endl;
-  p = new int[3]{1, 2, 3};
+  p = new int[3]{3, 2, 1};
   a->load(3, p);
   delete[] p;
   std::cout << *a << std::endl;
   memory_maintainer::MemoryManager::displayUsage();
+  b->resize(3);
+  memory_maintainer::MemoryManager::displayUsage();
+  std::cout << ((*a) >= (*b)) << std::endl;
+  (*a) -= (*b);
+  std::cout << (*a) << "\nabs:\n" << basic_math::absolute(*a) << "random\n";
+  *b = basic_math::random(b->size(), -10, 10);
+  std::cout << *b << "base on loop:\n";
+  for (auto& alpha : (*b)) std::cout << alpha << ' ';
+  std::cout << '\n';
   delete a;
   delete b;
+  DESTRUCT;
   return 0;
 }
