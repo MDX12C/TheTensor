@@ -71,7 +71,7 @@ namespace memory_maintainer {
  */
 template <typename U>
 bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
-  LOG("C:");
+  LOG("C:signUp for %p\nsize: %d", static_cast<void*>(data), size);
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;
@@ -98,7 +98,7 @@ bool MemoryManager::signUp(unsigned int const& size, U* const& data) {
  */
 template <typename U>
 bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
-  LOG("C:");
+  LOG("C:modify for %p\nsize: %d", static_cast<void*>(data), newSize);
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;
@@ -124,7 +124,7 @@ bool MemoryManager::modify(unsigned int const& newSize, U* const& data) {
  */
 template <typename U>
 bool MemoryManager::release(U* const& data) {
-  LOG("C:");
+  LOG("C:release for %p", static_cast<void*>(data));
   std::lock_guard<std::mutex> lock(mtx);
 
   if (data == nullptr) return false;

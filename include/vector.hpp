@@ -14,6 +14,8 @@ template <typename T>
 linalg::Vector<T> random(unsigned int const&, T const&, T const&);
 template <typename T>
 linalg::Vector<T> absolute(linalg::Vector<T> const&);
+template <typename T, typename U>
+linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -32,6 +34,9 @@ class Vector {
 
   template <typename U>
   friend Vector<U> basic_math::absolute(Vector<U> const&);
+
+  template <typename U, typename V>
+  friend Vector<U> basic_math::pow(Vector<U> const&, V const&);
 
   template <typename U>
   friend class Vector;
@@ -55,6 +60,15 @@ class Vector {
 
   // Operator overloads
   T& operator[](unsigned int const& index) const;
+  template <typename U>
+  operator Vector<U>() {
+    LOG("C:cast operator");
+    if constexpr (std::is_same_v<U, T>) return *this;
+    Vector<U> result(size_);
+    for (unsigned int i = 0; i < size_; i++)
+      result.data_[i] = static_cast<U>(data_[i]);
+    return result;
+  }
   Vector& operator=(const Vector& other);
   Vector& operator+=(const Vector& other);
   Vector& operator-=(const Vector& other);
@@ -117,6 +131,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 
 template <typename T>
 Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
+  LOG("C:init constructor ptr=%p,size=%d", static_cast<void*>(data), size);
   if (size == 0) {
     size_ = 1;
     LOG("E:the illegal size: %d has fixed to 1", size);
@@ -130,13 +145,14 @@ Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
   }
   if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
           size_ * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail signUp of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail signUp of %p", static_cast<void*>(this));
   }
   return;
 }
 
 template <typename T>
 Vector<T>::Vector(unsigned int const& size) : size_(size) {
+  LOG("C:size constrcutor size=%d", size);
   if (size == 0) {
     size_ = 1;
     LOG("E:the illegal size: %d has fixed to 1", size);
@@ -145,17 +161,18 @@ Vector<T>::Vector(unsigned int const& size) : size_(size) {
   for (unsigned int i = 0; i < size_; i++) data_[i] = static_cast<T>(0);
   if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
           size_ * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail signUp of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail signUp of %p", static_cast<void*>(this));
   }
   return;
 }
 
 template <typename T>
 Vector<T>::Vector() : size_(1), data_(new T[1]) {
+  LOG("C:default constructor");
   data_[0] = static_cast<T>(0);
   if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
           size_ * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail signUp of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail signUp of %p", static_cast<void*>(this));
   }
   return;
 }
@@ -163,31 +180,34 @@ Vector<T>::Vector() : size_(1), data_(new T[1]) {
 template <typename T>
 Vector<T>::Vector(const Vector& other)
     : size_(other.size_), data_(new T[other.size_]) {
+  LOG("C:copy constructor");
   std::copy(other.data_, other.data_ + other.size_, data_);
   if (!memory_maintainer::MemoryManager::signUp<linalg::Vector<T>>(
           size_ * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail signUp of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail signUp of %p", static_cast<void*>(this));
   }
   return;
 }
 
 template <typename T>
 Vector<T>::~Vector() {
+  LOG("C:destructor");
   if (!memory_maintainer::MemoryManager::release<linalg::Vector<T>>(this)) {
-    LOG("B:Memory_Manager return fail release of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail release of %p", static_cast<void*>(this));
   }
   delete[] data_;
 }
 
 template <typename T>
 void Vector<T>::freedom() {
+  LOG("C:freedom");
   delete[] data_;
   size_ = 1;
   data_ = new T[size_];
   data_[0] = static_cast<T>(0);
   if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
           size_ * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail modify of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
   }
   return;
 }
@@ -203,6 +223,7 @@ T& Vector<T>::operator[](unsigned int const& i) const {
 
 template <typename T>
 T Vector<T>::sum() const {
+  LOG("C:sum");
   if (std::is_same_v<T, bool>) {
     T sum = 0;
     for (unsigned int i = 0; i < size_; i++) sum += data_[i] ? 1 : -1;
@@ -216,6 +237,7 @@ T Vector<T>::sum() const {
 
 template <typename T>
 void Vector<T>::resize(unsigned int const& newSize) {
+  LOG("C:resize newSize=%d", newSize);
   if (newSize == size_) return;
   if (newSize == 0) {
     LOG("B:the illegal size: %d", newSize);
@@ -236,7 +258,7 @@ void Vector<T>::resize(unsigned int const& newSize) {
   delete[] data_;
   if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
           newSize * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail modify of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
   }
   data_ = newData;
   size_ = newSize;
@@ -245,6 +267,7 @@ void Vector<T>::resize(unsigned int const& newSize) {
 
 template <typename T>
 void Vector<T>::load(unsigned int const& size, T* const& data) {
+  LOG("C:load size=%d data=%p", size, static_cast<void*>(data));
   if (data == nullptr) {
     LOG("B:reading for null pointer");
     return;
@@ -262,7 +285,7 @@ void Vector<T>::load(unsigned int const& size, T* const& data) {
 
   if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
           size * sizeof(T), this)) {
-    LOG("B:Memory_Manager return fail modify of %p", static_cast<void*>(this));
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
   }
 }
 
@@ -585,6 +608,16 @@ linalg::Vector<T> absolute(linalg::Vector<T> const& param) {
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < result.size_; i++)
     if (result.data_[i] < 0) result.data_[i] *= static_cast<T>(-1);
+  return result;
+}
+
+template <typename T, typename U>
+linalg::Vector<T> pow(linalg::Vector<T> const& param, U const& value) {
+  LOG("pow vector");
+  linalg::Vector<T> result(param);
+  if constexpr (std::is_same_v<bool, T>) return result;
+  for (unsigned int i = 0; i < result.size_; i++)
+    result.data_[i] = std::pow(result.data_[i], value);
   return result;
 }
 }  // namespace basic_math

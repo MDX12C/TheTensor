@@ -138,11 +138,8 @@ inline void logInit() {
   writer.open(fileLocation, std::ios::binary);
   CHECK_O(writer);
   LogSupport::mainBuffer = new char[BUFFER_LENTH];
-  sprintf(LogSupport::mainBuffer, "code version: %s\nrun at: %s", __TIMESTAMP__,
-          std::ctime(&timer));
+  sprintf(LogSupport::mainBuffer, "run at: %s", std::ctime(&timer));
   writer.write(LogSupport::mainBuffer, std::strlen(LogSupport::mainBuffer));
-  for (auto i = 0; i < DOCS_WIDE; i++) writer.put('-');
-  writer.put('\n');
   writer.close();
   CHECK_C(writer);
   LogSupport::mainBuffer = nullptr;
@@ -228,7 +225,8 @@ inline void logPack() {
   do {                                                                      \
     log_file::logInit();                                                    \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
-    sprintf(log_file::LogSupport::mainBuffer, "run by : %s\n", __FILE__);   \
+    sprintf(log_file::LogSupport::mainBuffer,                               \
+            "code version : %s\nrun by : %s\n", __TIMESTAMP__, __FILE__);   \
     log_file::LogSupport::queueLock.lock();                                 \
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
