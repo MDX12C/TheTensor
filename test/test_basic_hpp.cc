@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include "basic.hpp"
+#include "../include/basic.hpp"
 
-int main() {
+signed main() {
+  BASIC_CON;
   int c;
   c = basic_math::random<int>(0, 100);
   std::cout << c << std::endl;
