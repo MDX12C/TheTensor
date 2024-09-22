@@ -89,7 +89,7 @@ inline U random(U const &min, U const &max) {
       std::uniform_real_distribution<U> dist(min, max);
       return dist(BasicSupport::generator);
     } else {
-      LOG("B:unarithmetic type");
+      LOG("E:arithmetic unsupported type will be set to 0");
       return static_cast<U>(0);
     }
   }

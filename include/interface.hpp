@@ -3,6 +3,7 @@
 #include "basic.hpp"
 #include "define.hpp"
 #include "log.hpp"
+// #include "matrix.hpp"
 #include "memory.hpp"
 #include "vector.hpp"
 
@@ -30,6 +31,9 @@
 #ifndef DEFINE_H
 #define DEFINE_H 0
 #endif
+#ifndef MATRIX_H
+#define MATRIX_H 0
+#endif
 #ifndef BASIC_CON
 #define BASIC_CON
 #endif
@@ -54,6 +58,12 @@
 #ifndef LOG_DES
 #define LOG_DES
 #endif
+#ifndef MATRIX_CON
+#define MATRIX_CON
+#endif
+#ifndef MATRIX_DES
+#define MATRIX_DES
+#endif
 
 /**
  * @brief initialize all the constants
@@ -73,6 +83,9 @@
   }                               \
   if constexpr (VECTOR_H) {       \
     VECTOR_CON;                   \
+  }                               \
+  if constexpr (MATRIX_H) {       \
+    MATRIX_CON;                   \
   }
 
 /**
@@ -90,12 +103,15 @@
   }                         \
   if constexpr (BASIC_H) {  \
     BASIC_DES;              \
+  }                         \
+  if constexpr (MATRIX_H) { \
+    MATRIX_DES;             \
   }
 
 inline void finishOfMainFunction() {
   LOG("B:!!Urgent Exit!!");
   DESTRUCT;
-  return;
+  exit(1);
 }
 
 #endif

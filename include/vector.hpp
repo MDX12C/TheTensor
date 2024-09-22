@@ -309,7 +309,7 @@ Vector<T>& Vector<T>::operator=(T const& value) {
 template <typename T>
 Vector<T> Vector<T>::operator+(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   Vector<T> result(size_);
@@ -329,7 +329,7 @@ Vector<T> Vector<T>::operator+(T const& value) const {
 template <typename T>
 Vector<T> Vector<T>::operator-(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   Vector<T> result(size_);
@@ -349,7 +349,7 @@ Vector<T> Vector<T>::operator-(T const& value) const {
 template <typename T>
 Vector<T> Vector<T>::operator*(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   Vector<T> result(size_);
@@ -369,7 +369,7 @@ Vector<T> Vector<T>::operator*(T const& value) const {
 template <typename T>
 Vector<T> Vector<T>::operator/(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   Vector<T> result(size_);
@@ -389,7 +389,7 @@ Vector<T> Vector<T>::operator/(T const& value) const {
 template <typename T>
 Vector<bool> Vector<T>::operator==(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
@@ -411,7 +411,7 @@ Vector<bool> Vector<T>::operator==(T const& value) const {
 template <typename T>
 Vector<bool> Vector<T>::operator!=(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
@@ -433,7 +433,7 @@ Vector<bool> Vector<T>::operator!=(T const& value) const {
 template <typename T>
 Vector<T>& Vector<T>::operator+=(const Vector<T>& other) {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   for (unsigned int i = 0; i < size_; i++)
@@ -450,7 +450,7 @@ Vector<T>& Vector<T>::operator+=(T const& value) {
 template <typename T>
 Vector<T>& Vector<T>::operator-=(const Vector<T>& other) {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   for (unsigned int i = 0; i < size_; i++)
@@ -467,7 +467,7 @@ Vector<T>& Vector<T>::operator-=(T const& value) {
 template <typename T>
 Vector<T>& Vector<T>::operator*=(const Vector<T>& other) {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   for (unsigned int i = 0; i < size_; i++)
@@ -484,7 +484,7 @@ Vector<T>& Vector<T>::operator*=(T const& value) {
 template <typename T>
 Vector<T>& Vector<T>::operator/=(const Vector<T>& other) {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     return *this;
   }
   for (unsigned int i = 0; i < size_; i++)
@@ -508,7 +508,7 @@ Vector<T> Vector<T>::operator-() const {
 template <typename T>
 Vector<bool> Vector<T>::operator<(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
@@ -522,7 +522,7 @@ Vector<bool> Vector<T>::operator<(const Vector<T>& other) const {
 template <typename T>
 Vector<bool> Vector<T>::operator>(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
@@ -536,7 +536,7 @@ Vector<bool> Vector<T>::operator>(const Vector<T>& other) const {
 template <typename T>
 Vector<bool> Vector<T>::operator<=(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
@@ -550,7 +550,7 @@ Vector<bool> Vector<T>::operator<=(const Vector<T>& other) const {
 template <typename T>
 Vector<bool> Vector<T>::operator>=(const Vector<T>& other) const {
   if (size_ != other.size_) {
-    LOG("B:operate vectors in differ size (%d,%d)", this->size_, other.size_);
+    LOG("E:operate vectors in differ size (%d,%d)", this->size_, other.size_);
     Vector<bool> temp(this->size_);
     temp = false;
     return temp;
