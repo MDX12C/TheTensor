@@ -2,10 +2,10 @@
 #define DEFINE_H 1
 
 /*constants*/
-#define _DEBUG_MODE_ 1
-// #define _SIMD_MODE_    1         // open SIMD mode
-// #define _AVX2_WILL_BE_USED_ON_   1// open AVX2
-// #define _SPEED_MODE_ 1
+// #define _DEBUG_MODE_ 1
+//  #define _SIMD_MODE_    1         // open SIMD mode
+//  #define _AVX2_WILL_BE_USED_ON_   1// open AVX2
+//  #define _SPEED_MODE_ 1
 /*end of constants*/
 
 #define LIMIT
@@ -51,5 +51,5 @@
 #include <avxvnniintrin.h>
 #endif  // AVX2_ON
 
-extern inline void finishOfMainFunction();
+extern inline void endOfMainFunction();
 #endif  // DEFINE_H

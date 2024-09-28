@@ -3,7 +3,7 @@
 #include "basic.hpp"
 #include "define.hpp"
 #include "log.hpp"
-// #include "matrix.hpp"
+#include "matrix.hpp"
 #include "memory.hpp"
 #include "vector.hpp"
 
@@ -108,8 +108,9 @@
     MATRIX_DES;             \
   }
 
-inline void finishOfMainFunction() {
+inline void endOfMainFunction() {
   LOG("B:!!Urgent Exit!!");
+  printf("!!Urgent Exit!!\n");
   DESTRUCT;
   exit(1);
 }

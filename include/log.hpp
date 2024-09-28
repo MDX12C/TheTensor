@@ -200,7 +200,32 @@ inline void logPack() {
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
-#if _SPEED_MODE_
+#if _DEBUG_MODE_
+/**
+ * @brief write the log in the logfile
+ * @param _FORMAT the format string.
+ * The first character of the string is limited!!
+ * @param C check: check for value or memory, also used as check work process
+ * @param E error: happened error, but had solved
+ * @param B bug: happened the unexpect bug and can't solve it
+ * @param AP all pass: the reserved word, don't use it
+ * @param FN finish: the reserved word, don't use it
+ */
+#define LOG(_FORMAT, ...)              \
+  __LOG_MAKER(_FORMAT, ##__VA_ARGS__); \
+  printf(_FORMAT, ##__VA_ARGS__);      \
+  printf("\n");
+#elif _SPEED_MODE_
+/**
+ * @brief write the log in the logfile
+ * @param _FORMAT the format string.
+ * The first character of the string is limited!!
+ * @param C check: check for value or memory, also used as check work process
+ * @param E error: happened error, but had solved
+ * @param B bug: happened the unexpect bug and can't solve it
+ * @param AP all pass: the reserved word, don't use it
+ * @param FN finish: the reserved word, don't use it
+ */
 #define LOG(_FORMAT, ...)                           \
   if ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E')) { \
     __LOG_MAKER(_FORMAT, ##__VA_ARGS__);            \
