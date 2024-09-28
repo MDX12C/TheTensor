@@ -1,6 +1,9 @@
+#ifndef MEMORY_CC
+#define MEMORY_CC 1
 #include "memory.hpp"
 
 #include "basic.hpp"
+#include "matrix.hpp"
 #include "vector.hpp"
 
 namespace memory_maintainer {
@@ -62,10 +65,10 @@ MemoryType MemoryManager::getMemoryType(std::type_index typeIdx) {
   if (typeIdx == typeid(linalg::Vector<int>)) return MemoryType::VectorInt;
   if (typeIdx == typeid(linalg::Vector<bool>)) return MemoryType::VectorBool;
   if (typeIdx == typeid(linalg::Vector<float>)) return MemoryType::VectorFloat;
-  // if (typeIdx == typeid(linalg::Matrix<int>)) return MemoryType::MatrixInt;
-  // if (typeIdx == typeid(linalg::Matrix<bool>)) return MemoryType::MatrixBool;
-  // if (typeIdx == typeid(linalg::Matrix<float>)) return
-  // MemoryType::MatrixFloat;
+  if (typeIdx == typeid(linalg::Matrix<int>)) return MemoryType::MatrixInt;
+  if (typeIdx == typeid(linalg::Matrix<bool>)) return MemoryType::MatrixBool;
+  if (typeIdx == typeid(linalg::Matrix<float>)) return MemoryType::MatrixFloat;
   throw std::invalid_argument("Unsupported type");
 }
 }  // namespace memory_maintainer
+#endif

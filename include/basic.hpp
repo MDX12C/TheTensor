@@ -97,20 +97,12 @@ inline U random(U const &min, U const &max) {
 }  // namespace basic_math
 
 namespace linalg {
-typedef struct MatrixShape {
-  unsigned int rows;
-  unsigned int cols;
-} MaShape;
-
-bool operator==(MaShape const &, MaShape const &);
-bool operator<(MaShape const &, MaShape const &);
-bool operator<=(MaShape const &, MaShape const &);
-std::ostream &operator<<(std::ostream &, MaShape const &);
 
 template <typename U>
 class Vector;
 template <typename U>
 class Matrix;
+
 }  // namespace linalg
 
 /**

@@ -23,89 +23,88 @@ namespace linalg {
 template <typename T>
 class Vector {
  private:
-  T* data_;            // pointer to the data
-  unsigned int size_;  // size of the vector
+  T* data_;
+  unsigned int size_;
 
+  // friends
   template <typename U>
   friend std::ostream& operator<<(std::ostream&, Vector<U> const&);
-
   template <typename U>
   friend Vector<U> basic_math::random(unsigned int const&, U const&, U const&);
-
   template <typename U>
   friend Vector<U> basic_math::absolute(Vector<U> const&);
-
   template <typename U, typename V>
   friend Vector<U> basic_math::pow(Vector<U> const&, V const&);
-
   template <typename U>
   friend class Vector;
+  template <typename U>
+  friend class Matrix;
 
  public:
   // Constructors
-  Vector(unsigned int const& size, T* const& data);
-  Vector(unsigned int const& size);
+  Vector(unsigned int const&, T* const&);
+  Vector(unsigned int const&);
   Vector();
-  Vector(const Vector& other);
+  Vector(const Vector&);
   ~Vector();
 
   // Member functions
-  inline unsigned int size() const { return this->size_; }
+  inline unsigned int const& size() const { return size_; }
   T sum() const;
   void freedom();
-  void resize(unsigned int const& newSize);
-  void load(unsigned int const& size, T* const& data);
+  void resize(unsigned int const&);
+  void load(unsigned int const&, T* const&);
   inline T* begin() { return data_; }
   inline T* end() { return data_ + size_; }
 
   // Operator overloads
-  T& operator[](unsigned int const& index) const;
+  T& operator[](unsigned int const&) const;
   template <typename U>
   operator Vector<U>() {
-    LOG("C:cast operator");
+    LOG("C:cast operator in Vector");
     if constexpr (std::is_same_v<U, T>) return *this;
     Vector<U> result(size_);
     for (unsigned int i = 0; i < size_; i++)
       result.data_[i] = static_cast<U>(data_[i]);
     return result;
   }
-  Vector& operator=(const Vector& other);
-  Vector& operator+=(const Vector& other);
-  Vector& operator-=(const Vector& other);
-  Vector& operator*=(const Vector& other);
-  Vector& operator/=(const Vector& other);
+  Vector& operator=(const Vector&);
+  Vector& operator+=(const Vector&);
+  Vector& operator-=(const Vector&);
+  Vector& operator*=(const Vector&);
+  Vector& operator/=(const Vector&);
 
-  Vector operator+(const Vector& other) const;
-  Vector operator-(const Vector& other) const;
-  Vector operator*(const Vector& other) const;
-  Vector operator/(const Vector& other) const;
+  Vector operator+(const Vector&) const;
+  Vector operator-(const Vector&) const;
+  Vector operator*(const Vector&) const;
+  Vector operator/(const Vector&) const;
 
-  Vector<bool> operator==(const Vector& other) const;
-  Vector<bool> operator!=(const Vector& other) const;
-  Vector<bool> operator<(const Vector& other) const;
-  Vector<bool> operator<=(const Vector& other) const;
-  Vector<bool> operator>(const Vector& other) const;
-  Vector<bool> operator>=(const Vector& other) const;
+  Vector<bool> operator==(const Vector&) const;
+  Vector<bool> operator!=(const Vector&) const;
+  Vector<bool> operator<(const Vector&) const;
+  Vector<bool> operator<=(const Vector&) const;
+  Vector<bool> operator>(const Vector&) const;
+  Vector<bool> operator>=(const Vector&) const;
 
-  Vector& operator=(T const& value);
-  Vector& operator+=(T const& value);
-  Vector& operator-=(T const& value);
-  Vector& operator*=(T const& value);
-  Vector& operator/=(T const& value);
+  Vector& operator=(T const&);
+  Vector& operator+=(T const&);
+  Vector& operator-=(T const&);
+  Vector& operator*=(T const&);
+  Vector& operator/=(T const&);
 
-  Vector operator+(T const& value) const;
-  Vector operator-(T const& value) const;
-  Vector operator*(T const& value) const;
-  Vector operator/(T const& value) const;
+  Vector operator+(T const&) const;
+  Vector operator-(T const&) const;
+  Vector operator*(T const&) const;
+  Vector operator/(T const&) const;
 
   Vector operator-() const;
 
-  Vector<bool> operator==(T const& value) const;
-  Vector<bool> operator!=(T const& value) const;
-  Vector<bool> operator<(T const& value) const;
-  Vector<bool> operator<=(T const& value) const;
-  Vector<bool> operator>(T const& value) const;
-  Vector<bool> operator>=(T const& value) const;
+  Vector<bool> operator==(T const&) const;
+  Vector<bool> operator!=(T const&) const;
+  Vector<bool> operator<(T const&) const;
+  Vector<bool> operator<=(T const&) const;
+  Vector<bool> operator>(T const&) const;
+  Vector<bool> operator>=(T const&) const;
 };
 
 template <typename Data>
@@ -130,11 +129,12 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
 }
 
 template <typename T>
-Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
-  LOG("C:init constructor ptr=%p,size=%d", static_cast<void*>(data), size);
-  if (size == 0) {
+Vector<T>::Vector(unsigned int const& vecSize, T* const& data)
+    : size_(vecSize) {
+  LOG("C:init constructor ptr=%p,size=%d", static_cast<void*>(data), vecSize);
+  if (vecSize == 0) {
     size_ = 1;
-    LOG("E:the illegal size: %d has fixed to 1", size);
+    LOG("E:the illegal size: %d has fixed to 1", vecSize);
   }
   this->data_ = new T[size_];
   if (data == nullptr) {
@@ -151,11 +151,11 @@ Vector<T>::Vector(unsigned int const& size, T* const& data) : size_(size) {
 }
 
 template <typename T>
-Vector<T>::Vector(unsigned int const& size) : size_(size) {
-  LOG("C:size constrcutor size=%d", size);
-  if (size == 0) {
+Vector<T>::Vector(unsigned int const& vecSize) : size_(vecSize) {
+  LOG("C:size constrcutor size=%d", vecSize);
+  if (vecSize == 0) {
     size_ = 1;
-    LOG("E:the illegal size: %d has fixed to 1", size);
+    LOG("E:the illegal size: %d has fixed to 1", vecSize);
   }
   this->data_ = new T[size_];
   for (unsigned int i = 0; i < size_; i++) data_[i] = static_cast<T>(0);
@@ -227,11 +227,11 @@ T Vector<T>::sum() const {
   if (std::is_same_v<T, bool>) {
     T sum = 0;
     for (unsigned int i = 0; i < size_; i++) sum += data_[i] ? 1 : -1;
-    return static_cast<bool>(sum);
+    return sum > 0 ? true : false;
   }
 
   T sum = 0;
-  for (unsigned int i = 0; i < size(); i++) sum += data_[i];
+  for (unsigned int i = 0; i < size_; i++) sum += data_[i];
   return sum;
 }
 
@@ -266,27 +266,29 @@ void Vector<T>::resize(unsigned int const& newSize) {
 }
 
 template <typename T>
-void Vector<T>::load(unsigned int const& size, T* const& data) {
-  LOG("C:load size=%d data=%p", size, static_cast<void*>(data));
+void Vector<T>::load(unsigned int const& vecSize, T* const& data) {
+  LOG("C:load size=%d data=%p", vecSize, static_cast<void*>(data));
   if (data == nullptr) {
     LOG("B:reading for null pointer");
     return;
   }
-  if (size == 0) {
-    LOG("B:the illegal size: %d", size);
+  if (vecSize == 0) {
+    LOG("B:the illegal size: %d", vecSize);
     return;
   }
-  T* newData = new T[size];
-  std::copy(data, data + size, newData);
+  T* newData = new T[vecSize];
+  std::copy(data, data + vecSize, newData);
 
   delete[] data_;
   data_ = newData;
-  size_ = size;
+  size_ = vecSize;
 
   if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
-          size * sizeof(T), this)) {
+          size_ * sizeof(T), this)) {
     LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
   }
+
+  return;
 }
 
 template <typename T>
@@ -594,7 +596,7 @@ Vector<bool> Vector<T>::operator>=(T const& value) const {
 namespace basic_math {
 template <typename T>
 linalg::Vector<T> random(unsigned int const& size, T const& min, T const& max) {
-  LOG("random vector");
+  LOG("C:random vector");
   linalg::Vector<T> result(size);
   for (unsigned int i = 0; i < size; i++)
     result.data_[i] = basic_math::random(min, max);
@@ -603,7 +605,7 @@ linalg::Vector<T> random(unsigned int const& size, T const& min, T const& max) {
 
 template <typename T>
 linalg::Vector<T> absolute(linalg::Vector<T> const& param) {
-  LOG("absolute vector");
+  LOG("C:absolute vector");
   linalg::Vector<T> result(param);
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < result.size_; i++)
@@ -613,7 +615,7 @@ linalg::Vector<T> absolute(linalg::Vector<T> const& param) {
 
 template <typename T, typename U>
 linalg::Vector<T> pow(linalg::Vector<T> const& param, U const& value) {
-  LOG("pow vector");
+  LOG("C:pow vector");
   linalg::Vector<T> result(param);
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < result.size_; i++)
