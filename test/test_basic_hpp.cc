@@ -6,10 +6,10 @@
 
 signed main() {
   CONSTRUCT;
-  auto c = basic_math::random<int>(0, 100);
+  int c = basic_math::random(0, 100);
   show(c);
   std::cout << basic_math::intDigits(-123.8) << std::endl;
-  auto f = basic_math::random<float>(0, 100);
+  float f = basic_math::random(0.0F, 100.0F);
   show(f);
   DESTRUCT;
   return 0;

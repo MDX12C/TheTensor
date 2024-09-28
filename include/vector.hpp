@@ -118,11 +118,29 @@ namespace linalg {
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
   LOG("C:print vector of %d elements", vec.size_);
-  os << "(" << vec.size_ << ")";
-  os << "[";
+  unsigned int digits = 0;
+  os << std::noshowpos << '(' << vec.size_ << ')';
+  if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+    for (unsigned int i = 0; i < vec.size_; i++) {
+      digits = std::max(digits, basic_math::intDigits(vec.data_[i]));
+    }
+    digits += 2;
+    digits += basic_math::ACCURACY;
+    os << std::setprecision(basic_math::ACCURACY) << std::fixed << std::showpos
+       << std::internal << std::setfill(' ') << std::showpoint << '[';
+  } else if constexpr (std::is_same_v<T, bool>) {
+    digits = 1;
+    os << '[';
+  } else {
+    for (unsigned int i = 0; i < vec.size_; i++) {
+      digits = std::max(digits, basic_math::intDigits(vec.data_[i]));
+    }
+    digits += 1;
+    os << std::showpos << std::internal << std::setfill(' ') << '[';
+  }
   for (unsigned int i = 0; i < vec.size_; i++) {
-    os << vec.data_[i];
-    if (i != vec.size_ - 1) os << ", ";
+    os << std::setw(digits) << vec.data_[i];
+    if (i != vec.size_ - 1) os << ",";
   }
   os << "]\n";
   return os;

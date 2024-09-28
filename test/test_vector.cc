@@ -49,8 +49,7 @@ int main() {
   std::cout << *b << "divide 10:\n" << linalg::Vector<float>(*b) / 10;
   delete a;
   delete b;
-  auto d =
-      basic_math::random(10, static_cast<float>(-10), static_cast<float>(10));
+  auto d = basic_math::random(10, -15.0F, 15.0F);
   std::cout << d << std::endl;
   DESTRUCT;
   return 0;

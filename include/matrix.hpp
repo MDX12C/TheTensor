@@ -19,32 +19,6 @@ linalg::Matrix<T> dot(linalg::Matrix<T> const&, linalg::Matrix<T> const&);
 
 namespace linalg {
 
-typedef struct MatrixShape {
-  unsigned int rows;
-  unsigned int cols;
-} MaShape;
-
-bool operator==(MaShape const& alpha, MaShape const& beta) {
-  return (alpha.rows == beta.rows) && (alpha.cols == beta.cols);
-}
-bool operator<(MaShape const& alpha, MaShape const& beta) {
-  return (alpha.rows < beta.rows) && (alpha.cols < beta.cols);
-}
-bool operator<=(MaShape const& alpha, MaShape const& beta) {
-  return (alpha.rows <= beta.rows) && (alpha.cols <= beta.cols);
-}
-bool operator!=(MaShape const& alpha, MaShape const& beta) {
-  return (alpha.rows != beta.rows) || (alpha.cols != beta.cols);
-}
-std::ostream& operator<<(std::ostream&, MaShape const&);
-inline __attribute__((__always_inline__)) unsigned int msSize(
-    MaShape const& ms) {
-  return ms.rows * ms.cols;
-}
-inline __attribute__((__always_inline__)) bool msLegal(MaShape const& ms) {
-  return ms.rows > 0 && ms.cols > 0;
-}
-
 template <typename T>
 class Matrix {
  private:
@@ -72,6 +46,7 @@ class Matrix {
   // Constructors
   Matrix(unsigned int const&, unsigned int const&, T* const&);
   Matrix(unsigned int const&, unsigned int const&);
+  Matrix(MaShape const&);
   Matrix();
   Matrix(const Matrix&);
   ~Matrix();
@@ -83,6 +58,7 @@ class Matrix {
   void freedom();
   void reshape(unsigned int const&, unsigned int const&);
   void load(unsigned int const&, unsigned int const&, T* const&);
+  Matrix transpose() const;
   inline T* begin() { return data_; }
   inline T* end() { return data_ + msSize(shape_); }
 
@@ -143,22 +119,35 @@ std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
 
 namespace linalg {
 
-std::ostream& operator<<(std::ostream& os, const MaShape& ms) {
-  LOG("C:matrix shape [%d,%d]", ms.rows, ms.cols);
-  os << '(' << ms.rows << ',' << ms.cols << ')';
-  return os;
-}
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& mat) {
   LOG("C:print matrix");
-  os << mat.shape_ << "[\n";
+  unsigned int digits = 0;
+  os << mat.shape_;
+  if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
+    for (unsigned int i = 0; i < msSize(mat.shape_); i++) {
+      digits = std::max(digits, basic_math::intDigits(mat.data_[i]));
+    }
+    digits += 2;
+    digits += basic_math::ACCURACY;
+    os << std::setprecision(basic_math::ACCURACY) << std::fixed << std::showpos
+       << std::internal << std::setfill(' ') << std::showpoint << "[\n";
+  } else if constexpr (std::is_same_v<T, bool>) {
+    digits = 1;
+    os << "[\n";
+  } else {
+    for (unsigned int i = 0; i < msSize(mat.shape_); i++) {
+      digits = std::max(digits, basic_math::intDigits(mat.data_[i]));
+    }
+    digits += 1;
+    os << std::showpos << std::internal << std::setfill(' ') << "[\n";
+  }
   for (unsigned int i = 0, j = 1; i < msSize(mat.shape_); i++) {
     if (j == mat.shape_.cols) {
-      os << mat.data_[i] << '\n';
+      os << std::setw(digits) << mat.data_[i] << '\n';
       j = 1;
     } else {
-      os << mat.data_[i] << ", ";
+      os << std::setw(digits) << mat.data_[i] << ",";
       j++;
     }
   }
@@ -211,6 +200,23 @@ Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols) {
   return;
 }
 
+template <typename T>
+Matrix<T>::Matrix(MaShape const& iShape) {
+  LOG("C:init constructor shape(%d,%d)", iShape.rows, iShape.cols);
+  shape_ = iShape;
+  if (!msLegal(shape_)) {
+    shape_.cols = shape_.rows = 1;
+    LOG("E:the illegal shape has fixed to (1,1)");
+  }
+  this->data_ = new T[msSize(shape_)];
+  for (unsigned int i = 0; i < msSize(shape_); i++)
+    data_[i] = static_cast<T>(0);
+  if (!memory_maintainer::MemoryManager::signUp<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail signUp of %p", static_cast<void*>(this));
+  }
+  return;
+}
 template <typename T>
 Matrix<T>::Matrix() {
   LOG("C:default constructor");
@@ -335,6 +341,18 @@ void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
   data_ = newData;
   shape_ = iShape;
   return;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::transpose() const {
+  LOG("C:transpose");
+  Matrix<T> transposed(shape_.cols, shape_.rows);
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      transposed.data_[j * shape_.rows + i] = data_[i * shape_.cols + j];
+    }
+  }
+  return transposed;
 }
 
 template <typename T>

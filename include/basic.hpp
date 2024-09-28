@@ -30,6 +30,7 @@
   }
 
 namespace basic_math {
+constexpr unsigned int ACCURACY = 3;
 
 class BasicSupport {
  public:
@@ -51,8 +52,8 @@ class BasicSupport {
  * @throws None
  */
 template <typename U>
-inline unsigned int intDigits(U const &alpha) {
-  LOG("C:");
+inline unsigned int intDigits(U const& alpha) {
+  LOG("C:intDigits");
   if constexpr (std::is_same_v<U, bool>) return 1;
   if (alpha > -1 && alpha < 1) return 1;
   return static_cast<unsigned int>(std::floor(std::log10(std::abs(alpha)) + 1));
@@ -70,7 +71,7 @@ inline unsigned int intDigits(U const &alpha) {
  * @throws None
  */
 template <typename U>
-inline U random(U const &min, U const &max) {
+inline U random(U const& min, U const& max) {
   if constexpr (std::is_same_v<U, int>) {
     LOG("C:random<int>");
     std::uniform_int_distribution<int> dist(min, max);
@@ -103,6 +104,23 @@ class Vector;
 template <typename U>
 class Matrix;
 
+typedef struct MatrixShape {
+  unsigned int rows;
+  unsigned int cols;
+} MaShape;
+
+bool operator==(MaShape const&, MaShape const&);
+bool operator<(MaShape const&, MaShape const&);
+bool operator<=(MaShape const&, MaShape const&);
+bool operator!=(MaShape const&, MaShape const&);
+std::ostream& operator<<(std::ostream&, MaShape const&);
+inline __attribute__((__always_inline__)) unsigned int msSize(
+    MaShape const& ms) {
+  return ms.rows * ms.cols;
+}
+inline __attribute__((__always_inline__)) bool msLegal(MaShape const& ms) {
+  return ms.rows > 0 && ms.cols > 0;
+}
 }  // namespace linalg
 
 /**
