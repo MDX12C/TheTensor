@@ -13,6 +13,8 @@ template <typename T>
 linalg::Matrix<T> absolute(linalg::Matrix<T> const&);
 template <typename T, typename U>
 linalg::Matrix<T> pow(linalg::Matrix<T> const&, U const&);
+template <typename T, typename U>
+linalg::Matrix<U> pow(U const&, linalg::Matrix<T> const&);
 template <typename T>
 linalg::Matrix<T> dot(linalg::Matrix<T> const&, linalg::Matrix<T> const&);
 }  // namespace basic_math
@@ -35,8 +37,14 @@ class Matrix {
   friend Matrix<U> basic_math::absolute(Matrix<U> const&);
   template <typename U, typename W>
   friend Matrix<U> basic_math::pow(Matrix<U> const&, W const&);
+  template <typename U, typename W>
+  friend Matrix<W> basic_math::pow(W const&, Matrix<U> const&);
   template <typename U>
   friend Matrix<U> basic_math::dot(Matrix<U> const&, Matrix<U> const&);
+  template <typename U>
+  friend Matrix<U> mergeUD(Matrix<U> const&, Matrix<U> const&);
+  template <typename U>
+  friend Matrix<U> mergeLR(Matrix<U> const&, Matrix<U> const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -57,7 +65,9 @@ class Matrix {
   T sum() const;
   void freedom();
   void reshape(unsigned int const&, unsigned int const&);
+  void reshape(MaShape const&);
   void load(unsigned int const&, unsigned int const&, T* const&);
+  void load(MaShape const&, T* const&);
   Matrix transpose() const;
   inline T* begin() { return data_; }
   inline T* end() { return data_ + msSize(shape_); }
@@ -114,6 +124,11 @@ class Matrix {
 
 template <typename Data>
 std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
+
+template <typename T>
+Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&);
+template <typename T>
+Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&);
 
 }  // namespace linalg
 
@@ -318,9 +333,62 @@ void Matrix<T>::reshape(unsigned int const& iRows, unsigned int const& iCols) {
 }
 
 template <typename T>
+void Matrix<T>::reshape(MaShape const& iShape) {
+  LOG("C:resize shape(%d,%d)", iShape.rows, iShape.cols);
+  if (iShape == shape_) return;
+  if (!msLegal(iShape)) {
+    LOG("B:the illegal shape");
+    return;
+  }
+  T* newData = new T[msSize(iShape)];
+  for (unsigned int i = 0; i < iShape.rows; i++) {
+    for (unsigned int j = 0; j < iShape.cols; j++) {
+      if (i < shape_.rows && j < shape_.cols) {
+        newData[i * iShape.cols + j] = data_[i * shape_.cols + j];
+      } else {
+        newData[i * iShape.cols + j] = static_cast<T>(0);
+      }
+    }
+  }
+
+  delete[] data_;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(iShape) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  data_ = newData;
+  shape_ = iShape;
+  return;
+}
+
+template <typename T>
 void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
                      T* const& data) {
   MaShape iShape = {iRows, iCols};
+  LOG("C:load shape(%d,%d) data=%p", iShape.rows, iShape.cols,
+      static_cast<void*>(data));
+  if (data == nullptr) {
+    LOG("B:reading for null pointer");
+    return;
+  }
+  if (!msLegal(iShape)) {
+    LOG("B:the illegal shape");
+    return;
+  }
+  T* newData = new T[msSize(iShape)];
+  std::copy(data, data + msSize(iShape), newData);
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(iShape) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  return;
+}
+
+template <typename T>
+void Matrix<T>::load(MaShape const& iShape, T* const& data) {
   LOG("C:load shape(%d,%d) data=%p", iShape.rows, iShape.cols,
       static_cast<void*>(data));
   if (data == nullptr) {
@@ -679,6 +747,48 @@ Matrix<bool> Matrix<T>::operator>=(T const& value) const {
     ret.data_[i] = data_[i] >= value;
   return ret;
 }
+
+template <typename T>
+Matrix<T> mergeUD(Matrix<T> const& upOne, Matrix<T> const& downOne) {
+  LOG("C:mergeUD");
+  if (upOne.shape_.cols != downOne.shape_.cols) {
+    LOG("E:merge side not same(%d and %d)", upOne.shape_.cols,
+        downOne.shape_.cols);
+    Matrix<T> ret(upOne);
+    return ret;
+  }
+  MaShape newShape{upOne.shape_.rows + downOne.shape_.rows, upOne.shape_.cols};
+  Matrix<T> ret(newShape);
+  std::copy(upOne.data_, upOne.data_ + msSize(upOne.shape_), ret.data_);
+  std::copy(downOne.data_, downOne.data_ + msSize(downOne.shape_),
+            ret.data_ + msSize(upOne.shape_));
+  return ret;
+}
+
+template <typename T>
+Matrix<T> mergeLR(Matrix<T> const& leftOne, Matrix<T> const& rightOne) {
+  LOG("C:mergeLR");
+  if (leftOne.shape_.rows != rightOne.shape_.rows) {
+    LOG("E:merge side not same(%d and %d)", leftOne.shape_.rows,
+        rightOne.shape_.rows);
+    Matrix<T> ret(leftOne);
+    return ret;
+  }
+  MaShape newShape{leftOne.shape_.rows,
+                   leftOne.shape_.cols + rightOne.shape_.cols};
+  Matrix<T> ret(newShape);
+  for (unsigned int i = 0; i < leftOne.shape_.rows; i++) {
+    for (unsigned int j = 0; j < leftOne.shape_.cols; j++) {
+      ret.data_[i * newShape.cols + j] =
+          leftOne.data_[i * leftOne.shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < rightOne.shape_.cols; j++) {
+      ret.data_[i * newShape.cols + j + leftOne.shape_.cols] =
+          rightOne.data_[i * rightOne.shape_.cols + j];
+    }
+  }
+  return ret;
+}
 }  // namespace linalg
 namespace basic_math {
 
@@ -733,6 +843,19 @@ linalg::Matrix<T> pow(linalg::Matrix<T> const& param, U const& value) {
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < linalg::msSize(param.shape_); i++) {
     result.data_[i] = std::pow(result.data_[i], value);
+  }
+  return result;
+}
+template <typename T, typename U>
+linalg::Matrix<U> pow(U const& value, linalg::Matrix<T> const& param) {
+  LOG("C:pow matrix");
+  linalg::Matrix<U> result(param.shape_);
+  if constexpr (std::is_same_v<bool, U>) {
+    result = value;
+    return result;
+  }
+  for (unsigned int i = 0; i < linalg::msSize(param.shape_); i++) {
+    result.data_[i] = std::pow(value, param.data_[i]);
   }
   return result;
 }

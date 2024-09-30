@@ -16,6 +16,8 @@ template <typename T>
 linalg::Vector<T> absolute(linalg::Vector<T> const&);
 template <typename T, typename U>
 linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
+template <typename T, typename U>
+linalg::Vector<T> pow(T const&, linalg::Vector<U> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -35,6 +37,8 @@ class Vector {
   friend Vector<U> basic_math::absolute(Vector<U> const&);
   template <typename U, typename V>
   friend Vector<U> basic_math::pow(Vector<U> const&, V const&);
+  template <typename W, typename U>
+  friend Vector<W> basic_math::pow(W const&, Vector<U> const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -638,6 +642,20 @@ linalg::Vector<T> pow(linalg::Vector<T> const& param, U const& value) {
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < result.size_; i++)
     result.data_[i] = std::pow(result.data_[i], value);
+  return result;
+}
+
+template <typename T, typename U>
+linalg::Vector<T> pow(T const& value, linalg::Vector<U> const& param) {
+  LOG("C:pow vector");
+  linalg::Vector<T> result(param.size_);
+  if constexpr (std::is_same_v<T, bool>) {
+    result = value;
+    return result;
+  }
+  for (unsigned int i = 0; i < result.size_; i++) {
+    result.data_[i] = std::pow(value, param.data_[i]);
+  }
   return result;
 }
 }  // namespace basic_math

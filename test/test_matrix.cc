@@ -32,6 +32,15 @@ signed main() {
   show(gamma);
   alpha.load(2, 3, gamma.begin());
   show(alpha);
+  show(linalg::Matrix<int>(alpha));
+  auto omega = new linalg::Matrix<int>;
+  *omega = basic_math::random(2, 3, -10, 10);
+  show(*omega);
+  show(basic_math::pow(2.0F, *omega));
+  alpha.reshape(firstShape);
+  beta.reshape(firstShape);
+  show(linalg::mergeLR(alpha, beta));
+  show(linalg::mergeUD(alpha, beta));
   DESTRUCT;
   return 0;
 }

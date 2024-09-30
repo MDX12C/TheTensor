@@ -51,6 +51,7 @@ int main() {
   delete b;
   auto d = basic_math::random(10, -15.0F, 15.0F);
   std::cout << d << std::endl;
+  std::cout << (basic_math::pow(2.0F, d));
   DESTRUCT;
   return 0;
 }
