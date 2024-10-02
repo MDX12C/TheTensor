@@ -41,6 +41,14 @@ signed main() {
   beta.reshape(firstShape);
   show(linalg::mergeLR(alpha, beta));
   show(linalg::mergeUD(alpha, beta));
+  show(alpha);
+  auto phi = linalg::divideUD(alpha, 2);
+  show(phi.first);
+  show(phi.second);
+  show(alpha);
+  phi = linalg::divideLR(alpha, 2);
+  show(phi.first);
+  show(phi.second);
   DESTRUCT;
   return 0;
 }

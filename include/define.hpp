@@ -5,7 +5,7 @@
 // #define _DEBUG_MODE_ 1
 //  #define _SIMD_MODE_    1         // open SIMD mode
 //  #define _AVX2_WILL_BE_USED_ON_   1// open AVX2
-//  #define _SPEED_MODE_ 1
+// #define _SPEED_MODE_ 1
 /*end of constants*/
 
 #define LIMIT

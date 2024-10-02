@@ -46,6 +46,12 @@ class Matrix {
   template <typename U>
   friend Matrix<U> mergeLR(Matrix<U> const&, Matrix<U> const&);
   template <typename U>
+  friend std::pair<Matrix<U>, Matrix<U>> divideUD(Matrix<U> const&,
+                                                  unsigned int const&);
+  template <typename U>
+  friend std::pair<Matrix<U>, Matrix<U>> divideLR(Matrix<U> const&,
+                                                  unsigned int const&);
+  template <typename U>
   friend class Vector;
   template <typename U>
   friend class Matrix;
@@ -129,7 +135,10 @@ template <typename T>
 Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&);
 template <typename T>
 Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&);
-
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const&, unsigned int const&);
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const&, unsigned int const&);
 }  // namespace linalg
 
 namespace linalg {
@@ -787,6 +796,61 @@ Matrix<T> mergeLR(Matrix<T> const& leftOne, Matrix<T> const& rightOne) {
           rightOne.data_[i * rightOne.shape_.cols + j];
     }
   }
+  return ret;
+}
+
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const& param,
+                                         unsigned int const& size) {
+  LOG("C:divideUD");
+  Matrix<T> upper, lower;
+  if (size >= param.shape_.rows) {
+    upper = param;
+    lower.reshape(1, 1);
+    lower = static_cast<T>(0);
+  } else if (size == 0) {
+    lower = param;
+    upper.reshape(1, 1);
+    upper = static_cast<T>(0);
+  } else {
+    upper.reshape(size, param.shape_.cols);
+    lower.reshape(param.shape_.rows - size, param.shape_.cols);
+    std::copy(param.data_, param.data_ + msSize(upper.shape_), upper.data_);
+    std::copy(param.data_ + msSize(upper.shape_),
+              param.data_ + msSize(param.shape_), lower.data_);
+  }
+  std::pair<Matrix<T>, Matrix<T>> ret = {upper, lower};
+  return ret;
+}
+
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const& param,
+                                         unsigned int const& size) {
+  LOG("C:divideLR");
+  Matrix<T> lefter, righter;
+  if (size >= param.shape_.cols) {
+    lefter = param;
+    righter.reshape(1, 1);
+    righter = static_cast<T>(0);
+  } else if (size == 0) {
+    righter = param;
+    lefter.reshape(1, 1);
+    lefter = static_cast<T>(0);
+  } else {
+    lefter.reshape(param.shape_.rows, size);
+    righter.reshape(param.shape_.rows, param.shape_.cols - size);
+    for (unsigned int i = 0; i < param.shape_.rows; i++) {
+      for (unsigned int j = 0; j < lefter.shape_.cols; j++) {
+        lefter.data_[i * lefter.shape_.cols + j] =
+            param.data_[i * param.shape_.cols + j];
+      }
+      for (unsigned int j = 0; j < righter.shape_.cols; j++) {
+        righter.data_[i * righter.shape_.cols + j] =
+            param.data_[i * param.shape_.cols + j + lefter.shape_.cols];
+      }
+    }
+  }
+  std::pair<Matrix<T>, Matrix<T>> ret = {lefter, righter};
   return ret;
 }
 }  // namespace linalg

@@ -72,7 +72,7 @@
   if constexpr (LOG_H) {          \
     LOG_CON;                      \
     if constexpr (_SPEED_MODE_) { \
-      LOG("SPEED MODE\n");        \
+      LOG("S:SPEED MODE\n");      \
     }                             \
   }                               \
   if constexpr (BASIC_H) {        \
