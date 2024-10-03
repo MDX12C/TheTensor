@@ -7,16 +7,17 @@
 
 namespace basic_math {
 template <typename T>
-linalg::Matrix<T> random(unsigned int const&, unsigned int const&, T const&,
-                         T const&);
+inline linalg::Matrix<T> random(unsigned int const&, unsigned int const&,
+                                T const&, T const&);
 template <typename T>
-linalg::Matrix<T> absolute(linalg::Matrix<T> const&);
+inline linalg::Matrix<T> absolute(linalg::Matrix<T> const&);
 template <typename T, typename U>
-linalg::Matrix<T> pow(linalg::Matrix<T> const&, U const&);
+inline linalg::Matrix<T> pow(linalg::Matrix<T> const&, U const&);
 template <typename T, typename U>
-linalg::Matrix<U> pow(U const&, linalg::Matrix<T> const&);
+inline linalg::Matrix<U> pow(U const&, linalg::Matrix<T> const&);
 template <typename T>
-linalg::Matrix<T> dot(linalg::Matrix<T> const&, linalg::Matrix<T> const&);
+inline linalg::Matrix<T> dot(linalg::Matrix<T> const&,
+                             linalg::Matrix<T> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -29,28 +30,29 @@ class Matrix {
 
   // friends
   template <typename U>
-  friend std::ostream& operator<<(std::ostream&, Matrix<U> const&);
+  friend inline std::ostream& operator<<(std::ostream&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> basic_math::random(unsigned int const&, unsigned int const&,
-                                      U const&, U const&);
+  friend inline Matrix<U> basic_math::random(unsigned int const&,
+                                             unsigned int const&, U const&,
+                                             U const&);
   template <typename U>
-  friend Matrix<U> basic_math::absolute(Matrix<U> const&);
+  friend inline Matrix<U> basic_math::absolute(Matrix<U> const&);
   template <typename U, typename W>
-  friend Matrix<U> basic_math::pow(Matrix<U> const&, W const&);
+  friend inline Matrix<U> basic_math::pow(Matrix<U> const&, W const&);
   template <typename U, typename W>
-  friend Matrix<W> basic_math::pow(W const&, Matrix<U> const&);
+  friend inline Matrix<W> basic_math::pow(W const&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> basic_math::dot(Matrix<U> const&, Matrix<U> const&);
+  friend inline Matrix<U> basic_math::dot(Matrix<U> const&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> mergeUD(Matrix<U> const&, Matrix<U> const&);
+  friend inline Matrix<U> mergeUD(Matrix<U> const&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> mergeLR(Matrix<U> const&, Matrix<U> const&);
+  friend inline Matrix<U> mergeLR(Matrix<U> const&, Matrix<U> const&);
   template <typename U>
-  friend std::pair<Matrix<U>, Matrix<U>> divideUD(Matrix<U> const&,
-                                                  unsigned int const&);
+  friend inline std::pair<Matrix<U>, Matrix<U>> divideUD(Matrix<U> const&,
+                                                         unsigned int const&);
   template <typename U>
-  friend std::pair<Matrix<U>, Matrix<U>> divideLR(Matrix<U> const&,
-                                                  unsigned int const&);
+  friend inline std::pair<Matrix<U>, Matrix<U>> divideLR(Matrix<U> const&,
+                                                         unsigned int const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -68,20 +70,20 @@ class Matrix {
   // Member functions
   inline MaShape const& shape() const { return shape_; }
   inline unsigned int const& size() const { return msSize(shape_); }
-  T sum() const;
-  void freedom();
-  void reshape(unsigned int const&, unsigned int const&);
-  void reshape(MaShape const&);
-  void load(unsigned int const&, unsigned int const&, T* const&);
-  void load(MaShape const&, T* const&);
-  Matrix transpose() const;
+  inline T sum() const;
+  inline void freedom();
+  inline void reshape(unsigned int const&, unsigned int const&);
+  inline void reshape(MaShape const&);
+  inline void load(unsigned int const&, unsigned int const&, T* const&);
+  inline void load(MaShape const&, T* const&);
+  inline Matrix transpose() const;
   inline T* begin() { return data_; }
   inline T* end() { return data_ + msSize(shape_); }
 
   // Operator overloads
-  T& operator[](MaShape const&) const;
+  inline T& operator[](MaShape const&) const;
   template <typename U>
-  operator Matrix<U>() {
+  inline operator Matrix<U>() {
     LOG("C:cast operator in Matrix");
     if constexpr (std::is_same_v<T, U>) return *this;
     Matrix<U> result(shape_);
@@ -89,56 +91,58 @@ class Matrix {
       result.data_[i] = static_cast<U>(data_[i]);
     return result;
   }
-  Matrix& operator=(const Matrix&);
-  Matrix& operator+=(const Matrix&);
-  Matrix& operator-=(const Matrix&);
-  Matrix& operator*=(const Matrix&);
-  Matrix& operator/=(const Matrix&);
+  inline Matrix& operator=(const Matrix&);
+  inline Matrix& operator+=(const Matrix&);
+  inline Matrix& operator-=(const Matrix&);
+  inline Matrix& operator*=(const Matrix&);
+  inline Matrix& operator/=(const Matrix&);
 
-  Matrix operator+(const Matrix&) const;
-  Matrix operator-(const Matrix&) const;
-  Matrix operator*(const Matrix&) const;
-  Matrix operator/(const Matrix&) const;
+  inline Matrix operator+(const Matrix&) const;
+  inline Matrix operator-(const Matrix&) const;
+  inline Matrix operator*(const Matrix&) const;
+  inline Matrix operator/(const Matrix&) const;
 
-  Matrix<bool> operator==(const Matrix&) const;
-  Matrix<bool> operator!=(const Matrix&) const;
-  Matrix<bool> operator<(const Matrix&) const;
-  Matrix<bool> operator<=(const Matrix&) const;
-  Matrix<bool> operator>(const Matrix&) const;
-  Matrix<bool> operator>=(const Matrix&) const;
+  inline Matrix<bool> operator==(const Matrix&) const;
+  inline Matrix<bool> operator!=(const Matrix&) const;
+  inline Matrix<bool> operator<(const Matrix&) const;
+  inline Matrix<bool> operator<=(const Matrix&) const;
+  inline Matrix<bool> operator>(const Matrix&) const;
+  inline Matrix<bool> operator>=(const Matrix&) const;
 
-  Matrix& operator=(T const&);
-  Matrix& operator+=(T const&);
-  Matrix& operator-=(T const&);
-  Matrix& operator*=(T const&);
-  Matrix& operator/=(T const&);
+  inline Matrix& operator=(T const&);
+  inline Matrix& operator+=(T const&);
+  inline Matrix& operator-=(T const&);
+  inline Matrix& operator*=(T const&);
+  inline Matrix& operator/=(T const&);
 
-  Matrix operator+(T const&) const;
-  Matrix operator-(T const&) const;
-  Matrix operator*(T const&) const;
-  Matrix operator/(T const&) const;
+  inline Matrix operator+(T const&) const;
+  inline Matrix operator-(T const&) const;
+  inline Matrix operator*(T const&) const;
+  inline Matrix operator/(T const&) const;
 
-  Matrix operator-() const;
+  inline Matrix operator-() const;
 
-  Matrix<bool> operator==(T const&) const;
-  Matrix<bool> operator!=(T const&) const;
-  Matrix<bool> operator<(T const&) const;
-  Matrix<bool> operator<=(T const&) const;
-  Matrix<bool> operator>(T const&) const;
-  Matrix<bool> operator>=(T const&) const;
+  inline Matrix<bool> operator==(T const&) const;
+  inline Matrix<bool> operator!=(T const&) const;
+  inline Matrix<bool> operator<(T const&) const;
+  inline Matrix<bool> operator<=(T const&) const;
+  inline Matrix<bool> operator>(T const&) const;
+  inline Matrix<bool> operator>=(T const&) const;
 };
 
 template <typename Data>
-std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
+inline std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
 
 template <typename T>
-Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&);
+inline Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&);
 template <typename T>
-Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&);
+inline Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&);
 template <typename T>
-std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const&, unsigned int const&);
+inline std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const&,
+                                                unsigned int const&);
 template <typename T>
-std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const&, unsigned int const&);
+inline std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const&,
+                                                unsigned int const&);
 }  // namespace linalg
 
 namespace linalg {

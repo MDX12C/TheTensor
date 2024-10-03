@@ -11,13 +11,13 @@
 
 namespace basic_math {
 template <typename T>
-linalg::Vector<T> random(unsigned int const&, T const&, T const&);
+inline linalg::Vector<T> random(unsigned int const&, T const&, T const&);
 template <typename T>
-linalg::Vector<T> absolute(linalg::Vector<T> const&);
+inline linalg::Vector<T> absolute(linalg::Vector<T> const&);
 template <typename T, typename U>
-linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
+inline linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
 template <typename T, typename U>
-linalg::Vector<T> pow(T const&, linalg::Vector<U> const&);
+inline linalg::Vector<T> pow(T const&, linalg::Vector<U> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -30,15 +30,15 @@ class Vector {
 
   // friends
   template <typename U>
-  friend std::ostream& operator<<(std::ostream&, Vector<U> const&);
+  friend inline std::ostream& operator<<(std::ostream&, Vector<U> const&);
   template <typename U>
-  friend Vector<U> basic_math::random(unsigned int const&, U const&, U const&);
+  friend inline Vector<U> basic_math::random(unsigned int const&, U const&, U const&);
   template <typename U>
-  friend Vector<U> basic_math::absolute(Vector<U> const&);
+  friend inline Vector<U> basic_math::absolute(Vector<U> const&);
   template <typename U, typename V>
-  friend Vector<U> basic_math::pow(Vector<U> const&, V const&);
+  friend inline Vector<U> basic_math::pow(Vector<U> const&, V const&);
   template <typename W, typename U>
-  friend Vector<W> basic_math::pow(W const&, Vector<U> const&);
+  friend inline Vector<W> basic_math::pow(W const&, Vector<U> const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -54,17 +54,17 @@ class Vector {
 
   // Member functions
   inline unsigned int const& size() const { return size_; }
-  T sum() const;
-  void freedom();
-  void resize(unsigned int const&);
-  void load(unsigned int const&, T* const&);
+  inline T sum() const;
+  inline void freedom();
+  inline void resize(unsigned int const&);
+  inline void load(unsigned int const&, T* const&);
   inline T* begin() { return data_; }
   inline T* end() { return data_ + size_; }
 
   // Operator overloads
-  T& operator[](unsigned int const&) const;
+  inline T& operator[](unsigned int const&) const;
   template <typename U>
-  operator Vector<U>() {
+  inline operator Vector<U>() {
     LOG("C:cast operator in Vector");
     if constexpr (std::is_same_v<U, T>) return *this;
     Vector<U> result(size_);
@@ -72,47 +72,47 @@ class Vector {
       result.data_[i] = static_cast<U>(data_[i]);
     return result;
   }
-  Vector& operator=(const Vector&);
-  Vector& operator+=(const Vector&);
-  Vector& operator-=(const Vector&);
-  Vector& operator*=(const Vector&);
-  Vector& operator/=(const Vector&);
+  inline Vector& operator=(const Vector&);
+  inline Vector& operator+=(const Vector&);
+  inline Vector& operator-=(const Vector&);
+  inline Vector& operator*=(const Vector&);
+  inline Vector& operator/=(const Vector&);
 
-  Vector operator+(const Vector&) const;
-  Vector operator-(const Vector&) const;
-  Vector operator*(const Vector&) const;
-  Vector operator/(const Vector&) const;
+  inline Vector operator+(const Vector&) const;
+  inline Vector operator-(const Vector&) const;
+  inline Vector operator*(const Vector&) const;
+  inline Vector operator/(const Vector&) const;
 
-  Vector<bool> operator==(const Vector&) const;
-  Vector<bool> operator!=(const Vector&) const;
-  Vector<bool> operator<(const Vector&) const;
-  Vector<bool> operator<=(const Vector&) const;
-  Vector<bool> operator>(const Vector&) const;
-  Vector<bool> operator>=(const Vector&) const;
+  inline Vector<bool> operator==(const Vector&) const;
+  inline Vector<bool> operator!=(const Vector&) const;
+  inline Vector<bool> operator<(const Vector&) const;
+  inline Vector<bool> operator<=(const Vector&) const;
+  inline Vector<bool> operator>(const Vector&) const;
+  inline Vector<bool> operator>=(const Vector&) const;
 
-  Vector& operator=(T const&);
-  Vector& operator+=(T const&);
-  Vector& operator-=(T const&);
-  Vector& operator*=(T const&);
-  Vector& operator/=(T const&);
+  inline Vector& operator=(T const&);
+  inline Vector& operator+=(T const&);
+  inline Vector& operator-=(T const&);
+  inline Vector& operator*=(T const&);
+  inline Vector& operator/=(T const&);
 
-  Vector operator+(T const&) const;
-  Vector operator-(T const&) const;
-  Vector operator*(T const&) const;
-  Vector operator/(T const&) const;
+  inline Vector operator+(T const&) const;
+  inline Vector operator-(T const&) const;
+  inline Vector operator*(T const&) const;
+  inline Vector operator/(T const&) const;
 
-  Vector operator-() const;
+  inline Vector operator-() const;
 
-  Vector<bool> operator==(T const&) const;
-  Vector<bool> operator!=(T const&) const;
-  Vector<bool> operator<(T const&) const;
-  Vector<bool> operator<=(T const&) const;
-  Vector<bool> operator>(T const&) const;
-  Vector<bool> operator>=(T const&) const;
+  inline Vector<bool> operator==(T const&) const;
+  inline Vector<bool> operator!=(T const&) const;
+  inline Vector<bool> operator<(T const&) const;
+  inline Vector<bool> operator<=(T const&) const;
+  inline Vector<bool> operator>(T const&) const;
+  inline Vector<bool> operator>=(T const&) const;
 };
 
 template <typename Data>
-std::ostream& operator<<(std::ostream&, const Vector<Data>&);
+inline std::ostream& operator<<(std::ostream&, const Vector<Data>&);
 
 }  // namespace linalg
 
