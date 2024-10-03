@@ -18,10 +18,17 @@
 #define _SIMD_01_
 #endif  // AVX_ON
 #else
+#define _SIMD_MODE_ 0
 #undef _AVX2_WILL_BE_UESD_ON_
 #endif  //_SIMD_MODE_
 #ifndef __GNUC__
 #define __attribute__(x)
+#endif
+#ifndef _DEBUG_MODE_
+#define _DEBUG_MODE_ 0
+#endif
+#ifndef _SPEED_MODE_
+#define _SPEED_MODE_ 0
 #endif
 #include <xmmintrin.h>
 

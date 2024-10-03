@@ -108,6 +108,10 @@
     MATRIX_DES;             \
   }
 
+/**
+ * @brief exit
+ * @warning don't use it without urgent situation
+ */
 inline void endOfMainFunction() {
   LOG("B:!!Urgent Exit!!");
   printf("!!Urgent Exit!!\n");

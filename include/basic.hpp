@@ -3,25 +3,52 @@
 
 #include "define.hpp"
 #include "log.hpp"
-
+/**
+ * @brief add
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
     third = first || second;                  \
   } else {                                    \
     third = first + second;                   \
   }
+/**
+ * @brief sub
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
 #define __MNS(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
     third = first && (!second);               \
   } else {                                    \
     third = first - second;                   \
   }
+/**
+ * @brief mul
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
 #define __MUL(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
     third = first && second;                  \
   } else {                                    \
     third = first * second;                   \
   }
+/**
+ * @brief div
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
 #define __DIV(first, second, third, type)              \
   if constexpr (std::is_same_v<type, bool>) {          \
     third = (first || second) && (!(first && second)); \
@@ -35,6 +62,10 @@ constexpr unsigned int ACCURACY = 3;
 class BasicSupport {
  public:
   static std::mt19937 generator;
+  /**
+   * @brief init for basic
+   * @warning don't use it
+   */
   static void init() {
     BasicSupport::generator.seed(static_cast<unsigned long long>(time(0)));
     LOG("C:set seed");
@@ -114,10 +145,20 @@ bool operator<(MaShape const&, MaShape const&);
 bool operator<=(MaShape const&, MaShape const&);
 bool operator!=(MaShape const&, MaShape const&);
 std::ostream& operator<<(std::ostream&, MaShape const&);
+/**
+ * @brief get the size of the matrix
+ * @param ms the matrix shape
+ * @return the size
+ */
 inline __attribute__((__always_inline__)) unsigned int msSize(
     MaShape const& ms) {
   return ms.rows * ms.cols;
 }
+/**
+ * @brief check if the matrix shape is legal
+ * @param ms the matrix shape
+ * @return if the matrix shape is legal
+ */
 inline __attribute__((__always_inline__)) bool msLegal(MaShape const& ms) {
   return ms.rows > 0 && ms.cols > 0;
 }

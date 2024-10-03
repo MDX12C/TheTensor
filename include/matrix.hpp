@@ -182,7 +182,12 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mat) {
   os << "]\n";
   return os;
 }
-
+/**
+ * @brief data constructor
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param data the init datas
+ */
 template <typename T>
 Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols,
                   T* const& data) {
@@ -208,7 +213,11 @@ Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols,
   }
   return;
 }
-
+/**
+ * @brief size constructor
+ * @param iRows the rows
+ * @param iCols the cols
+ */
 template <typename T>
 Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols) {
   LOG("C:init constructor shape(%d,%d)", iRows, iCols);
@@ -227,7 +236,10 @@ Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols) {
   }
   return;
 }
-
+/**
+ * @brief shape constructor
+ * @param iShape the shape
+ */
 template <typename T>
 Matrix<T>::Matrix(MaShape const& iShape) {
   LOG("C:init constructor shape(%d,%d)", iShape.rows, iShape.cols);
@@ -245,6 +257,9 @@ Matrix<T>::Matrix(MaShape const& iShape) {
   }
   return;
 }
+/**
+ * @brief default constructor
+ */
 template <typename T>
 Matrix<T>::Matrix() {
   LOG("C:default constructor");
@@ -257,7 +272,10 @@ Matrix<T>::Matrix() {
   }
   return;
 }
-
+/**
+ * @brief copy constructor
+ * @param other
+ */
 template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& other) : shape_(other.shape_) {
   LOG("C:copy constructor");
@@ -278,7 +296,9 @@ Matrix<T>::~Matrix() {
   }
   delete[] data_;
 }
-
+/**
+ * @brief freedom
+ */
 template <typename T>
 void Matrix<T>::freedom() {
   LOG("C:freedom");
@@ -301,7 +321,10 @@ T& Matrix<T>::operator[](MaShape const& iIndex) const {
   LOG("E:the index is illegal");
   return data_[0];
 }
-
+/**
+ * @brief sum
+ * @return the sum,if the type is bool,return true or false
+ */
 template <typename T>
 T Matrix<T>::sum() const {
   LOG("C:sum");
@@ -314,7 +337,11 @@ T Matrix<T>::sum() const {
   for (unsigned int i = 0; i < msSize(shape_); i++) sum += data_[i];
   return sum;
 }
-
+/**
+ * @brief reshape
+ * @param iRows the new rows
+ * @param iCols the new cols
+ */
 template <typename T>
 void Matrix<T>::reshape(unsigned int const& iRows, unsigned int const& iCols) {
   LOG("C:resize shape(%d,%d)", iRows, iCols);
@@ -344,7 +371,10 @@ void Matrix<T>::reshape(unsigned int const& iRows, unsigned int const& iCols) {
   shape_ = iShape;
   return;
 }
-
+/**
+ * @brief reshape
+ * @param iShape the new shape
+ */
 template <typename T>
 void Matrix<T>::reshape(MaShape const& iShape) {
   LOG("C:resize shape(%d,%d)", iShape.rows, iShape.cols);
@@ -373,7 +403,12 @@ void Matrix<T>::reshape(MaShape const& iShape) {
   shape_ = iShape;
   return;
 }
-
+/**
+ * @brief load
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param data the new datas
+ */
 template <typename T>
 void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
                      T* const& data) {
@@ -399,7 +434,11 @@ void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
   shape_ = iShape;
   return;
 }
-
+/**
+ * @brief load
+ * @param iShape the shape
+ * @param data the new datas
+ */
 template <typename T>
 void Matrix<T>::load(MaShape const& iShape, T* const& data) {
   LOG("C:load shape(%d,%d) data=%p", iShape.rows, iShape.cols,
@@ -423,7 +462,10 @@ void Matrix<T>::load(MaShape const& iShape, T* const& data) {
   shape_ = iShape;
   return;
 }
-
+/**
+ * @brief transpose
+ * @return the transpose matrix
+ */
 template <typename T>
 Matrix<T> Matrix<T>::transpose() const {
   LOG("C:transpose");
@@ -760,7 +802,12 @@ Matrix<bool> Matrix<T>::operator>=(T const& value) const {
     ret.data_[i] = data_[i] >= value;
   return ret;
 }
-
+/**
+ * @brief merge two matrix above and below
+ * @param upOne the matrix above
+ * @param downOne the matrix below
+ * @return the merged matrix
+ */
 template <typename T>
 Matrix<T> mergeUD(Matrix<T> const& upOne, Matrix<T> const& downOne) {
   LOG("C:mergeUD");
@@ -777,7 +824,12 @@ Matrix<T> mergeUD(Matrix<T> const& upOne, Matrix<T> const& downOne) {
             ret.data_ + msSize(upOne.shape_));
   return ret;
 }
-
+/**
+ * @brief merge two matrix left and right
+ * @param leftOne the matrix left
+ * @param rightOne the matrix right
+ * @return the merged matrix
+ */
 template <typename T>
 Matrix<T> mergeLR(Matrix<T> const& leftOne, Matrix<T> const& rightOne) {
   LOG("C:mergeLR");
@@ -802,7 +854,12 @@ Matrix<T> mergeLR(Matrix<T> const& leftOne, Matrix<T> const& rightOne) {
   }
   return ret;
 }
-
+/**
+ * @brief divide two matrix above and below
+ * @param param the matrix to divide
+ * @param size the high of the above one
+ * @return the divided matrixs
+ */
 template <typename T>
 std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const& param,
                                          unsigned int const& size) {
@@ -826,7 +883,12 @@ std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const& param,
   std::pair<Matrix<T>, Matrix<T>> ret = {upper, lower};
   return ret;
 }
-
+/**
+ * @brief divide two matrix left and right
+ * @param param the matrix to divide
+ * @param size the width of the left one
+ * @return the divided matrixs
+ */
 template <typename T>
 std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const& param,
                                          unsigned int const& size) {
@@ -859,7 +921,12 @@ std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const& param,
 }
 }  // namespace linalg
 namespace basic_math {
-
+/**
+ * @brief matrix dot
+ * @param a the left matrix
+ * @param b the right matrix
+ * @return the dot matrix
+ */
 template <typename T>
 linalg::Matrix<T> dot(linalg::Matrix<T> const& a, linalg::Matrix<T> const& b) {
   if (a.shape_.cols != b.shape_.rows) {
@@ -882,7 +949,14 @@ linalg::Matrix<T> dot(linalg::Matrix<T> const& a, linalg::Matrix<T> const& b) {
   }
   return ret;
 }
-
+/**
+ * @brief random matrix
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param min the min limit
+ * @param max the max limit
+ * @return the random matrix
+ */
 template <typename T>
 linalg::Matrix<T> random(unsigned int const& iRows, unsigned int const& iCols,
                          T const& min, T const& max) {
@@ -893,7 +967,11 @@ linalg::Matrix<T> random(unsigned int const& iRows, unsigned int const& iCols,
   }
   return result;
 }
-
+/**
+ * @brief absolute
+ * @param param the matrix
+ * @return the absolute of the matrix
+ */
 template <typename T>
 linalg::Matrix<T> absolute(linalg::Matrix<T> const& param) {
   LOG("C:absolute matrix");
@@ -903,7 +981,12 @@ linalg::Matrix<T> absolute(linalg::Matrix<T> const& param) {
     if (result.data_[i] < 0) result.data_[i] *= static_cast<T>(-1);
   return result;
 }
-
+/**
+ * @brief pow
+ * @param param the matrix
+ * @param value the power
+ * @return param^value
+ */
 template <typename T, typename U>
 linalg::Matrix<T> pow(linalg::Matrix<T> const& param, U const& value) {
   LOG("C:pow matrix");
@@ -914,6 +997,12 @@ linalg::Matrix<T> pow(linalg::Matrix<T> const& param, U const& value) {
   }
   return result;
 }
+/**
+ * @brief pow
+ * @param value the base
+ * @param param the matrix
+ * @return value^param
+ */
 template <typename T, typename U>
 linalg::Matrix<U> pow(U const& value, linalg::Matrix<T> const& param) {
   LOG("C:pow matrix");
