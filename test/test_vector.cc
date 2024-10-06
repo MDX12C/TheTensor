@@ -52,6 +52,17 @@ int main() {
   auto d = basic_math::random(10, -15.0F, 15.0F);
   std::cout << d << std::endl;
   std::cout << (basic_math::pow(2.0F, d));
+  std::cout << "version flag" << std::endl;
+  d.random(-5.0F, 5.0F);
+  std::cout << d << std::endl;
+  d.absolute();
+  std::cout << d << std::endl;
+  d.powF(2);
+  std::cout << d << std::endl;
+  d.random(-5.0F, 5.0F);
+  std::cout << d << std::endl;
+  d.powB(2);
+  std::cout << d << std::endl;
   DESTRUCT;
   return 0;
 }

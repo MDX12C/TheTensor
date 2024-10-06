@@ -61,6 +61,10 @@ class Vector {
   inline void load(unsigned int const&, T* const&);
   inline T* begin() { return data_; }
   inline T* end() { return data_ + size_; }
+  inline Vector& random(T const&, T const&);
+  inline Vector& absolute();
+  inline Vector& powF(T const&);
+  inline Vector& powB(T const&);
 
   // Operator overloads
   inline T& operator[](unsigned int const&) const;
@@ -248,6 +252,58 @@ void Vector<T>::freedom() {
   return;
 }
 
+/**
+ * @brief random itself
+ * @param lenth the size
+ * @param min the min
+ * @param max the max
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::random(T const& min, T const& max) {
+  LOG("C:random vector");
+  for (unsigned int i = 0; i < size_; i++)
+    data_[i] = basic_math::random(min, max);
+  return *this;
+}
+
+/**
+ * @brief abs the vector
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::absolute() {
+  LOG("C:absolute");
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::abs(data_[i]);
+  return *this;
+}
+
+/**
+ * @brief pow front
+ * @param value the power
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::powF(T const& value) {
+  LOG("C:pow");
+  if constexpr (std::is_same_v<bool, T>) return *this;
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::pow(data_[i], value);
+  return *this;
+}
+
+/**
+ * @brief pow back
+ * @param value the base
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::powB(T const& value) {
+  LOG("C:pow");
+  if constexpr (std::is_same_v<bool, T>) return *this;
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::pow(value, data_[i]);
+  return *this;
+}
+
 template <typename T>
 T& Vector<T>::operator[](unsigned int const& i) const {
   if (i >= size_) {
@@ -344,6 +400,11 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
     data_ = new T[other.size_];
     std::copy(other.data_, other.data_ + other.size_, data_);
     size_ = other.size_;
+
+    if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
+            size_ * sizeof(T), this)) {
+      LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+    }
   }
   return *this;
 }

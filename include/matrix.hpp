@@ -79,6 +79,16 @@ class Matrix {
   inline Matrix transpose() const;
   inline T* begin() { return data_; }
   inline T* end() { return data_ + msSize(shape_); }
+  inline Matrix& random(T const&, T const&);
+  inline Matrix& absolute();
+  inline Matrix& powF(T const&);
+  inline Matrix& powB(T const&);
+  inline Matrix& dotF(Matrix<T> const&);
+  inline Matrix& dotB(Matrix<T> const&);
+  inline Matrix& mergeU(Matrix<T> const&);
+  inline Matrix& mergeD(Matrix<T> const&);
+  inline Matrix& mergeR(Matrix<T> const&);
+  inline Matrix& mergeL(Matrix<T> const&);
 
   // Operator overloads
   inline T& operator[](MaShape const&) const;
@@ -476,6 +486,233 @@ Matrix<T> Matrix<T>::transpose() const {
     }
   }
   return transposed;
+}
+
+/**
+ * @brief random
+ * @param min the min
+ * @param max the max
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::random(T const& min, T const& max) {
+  LOG("C:random");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = basic_math::random(min, max);
+  }
+  return *this;
+}
+/**
+ * @brief absolute
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::absolute() {
+  LOG("C:absolute");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::abs(data_[i]);
+  }
+  return *this;
+}
+/**
+ * @brief pow front
+ * @param value the power
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::powF(T const& value) {
+  LOG("C:pow");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::pow(data_[i], value);
+  }
+  return *this;
+}
+/**
+ * @brief pow back
+ * @param value the base
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::powB(T const& value) {
+  LOG("C:pow");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::pow(value, data_[i]);
+  }
+  return *this;
+}
+/**
+ * @brief dot front
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::dotF(Matrix<T> const& other) {
+  LOG("C:dot");
+  if (shape_.cols != other.shape_.rows) {
+    LOG("B:the shapes can't dot");
+    return *this;
+  }
+  T* newData = new T[shape_.rows * other.shape_.cols];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * other.shape_.cols + j] = 0;
+      for (unsigned int k = 0; k < shape_.cols; k++) {
+        newData[i * other.shape_.cols + j] +=
+            data_[i * shape_.cols + k] * other.data_[k * other.shape_.cols + j];
+      }
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows, other.shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief dot back
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::dotB(Matrix<T> const& other) {
+  LOG("C:dot");
+  if (shape_.rows != other.shape_.cols) {
+    LOG("B:the shapes can't dot");
+    return *this;
+  }
+  T* newData = new T[other.shape_.rows * shape_.cols];
+  for (unsigned int i = 0; i < other.shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * shape_.cols + j] = 0;
+      for (unsigned int k = 0; k < other.shape_.cols; k++) {
+        newData[i * shape_.cols + j] +=
+            data_[i * other.shape_.cols + k] * other.data_[k * shape_.cols + j];
+      }
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge up
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeU(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.cols != other.shape_.cols) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  T* newData = new T[(shape_.rows + other.shape_.rows) * shape_.cols];
+  std::copy(data_, data_ + msSize(shape_), newData);
+  std::copy(other.data_, other.data_ + msSize(other.shape_),
+            newData + msSize(shape_));
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows + other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge down
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeD(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.cols != other.shape_.cols) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  T* newData = new T[(shape_.rows + other.shape_.rows) * shape_.cols];
+  std::copy(other.data_, other.data_ + msSize(other.shape_), newData);
+  std::copy(data_, data_ + msSize(shape_), newData + msSize(other.shape_));
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows + other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge left
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeL(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.rows != other.shape_.rows) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  MaShape iShape = {shape_.rows, shape_.cols + other.shape_.cols};
+  T* newData = new T[shape_.rows * (shape_.cols + other.shape_.cols)];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * iShape.cols + j] = data_[i * shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * iShape.cols + shape_.cols + j] =
+          other.data_[i * other.shape_.cols + j];
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge right
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeR(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.rows != other.shape_.rows) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  MaShape iShape = {shape_.rows, shape_.cols + other.shape_.cols};
+  T* newData = new T[shape_.rows * (shape_.cols + other.shape_.cols)];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * iShape.cols + j] = other.data_[i * other.shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * iShape.cols + shape_.cols + j] = data_[i * shape_.cols + j];
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
 }
 
 template <typename T>
