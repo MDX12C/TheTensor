@@ -210,6 +210,7 @@ inline void logPack() {
  * @param B bug: happened the unexpect bug and can't solve it
  * @param AP all pass: the reserved word, don't use it
  * @param FN finish: the reserved word, don't use it
+ * @param S system message: the reserved word, don't use it
  */
 #define LOG(_FORMAT, ...)              \
   __LOG_MAKER(_FORMAT, ##__VA_ARGS__); \
@@ -225,10 +226,11 @@ inline void logPack() {
  * @param B bug: happened the unexpect bug and can't solve it
  * @param AP all pass: the reserved word, don't use it
  * @param FN finish: the reserved word, don't use it
+ * @param S system message: the reserved word, don't use it
  */
-#define LOG(_FORMAT, ...)                           \
-  if ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E')) { \
-    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);            \
+#define LOG(_FORMAT, ...)                                                  \
+  if ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E') || (_FORMAT[0] == 'S')) { \
+    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);                                   \
   }
 #else
 /**
@@ -240,6 +242,7 @@ inline void logPack() {
  * @param B bug: happened the unexpect bug and can't solve it
  * @param AP all pass: the reserved word, don't use it
  * @param FN finish: the reserved word, don't use it
+ * @param S system message: the reserved word, don't use it
  */
 #define LOG(_FORMAT, ...) __LOG_MAKER(_FORMAT, ##__VA_ARGS__)
 #endif

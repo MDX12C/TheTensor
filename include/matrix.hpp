@@ -7,14 +7,17 @@
 
 namespace basic_math {
 template <typename T>
-linalg::Matrix<T> random(unsigned int const&, unsigned int const&, T const&,
-                         T const&);
+inline linalg::Matrix<T> random(unsigned int const&, unsigned int const&,
+                                T const&, T const&);
 template <typename T>
-linalg::Matrix<T> absolute(linalg::Matrix<T> const&);
+inline linalg::Matrix<T> absolute(linalg::Matrix<T> const&);
 template <typename T, typename U>
-linalg::Matrix<T> pow(linalg::Matrix<T> const&, U const&);
+inline linalg::Matrix<T> pow(linalg::Matrix<T> const&, U const&);
+template <typename T, typename U>
+inline linalg::Matrix<U> pow(U const&, linalg::Matrix<T> const&);
 template <typename T>
-linalg::Matrix<T> dot(linalg::Matrix<T> const&, linalg::Matrix<T> const&);
+inline linalg::Matrix<T> dot(linalg::Matrix<T> const&,
+                             linalg::Matrix<T> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -27,16 +30,29 @@ class Matrix {
 
   // friends
   template <typename U>
-  friend std::ostream& operator<<(std::ostream&, Matrix<U> const&);
+  friend inline std::ostream& operator<<(std::ostream&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> basic_math::random(unsigned int const&, unsigned int const&,
-                                      U const&, U const&);
+  friend inline Matrix<U> basic_math::random(unsigned int const&,
+                                             unsigned int const&, U const&,
+                                             U const&);
   template <typename U>
-  friend Matrix<U> basic_math::absolute(Matrix<U> const&);
+  friend inline Matrix<U> basic_math::absolute(Matrix<U> const&);
   template <typename U, typename W>
-  friend Matrix<U> basic_math::pow(Matrix<U> const&, W const&);
+  friend inline Matrix<U> basic_math::pow(Matrix<U> const&, W const&);
+  template <typename U, typename W>
+  friend inline Matrix<W> basic_math::pow(W const&, Matrix<U> const&);
   template <typename U>
-  friend Matrix<U> basic_math::dot(Matrix<U> const&, Matrix<U> const&);
+  friend inline Matrix<U> basic_math::dot(Matrix<U> const&, Matrix<U> const&);
+  template <typename U>
+  friend inline Matrix<U> mergeUD(Matrix<U> const&, Matrix<U> const&);
+  template <typename U>
+  friend inline Matrix<U> mergeLR(Matrix<U> const&, Matrix<U> const&);
+  template <typename U>
+  friend inline std::pair<Matrix<U>, Matrix<U>> divideUD(Matrix<U> const&,
+                                                         unsigned int const&);
+  template <typename U>
+  friend inline std::pair<Matrix<U>, Matrix<U>> divideLR(Matrix<U> const&,
+                                                         unsigned int const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -54,18 +70,30 @@ class Matrix {
   // Member functions
   inline MaShape const& shape() const { return shape_; }
   inline unsigned int const& size() const { return msSize(shape_); }
-  T sum() const;
-  void freedom();
-  void reshape(unsigned int const&, unsigned int const&);
-  void load(unsigned int const&, unsigned int const&, T* const&);
-  Matrix transpose() const;
+  inline T sum() const;
+  inline void freedom();
+  inline void reshape(unsigned int const&, unsigned int const&);
+  inline void reshape(MaShape const&);
+  inline void load(unsigned int const&, unsigned int const&, T* const&);
+  inline void load(MaShape const&, T* const&);
+  inline Matrix transpose() const;
   inline T* begin() { return data_; }
   inline T* end() { return data_ + msSize(shape_); }
+  inline Matrix& random(T const&, T const&);
+  inline Matrix& absolute();
+  inline Matrix& powF(T const&);
+  inline Matrix& powB(T const&);
+  inline Matrix& dotF(Matrix<T> const&);
+  inline Matrix& dotB(Matrix<T> const&);
+  inline Matrix& mergeU(Matrix<T> const&);
+  inline Matrix& mergeD(Matrix<T> const&);
+  inline Matrix& mergeR(Matrix<T> const&);
+  inline Matrix& mergeL(Matrix<T> const&);
 
   // Operator overloads
-  T& operator[](MaShape const&) const;
+  inline T& operator[](MaShape const&) const;
   template <typename U>
-  operator Matrix<U>() {
+  inline operator Matrix<U>() {
     LOG("C:cast operator in Matrix");
     if constexpr (std::is_same_v<T, U>) return *this;
     Matrix<U> result(shape_);
@@ -73,48 +101,58 @@ class Matrix {
       result.data_[i] = static_cast<U>(data_[i]);
     return result;
   }
-  Matrix& operator=(const Matrix&);
-  Matrix& operator+=(const Matrix&);
-  Matrix& operator-=(const Matrix&);
-  Matrix& operator*=(const Matrix&);
-  Matrix& operator/=(const Matrix&);
+  inline Matrix& operator=(const Matrix&);
+  inline Matrix& operator+=(const Matrix&);
+  inline Matrix& operator-=(const Matrix&);
+  inline Matrix& operator*=(const Matrix&);
+  inline Matrix& operator/=(const Matrix&);
 
-  Matrix operator+(const Matrix&) const;
-  Matrix operator-(const Matrix&) const;
-  Matrix operator*(const Matrix&) const;
-  Matrix operator/(const Matrix&) const;
+  inline Matrix operator+(const Matrix&) const;
+  inline Matrix operator-(const Matrix&) const;
+  inline Matrix operator*(const Matrix&) const;
+  inline Matrix operator/(const Matrix&) const;
 
-  Matrix<bool> operator==(const Matrix&) const;
-  Matrix<bool> operator!=(const Matrix&) const;
-  Matrix<bool> operator<(const Matrix&) const;
-  Matrix<bool> operator<=(const Matrix&) const;
-  Matrix<bool> operator>(const Matrix&) const;
-  Matrix<bool> operator>=(const Matrix&) const;
+  inline Matrix<bool> operator==(const Matrix&) const;
+  inline Matrix<bool> operator!=(const Matrix&) const;
+  inline Matrix<bool> operator<(const Matrix&) const;
+  inline Matrix<bool> operator<=(const Matrix&) const;
+  inline Matrix<bool> operator>(const Matrix&) const;
+  inline Matrix<bool> operator>=(const Matrix&) const;
 
-  Matrix& operator=(T const&);
-  Matrix& operator+=(T const&);
-  Matrix& operator-=(T const&);
-  Matrix& operator*=(T const&);
-  Matrix& operator/=(T const&);
+  inline Matrix& operator=(T const&);
+  inline Matrix& operator+=(T const&);
+  inline Matrix& operator-=(T const&);
+  inline Matrix& operator*=(T const&);
+  inline Matrix& operator/=(T const&);
 
-  Matrix operator+(T const&) const;
-  Matrix operator-(T const&) const;
-  Matrix operator*(T const&) const;
-  Matrix operator/(T const&) const;
+  inline Matrix operator+(T const&) const;
+  inline Matrix operator-(T const&) const;
+  inline Matrix operator*(T const&) const;
+  inline Matrix operator/(T const&) const;
 
-  Matrix operator-() const;
+  inline Matrix operator-() const;
 
-  Matrix<bool> operator==(T const&) const;
-  Matrix<bool> operator!=(T const&) const;
-  Matrix<bool> operator<(T const&) const;
-  Matrix<bool> operator<=(T const&) const;
-  Matrix<bool> operator>(T const&) const;
-  Matrix<bool> operator>=(T const&) const;
+  inline Matrix<bool> operator==(T const&) const;
+  inline Matrix<bool> operator!=(T const&) const;
+  inline Matrix<bool> operator<(T const&) const;
+  inline Matrix<bool> operator<=(T const&) const;
+  inline Matrix<bool> operator>(T const&) const;
+  inline Matrix<bool> operator>=(T const&) const;
 };
 
 template <typename Data>
-std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
+inline std::ostream& operator<<(std::ostream&, const Matrix<Data>&);
 
+template <typename T>
+inline Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&);
+template <typename T>
+inline Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&);
+template <typename T>
+inline std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const&,
+                                                unsigned int const&);
+template <typename T>
+inline std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const&,
+                                                unsigned int const&);
 }  // namespace linalg
 
 namespace linalg {
@@ -154,7 +192,12 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mat) {
   os << "]\n";
   return os;
 }
-
+/**
+ * @brief data constructor
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param data the init datas
+ */
 template <typename T>
 Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols,
                   T* const& data) {
@@ -180,7 +223,11 @@ Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols,
   }
   return;
 }
-
+/**
+ * @brief size constructor
+ * @param iRows the rows
+ * @param iCols the cols
+ */
 template <typename T>
 Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols) {
   LOG("C:init constructor shape(%d,%d)", iRows, iCols);
@@ -199,7 +246,10 @@ Matrix<T>::Matrix(unsigned int const& iRows, unsigned int const& iCols) {
   }
   return;
 }
-
+/**
+ * @brief shape constructor
+ * @param iShape the shape
+ */
 template <typename T>
 Matrix<T>::Matrix(MaShape const& iShape) {
   LOG("C:init constructor shape(%d,%d)", iShape.rows, iShape.cols);
@@ -217,6 +267,9 @@ Matrix<T>::Matrix(MaShape const& iShape) {
   }
   return;
 }
+/**
+ * @brief default constructor
+ */
 template <typename T>
 Matrix<T>::Matrix() {
   LOG("C:default constructor");
@@ -229,7 +282,10 @@ Matrix<T>::Matrix() {
   }
   return;
 }
-
+/**
+ * @brief copy constructor
+ * @param other
+ */
 template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& other) : shape_(other.shape_) {
   LOG("C:copy constructor");
@@ -250,7 +306,9 @@ Matrix<T>::~Matrix() {
   }
   delete[] data_;
 }
-
+/**
+ * @brief freedom
+ */
 template <typename T>
 void Matrix<T>::freedom() {
   LOG("C:freedom");
@@ -273,7 +331,10 @@ T& Matrix<T>::operator[](MaShape const& iIndex) const {
   LOG("E:the index is illegal");
   return data_[0];
 }
-
+/**
+ * @brief sum
+ * @return the sum,if the type is bool,return true or false
+ */
 template <typename T>
 T Matrix<T>::sum() const {
   LOG("C:sum");
@@ -286,7 +347,11 @@ T Matrix<T>::sum() const {
   for (unsigned int i = 0; i < msSize(shape_); i++) sum += data_[i];
   return sum;
 }
-
+/**
+ * @brief reshape
+ * @param iRows the new rows
+ * @param iCols the new cols
+ */
 template <typename T>
 void Matrix<T>::reshape(unsigned int const& iRows, unsigned int const& iCols) {
   LOG("C:resize shape(%d,%d)", iRows, iCols);
@@ -316,7 +381,44 @@ void Matrix<T>::reshape(unsigned int const& iRows, unsigned int const& iCols) {
   shape_ = iShape;
   return;
 }
+/**
+ * @brief reshape
+ * @param iShape the new shape
+ */
+template <typename T>
+void Matrix<T>::reshape(MaShape const& iShape) {
+  LOG("C:resize shape(%d,%d)", iShape.rows, iShape.cols);
+  if (iShape == shape_) return;
+  if (!msLegal(iShape)) {
+    LOG("B:the illegal shape");
+    return;
+  }
+  T* newData = new T[msSize(iShape)];
+  for (unsigned int i = 0; i < iShape.rows; i++) {
+    for (unsigned int j = 0; j < iShape.cols; j++) {
+      if (i < shape_.rows && j < shape_.cols) {
+        newData[i * iShape.cols + j] = data_[i * shape_.cols + j];
+      } else {
+        newData[i * iShape.cols + j] = static_cast<T>(0);
+      }
+    }
+  }
 
+  delete[] data_;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(iShape) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  data_ = newData;
+  shape_ = iShape;
+  return;
+}
+/**
+ * @brief load
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param data the new datas
+ */
 template <typename T>
 void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
                      T* const& data) {
@@ -342,7 +444,38 @@ void Matrix<T>::load(unsigned int const& iRows, unsigned int const& iCols,
   shape_ = iShape;
   return;
 }
-
+/**
+ * @brief load
+ * @param iShape the shape
+ * @param data the new datas
+ */
+template <typename T>
+void Matrix<T>::load(MaShape const& iShape, T* const& data) {
+  LOG("C:load shape(%d,%d) data=%p", iShape.rows, iShape.cols,
+      static_cast<void*>(data));
+  if (data == nullptr) {
+    LOG("B:reading for null pointer");
+    return;
+  }
+  if (!msLegal(iShape)) {
+    LOG("B:the illegal shape");
+    return;
+  }
+  T* newData = new T[msSize(iShape)];
+  std::copy(data, data + msSize(iShape), newData);
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(iShape) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  return;
+}
+/**
+ * @brief transpose
+ * @return the transpose matrix
+ */
 template <typename T>
 Matrix<T> Matrix<T>::transpose() const {
   LOG("C:transpose");
@@ -353,6 +486,233 @@ Matrix<T> Matrix<T>::transpose() const {
     }
   }
   return transposed;
+}
+
+/**
+ * @brief random
+ * @param min the min
+ * @param max the max
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::random(T const& min, T const& max) {
+  LOG("C:random");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = basic_math::random(min, max);
+  }
+  return *this;
+}
+/**
+ * @brief absolute
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::absolute() {
+  LOG("C:absolute");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::abs(data_[i]);
+  }
+  return *this;
+}
+/**
+ * @brief pow front
+ * @param value the power
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::powF(T const& value) {
+  LOG("C:pow");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::pow(data_[i], value);
+  }
+  return *this;
+}
+/**
+ * @brief pow back
+ * @param value the base
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::powB(T const& value) {
+  LOG("C:pow");
+  for (unsigned int i = 0; i < msSize(shape_); i++) {
+    data_[i] = std::pow(value, data_[i]);
+  }
+  return *this;
+}
+/**
+ * @brief dot front
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::dotF(Matrix<T> const& other) {
+  LOG("C:dot");
+  if (shape_.cols != other.shape_.rows) {
+    LOG("B:the shapes can't dot");
+    return *this;
+  }
+  T* newData = new T[shape_.rows * other.shape_.cols];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * other.shape_.cols + j] = 0;
+      for (unsigned int k = 0; k < shape_.cols; k++) {
+        newData[i * other.shape_.cols + j] +=
+            data_[i * shape_.cols + k] * other.data_[k * other.shape_.cols + j];
+      }
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows, other.shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief dot back
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::dotB(Matrix<T> const& other) {
+  LOG("C:dot");
+  if (shape_.rows != other.shape_.cols) {
+    LOG("B:the shapes can't dot");
+    return *this;
+  }
+  T* newData = new T[other.shape_.rows * shape_.cols];
+  for (unsigned int i = 0; i < other.shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * shape_.cols + j] = 0;
+      for (unsigned int k = 0; k < other.shape_.cols; k++) {
+        newData[i * shape_.cols + j] +=
+            data_[i * other.shape_.cols + k] * other.data_[k * shape_.cols + j];
+      }
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge up
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeU(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.cols != other.shape_.cols) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  T* newData = new T[(shape_.rows + other.shape_.rows) * shape_.cols];
+  std::copy(data_, data_ + msSize(shape_), newData);
+  std::copy(other.data_, other.data_ + msSize(other.shape_),
+            newData + msSize(shape_));
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows + other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge down
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeD(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.cols != other.shape_.cols) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  T* newData = new T[(shape_.rows + other.shape_.rows) * shape_.cols];
+  std::copy(other.data_, other.data_ + msSize(other.shape_), newData);
+  std::copy(data_, data_ + msSize(shape_), newData + msSize(other.shape_));
+  delete[] data_;
+  data_ = newData;
+  shape_ = MaShape{shape_.rows + other.shape_.rows, shape_.cols};
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge left
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeL(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.rows != other.shape_.rows) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  MaShape iShape = {shape_.rows, shape_.cols + other.shape_.cols};
+  T* newData = new T[shape_.rows * (shape_.cols + other.shape_.cols)];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * iShape.cols + j] = data_[i * shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * iShape.cols + shape_.cols + j] =
+          other.data_[i * other.shape_.cols + j];
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
+}
+/**
+ * @brief merge right
+ * @param other the other
+ * @return itself
+ */
+template <typename T>
+Matrix<T>& Matrix<T>::mergeR(Matrix<T> const& other) {
+  LOG("C:merge");
+  if (shape_.rows != other.shape_.rows) {
+    LOG("B:the shapes can't merge");
+    return *this;
+  }
+  MaShape iShape = {shape_.rows, shape_.cols + other.shape_.cols};
+  T* newData = new T[shape_.rows * (shape_.cols + other.shape_.cols)];
+  for (unsigned int i = 0; i < shape_.rows; i++) {
+    for (unsigned int j = 0; j < shape_.cols; j++) {
+      newData[i * iShape.cols + j] = other.data_[i * other.shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < other.shape_.cols; j++) {
+      newData[i * iShape.cols + shape_.cols + j] = data_[i * shape_.cols + j];
+    }
+  }
+  delete[] data_;
+  data_ = newData;
+  shape_ = iShape;
+  if (!memory_maintainer::MemoryManager::modify<linalg::Matrix<T>>(
+          msSize(shape_) * sizeof(T), this)) {
+    LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+  }
+  return *this;
 }
 
 template <typename T>
@@ -679,9 +1039,131 @@ Matrix<bool> Matrix<T>::operator>=(T const& value) const {
     ret.data_[i] = data_[i] >= value;
   return ret;
 }
+/**
+ * @brief merge two matrix above and below
+ * @param upOne the matrix above
+ * @param downOne the matrix below
+ * @return the merged matrix
+ */
+template <typename T>
+Matrix<T> mergeUD(Matrix<T> const& upOne, Matrix<T> const& downOne) {
+  LOG("C:mergeUD");
+  if (upOne.shape_.cols != downOne.shape_.cols) {
+    LOG("E:merge side not same(%d and %d)", upOne.shape_.cols,
+        downOne.shape_.cols);
+    Matrix<T> ret(upOne);
+    return ret;
+  }
+  MaShape newShape{upOne.shape_.rows + downOne.shape_.rows, upOne.shape_.cols};
+  Matrix<T> ret(newShape);
+  std::copy(upOne.data_, upOne.data_ + msSize(upOne.shape_), ret.data_);
+  std::copy(downOne.data_, downOne.data_ + msSize(downOne.shape_),
+            ret.data_ + msSize(upOne.shape_));
+  return ret;
+}
+/**
+ * @brief merge two matrix left and right
+ * @param leftOne the matrix left
+ * @param rightOne the matrix right
+ * @return the merged matrix
+ */
+template <typename T>
+Matrix<T> mergeLR(Matrix<T> const& leftOne, Matrix<T> const& rightOne) {
+  LOG("C:mergeLR");
+  if (leftOne.shape_.rows != rightOne.shape_.rows) {
+    LOG("E:merge side not same(%d and %d)", leftOne.shape_.rows,
+        rightOne.shape_.rows);
+    Matrix<T> ret(leftOne);
+    return ret;
+  }
+  MaShape newShape{leftOne.shape_.rows,
+                   leftOne.shape_.cols + rightOne.shape_.cols};
+  Matrix<T> ret(newShape);
+  for (unsigned int i = 0; i < leftOne.shape_.rows; i++) {
+    for (unsigned int j = 0; j < leftOne.shape_.cols; j++) {
+      ret.data_[i * newShape.cols + j] =
+          leftOne.data_[i * leftOne.shape_.cols + j];
+    }
+    for (unsigned int j = 0; j < rightOne.shape_.cols; j++) {
+      ret.data_[i * newShape.cols + j + leftOne.shape_.cols] =
+          rightOne.data_[i * rightOne.shape_.cols + j];
+    }
+  }
+  return ret;
+}
+/**
+ * @brief divide two matrix above and below
+ * @param param the matrix to divide
+ * @param size the high of the above one
+ * @return the divided matrixs
+ */
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideUD(Matrix<T> const& param,
+                                         unsigned int const& size) {
+  LOG("C:divideUD");
+  Matrix<T> upper, lower;
+  if (size >= param.shape_.rows) {
+    upper = param;
+    lower.reshape(1, 1);
+    lower = static_cast<T>(0);
+  } else if (size == 0) {
+    lower = param;
+    upper.reshape(1, 1);
+    upper = static_cast<T>(0);
+  } else {
+    upper.reshape(size, param.shape_.cols);
+    lower.reshape(param.shape_.rows - size, param.shape_.cols);
+    std::copy(param.data_, param.data_ + msSize(upper.shape_), upper.data_);
+    std::copy(param.data_ + msSize(upper.shape_),
+              param.data_ + msSize(param.shape_), lower.data_);
+  }
+  std::pair<Matrix<T>, Matrix<T>> ret = {upper, lower};
+  return ret;
+}
+/**
+ * @brief divide two matrix left and right
+ * @param param the matrix to divide
+ * @param size the width of the left one
+ * @return the divided matrixs
+ */
+template <typename T>
+std::pair<Matrix<T>, Matrix<T>> divideLR(Matrix<T> const& param,
+                                         unsigned int const& size) {
+  LOG("C:divideLR");
+  Matrix<T> lefter, righter;
+  if (size >= param.shape_.cols) {
+    lefter = param;
+    righter.reshape(1, 1);
+    righter = static_cast<T>(0);
+  } else if (size == 0) {
+    righter = param;
+    lefter.reshape(1, 1);
+    lefter = static_cast<T>(0);
+  } else {
+    lefter.reshape(param.shape_.rows, size);
+    righter.reshape(param.shape_.rows, param.shape_.cols - size);
+    for (unsigned int i = 0; i < param.shape_.rows; i++) {
+      for (unsigned int j = 0; j < lefter.shape_.cols; j++) {
+        lefter.data_[i * lefter.shape_.cols + j] =
+            param.data_[i * param.shape_.cols + j];
+      }
+      for (unsigned int j = 0; j < righter.shape_.cols; j++) {
+        righter.data_[i * righter.shape_.cols + j] =
+            param.data_[i * param.shape_.cols + j + lefter.shape_.cols];
+      }
+    }
+  }
+  std::pair<Matrix<T>, Matrix<T>> ret = {lefter, righter};
+  return ret;
+}
 }  // namespace linalg
 namespace basic_math {
-
+/**
+ * @brief matrix dot
+ * @param a the left matrix
+ * @param b the right matrix
+ * @return the dot matrix
+ */
 template <typename T>
 linalg::Matrix<T> dot(linalg::Matrix<T> const& a, linalg::Matrix<T> const& b) {
   if (a.shape_.cols != b.shape_.rows) {
@@ -704,7 +1186,14 @@ linalg::Matrix<T> dot(linalg::Matrix<T> const& a, linalg::Matrix<T> const& b) {
   }
   return ret;
 }
-
+/**
+ * @brief random matrix
+ * @param iRows the rows
+ * @param iCols the cols
+ * @param min the min limit
+ * @param max the max limit
+ * @return the random matrix
+ */
 template <typename T>
 linalg::Matrix<T> random(unsigned int const& iRows, unsigned int const& iCols,
                          T const& min, T const& max) {
@@ -715,7 +1204,11 @@ linalg::Matrix<T> random(unsigned int const& iRows, unsigned int const& iCols,
   }
   return result;
 }
-
+/**
+ * @brief absolute
+ * @param param the matrix
+ * @return the absolute of the matrix
+ */
 template <typename T>
 linalg::Matrix<T> absolute(linalg::Matrix<T> const& param) {
   LOG("C:absolute matrix");
@@ -725,7 +1218,12 @@ linalg::Matrix<T> absolute(linalg::Matrix<T> const& param) {
     if (result.data_[i] < 0) result.data_[i] *= static_cast<T>(-1);
   return result;
 }
-
+/**
+ * @brief pow
+ * @param param the matrix
+ * @param value the power
+ * @return param^value
+ */
 template <typename T, typename U>
 linalg::Matrix<T> pow(linalg::Matrix<T> const& param, U const& value) {
   LOG("C:pow matrix");
@@ -733,6 +1231,25 @@ linalg::Matrix<T> pow(linalg::Matrix<T> const& param, U const& value) {
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < linalg::msSize(param.shape_); i++) {
     result.data_[i] = std::pow(result.data_[i], value);
+  }
+  return result;
+}
+/**
+ * @brief pow
+ * @param value the base
+ * @param param the matrix
+ * @return value^param
+ */
+template <typename T, typename U>
+linalg::Matrix<U> pow(U const& value, linalg::Matrix<T> const& param) {
+  LOG("C:pow matrix");
+  linalg::Matrix<U> result(param.shape_);
+  if constexpr (std::is_same_v<bool, U>) {
+    result = value;
+    return result;
+  }
+  for (unsigned int i = 0; i < linalg::msSize(param.shape_); i++) {
+    result.data_[i] = std::pow(value, param.data_[i]);
   }
   return result;
 }

@@ -72,7 +72,7 @@
   if constexpr (LOG_H) {          \
     LOG_CON;                      \
     if constexpr (_SPEED_MODE_) { \
-      LOG("SPEED MODE\n");        \
+      LOG("S:SPEED MODE\n");      \
     }                             \
   }                               \
   if constexpr (BASIC_H) {        \
@@ -108,6 +108,10 @@
     MATRIX_DES;             \
   }
 
+/**
+ * @brief exit
+ * @warning don't use it without urgent situation
+ */
 inline void endOfMainFunction() {
   LOG("B:!!Urgent Exit!!");
   printf("!!Urgent Exit!!\n");

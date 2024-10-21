@@ -11,11 +11,13 @@
 
 namespace basic_math {
 template <typename T>
-linalg::Vector<T> random(unsigned int const&, T const&, T const&);
+inline linalg::Vector<T> random(unsigned int const&, T const&, T const&);
 template <typename T>
-linalg::Vector<T> absolute(linalg::Vector<T> const&);
+inline linalg::Vector<T> absolute(linalg::Vector<T> const&);
 template <typename T, typename U>
-linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
+inline linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
+template <typename T, typename U>
+inline linalg::Vector<T> pow(T const&, linalg::Vector<U> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -28,13 +30,16 @@ class Vector {
 
   // friends
   template <typename U>
-  friend std::ostream& operator<<(std::ostream&, Vector<U> const&);
+  friend inline std::ostream& operator<<(std::ostream&, Vector<U> const&);
   template <typename U>
-  friend Vector<U> basic_math::random(unsigned int const&, U const&, U const&);
+  friend inline Vector<U> basic_math::random(unsigned int const&, U const&,
+                                             U const&);
   template <typename U>
-  friend Vector<U> basic_math::absolute(Vector<U> const&);
+  friend inline Vector<U> basic_math::absolute(Vector<U> const&);
   template <typename U, typename V>
-  friend Vector<U> basic_math::pow(Vector<U> const&, V const&);
+  friend inline Vector<U> basic_math::pow(Vector<U> const&, V const&);
+  template <typename W, typename U>
+  friend inline Vector<W> basic_math::pow(W const&, Vector<U> const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -50,17 +55,21 @@ class Vector {
 
   // Member functions
   inline unsigned int const& size() const { return size_; }
-  T sum() const;
-  void freedom();
-  void resize(unsigned int const&);
-  void load(unsigned int const&, T* const&);
+  inline T sum() const;
+  inline void freedom();
+  inline void resize(unsigned int const&);
+  inline void load(unsigned int const&, T* const&);
   inline T* begin() { return data_; }
   inline T* end() { return data_ + size_; }
+  inline Vector& random(T const&, T const&);
+  inline Vector& absolute();
+  inline Vector& powF(T const&);
+  inline Vector& powB(T const&);
 
   // Operator overloads
-  T& operator[](unsigned int const&) const;
+  inline T& operator[](unsigned int const&) const;
   template <typename U>
-  operator Vector<U>() {
+  inline operator Vector<U>() {
     LOG("C:cast operator in Vector");
     if constexpr (std::is_same_v<U, T>) return *this;
     Vector<U> result(size_);
@@ -68,47 +77,47 @@ class Vector {
       result.data_[i] = static_cast<U>(data_[i]);
     return result;
   }
-  Vector& operator=(const Vector&);
-  Vector& operator+=(const Vector&);
-  Vector& operator-=(const Vector&);
-  Vector& operator*=(const Vector&);
-  Vector& operator/=(const Vector&);
+  inline Vector& operator=(const Vector&);
+  inline Vector& operator+=(const Vector&);
+  inline Vector& operator-=(const Vector&);
+  inline Vector& operator*=(const Vector&);
+  inline Vector& operator/=(const Vector&);
 
-  Vector operator+(const Vector&) const;
-  Vector operator-(const Vector&) const;
-  Vector operator*(const Vector&) const;
-  Vector operator/(const Vector&) const;
+  inline Vector operator+(const Vector&) const;
+  inline Vector operator-(const Vector&) const;
+  inline Vector operator*(const Vector&) const;
+  inline Vector operator/(const Vector&) const;
 
-  Vector<bool> operator==(const Vector&) const;
-  Vector<bool> operator!=(const Vector&) const;
-  Vector<bool> operator<(const Vector&) const;
-  Vector<bool> operator<=(const Vector&) const;
-  Vector<bool> operator>(const Vector&) const;
-  Vector<bool> operator>=(const Vector&) const;
+  inline Vector<bool> operator==(const Vector&) const;
+  inline Vector<bool> operator!=(const Vector&) const;
+  inline Vector<bool> operator<(const Vector&) const;
+  inline Vector<bool> operator<=(const Vector&) const;
+  inline Vector<bool> operator>(const Vector&) const;
+  inline Vector<bool> operator>=(const Vector&) const;
 
-  Vector& operator=(T const&);
-  Vector& operator+=(T const&);
-  Vector& operator-=(T const&);
-  Vector& operator*=(T const&);
-  Vector& operator/=(T const&);
+  inline Vector& operator=(T const&);
+  inline Vector& operator+=(T const&);
+  inline Vector& operator-=(T const&);
+  inline Vector& operator*=(T const&);
+  inline Vector& operator/=(T const&);
 
-  Vector operator+(T const&) const;
-  Vector operator-(T const&) const;
-  Vector operator*(T const&) const;
-  Vector operator/(T const&) const;
+  inline Vector operator+(T const&) const;
+  inline Vector operator-(T const&) const;
+  inline Vector operator*(T const&) const;
+  inline Vector operator/(T const&) const;
 
-  Vector operator-() const;
+  inline Vector operator-() const;
 
-  Vector<bool> operator==(T const&) const;
-  Vector<bool> operator!=(T const&) const;
-  Vector<bool> operator<(T const&) const;
-  Vector<bool> operator<=(T const&) const;
-  Vector<bool> operator>(T const&) const;
-  Vector<bool> operator>=(T const&) const;
+  inline Vector<bool> operator==(T const&) const;
+  inline Vector<bool> operator!=(T const&) const;
+  inline Vector<bool> operator<(T const&) const;
+  inline Vector<bool> operator<=(T const&) const;
+  inline Vector<bool> operator>(T const&) const;
+  inline Vector<bool> operator>=(T const&) const;
 };
 
 template <typename Data>
-std::ostream& operator<<(std::ostream&, const Vector<Data>&);
+inline std::ostream& operator<<(std::ostream&, const Vector<Data>&);
 
 }  // namespace linalg
 
@@ -145,7 +154,11 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& vec) {
   os << "]\n";
   return os;
 }
-
+/**
+ * @brief data constructor
+ * @param vecSize the size of the vector
+ * @param data the init datas
+ */
 template <typename T>
 Vector<T>::Vector(unsigned int const& vecSize, T* const& data)
     : size_(vecSize) {
@@ -167,7 +180,10 @@ Vector<T>::Vector(unsigned int const& vecSize, T* const& data)
   }
   return;
 }
-
+/**
+ * @brief size constructor
+ * @param vecSize the size of the vector
+ */
 template <typename T>
 Vector<T>::Vector(unsigned int const& vecSize) : size_(vecSize) {
   LOG("C:size constrcutor size=%d", vecSize);
@@ -183,7 +199,9 @@ Vector<T>::Vector(unsigned int const& vecSize) : size_(vecSize) {
   }
   return;
 }
-
+/**
+ * @brief default constructor
+ */
 template <typename T>
 Vector<T>::Vector() : size_(1), data_(new T[1]) {
   LOG("C:default constructor");
@@ -194,7 +212,9 @@ Vector<T>::Vector() : size_(1), data_(new T[1]) {
   }
   return;
 }
-
+/**
+ * @brief copy constructor
+ */
 template <typename T>
 Vector<T>::Vector(const Vector& other)
     : size_(other.size_), data_(new T[other.size_]) {
@@ -215,7 +235,9 @@ Vector<T>::~Vector() {
   }
   delete[] data_;
 }
-
+/**
+ * @brief freedom
+ */
 template <typename T>
 void Vector<T>::freedom() {
   LOG("C:freedom");
@@ -230,6 +252,58 @@ void Vector<T>::freedom() {
   return;
 }
 
+/**
+ * @brief random itself
+ * @param lenth the size
+ * @param min the min
+ * @param max the max
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::random(T const& min, T const& max) {
+  LOG("C:random vector");
+  for (unsigned int i = 0; i < size_; i++)
+    data_[i] = basic_math::random(min, max);
+  return *this;
+}
+
+/**
+ * @brief abs the vector
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::absolute() {
+  LOG("C:absolute");
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::abs(data_[i]);
+  return *this;
+}
+
+/**
+ * @brief pow front
+ * @param value the power
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::powF(T const& value) {
+  LOG("C:pow");
+  if constexpr (std::is_same_v<bool, T>) return *this;
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::pow(data_[i], value);
+  return *this;
+}
+
+/**
+ * @brief pow back
+ * @param value the base
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::powB(T const& value) {
+  LOG("C:pow");
+  if constexpr (std::is_same_v<bool, T>) return *this;
+  for (unsigned int i = 0; i < size_; i++) data_[i] = std::pow(value, data_[i]);
+  return *this;
+}
+
 template <typename T>
 T& Vector<T>::operator[](unsigned int const& i) const {
   if (i >= size_) {
@@ -238,7 +312,10 @@ T& Vector<T>::operator[](unsigned int const& i) const {
   }
   return data_[i];
 }
-
+/**
+ * @brief sum
+ * @return the sum,if the type is bool,return true or false
+ */
 template <typename T>
 T Vector<T>::sum() const {
   LOG("C:sum");
@@ -252,7 +329,10 @@ T Vector<T>::sum() const {
   for (unsigned int i = 0; i < size_; i++) sum += data_[i];
   return sum;
 }
-
+/**
+ * @brief resize
+ * @param newSize the new size
+ */
 template <typename T>
 void Vector<T>::resize(unsigned int const& newSize) {
   LOG("C:resize newSize=%d", newSize);
@@ -282,7 +362,11 @@ void Vector<T>::resize(unsigned int const& newSize) {
   size_ = newSize;
   return;
 }
-
+/**
+ * @brief load
+ * @param vecSize the size
+ * @param data the data
+ */
 template <typename T>
 void Vector<T>::load(unsigned int const& vecSize, T* const& data) {
   LOG("C:load size=%d data=%p", vecSize, static_cast<void*>(data));
@@ -316,6 +400,11 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other) {
     data_ = new T[other.size_];
     std::copy(other.data_, other.data_ + other.size_, data_);
     size_ = other.size_;
+
+    if (!memory_maintainer::MemoryManager::modify<linalg::Vector<T>>(
+            size_ * sizeof(T), this)) {
+      LOG("B:MemoryManager return fail modify of %p", static_cast<void*>(this));
+    }
   }
   return *this;
 }
@@ -612,6 +701,13 @@ Vector<bool> Vector<T>::operator>=(T const& value) const {
 }
 }  // namespace linalg
 namespace basic_math {
+/**
+ * @brief generate random vector
+ * @param size the size of the vector
+ * @param min the min limit
+ * @param max the max limit
+ * @return the random vector
+ */
 template <typename T>
 linalg::Vector<T> random(unsigned int const& size, T const& min, T const& max) {
   LOG("C:random vector");
@@ -620,7 +716,11 @@ linalg::Vector<T> random(unsigned int const& size, T const& min, T const& max) {
     result.data_[i] = basic_math::random(min, max);
   return result;
 }
-
+/**
+ * @brief absolute value
+ * @param param the vector
+ * @return the absolute of the vector
+ */
 template <typename T>
 linalg::Vector<T> absolute(linalg::Vector<T> const& param) {
   LOG("C:absolute vector");
@@ -630,7 +730,12 @@ linalg::Vector<T> absolute(linalg::Vector<T> const& param) {
     if (result.data_[i] < 0) result.data_[i] *= static_cast<T>(-1);
   return result;
 }
-
+/**
+ * @brief power
+ * @param param the vector
+ * @param value the power
+ * @return param^value
+ */
 template <typename T, typename U>
 linalg::Vector<T> pow(linalg::Vector<T> const& param, U const& value) {
   LOG("C:pow vector");
@@ -638,6 +743,25 @@ linalg::Vector<T> pow(linalg::Vector<T> const& param, U const& value) {
   if constexpr (std::is_same_v<bool, T>) return result;
   for (unsigned int i = 0; i < result.size_; i++)
     result.data_[i] = std::pow(result.data_[i], value);
+  return result;
+}
+/**
+ * @brief power
+ * @param value the base
+ * @param param the vector
+ * @return value^param
+ */
+template <typename T, typename U>
+linalg::Vector<T> pow(T const& value, linalg::Vector<U> const& param) {
+  LOG("C:pow vector");
+  linalg::Vector<T> result(param.size_);
+  if constexpr (std::is_same_v<T, bool>) {
+    result = value;
+    return result;
+  }
+  for (unsigned int i = 0; i < result.size_; i++) {
+    result.data_[i] = std::pow(value, param.data_[i]);
+  }
   return result;
 }
 }  // namespace basic_math
