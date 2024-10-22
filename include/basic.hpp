@@ -58,7 +58,7 @@
 
 namespace basic_math {
 constexpr unsigned int ACCURACY = 3;
-
+constexpr float exprision = static_cast<float>(std::exp(1.0F));
 class BasicSupport {
  public:
   static std::mt19937 generator;

@@ -5,6 +5,8 @@
 #include "log.hpp"
 #include "matrix.hpp"
 #include "memory.hpp"
+#include "network.hpp"
+#include "rom.hpp"
 #include "vector.hpp"
 
 #ifndef _SPEED_MODE_
@@ -33,6 +35,12 @@
 #endif
 #ifndef MATRIX_H
 #define MATRIX_H 0
+#endif
+#ifndef NETWORK_H
+#define NETWORK_H 0
+#endif
+#ifndef ROM_H
+#define ROM_H 0
 #endif
 #ifndef BASIC_CON
 #define BASIC_CON
@@ -64,6 +72,18 @@
 #ifndef MATRIX_DES
 #define MATRIX_DES
 #endif
+#ifndef NETWORK_CON
+#define NETWORK_CON
+#endif
+#ifndef NETWORK_DES
+#define NETWORK_DES
+#endif
+#ifndef ROM_CON
+#define ROM_CON
+#endif
+#ifndef ROM_DES
+#define ROM_DES
+#endif
 
 /**
  * @brief initialize all the constants
@@ -86,26 +106,38 @@
   }                               \
   if constexpr (MATRIX_H) {       \
     MATRIX_CON;                   \
+  }                               \
+  if constexpr (NETWORK_H) {      \
+    NETWORK_CON;                  \
+  }                               \
+  if constexpr (ROM_H) {          \
+    ROM_CON;                      \
   }
 
 /**
  * @brief deinitialize all the constants
  */
-#define DESTRUCT            \
-  if constexpr (LOG_H) {    \
-    LOG_DES;                \
-  }                         \
-  if constexpr (VECTOR_H) { \
-    VECTOR_DES;             \
-  }                         \
-  if constexpr (MEMORY_H) { \
-    MEMORY_DES;             \
-  }                         \
-  if constexpr (BASIC_H) {  \
-    BASIC_DES;              \
-  }                         \
-  if constexpr (MATRIX_H) { \
-    MATRIX_DES;             \
+#define DESTRUCT             \
+  if constexpr (VECTOR_H) {  \
+    VECTOR_DES;              \
+  }                          \
+  if constexpr (MEMORY_H) {  \
+    MEMORY_DES;              \
+  }                          \
+  if constexpr (BASIC_H) {   \
+    BASIC_DES;               \
+  }                          \
+  if constexpr (MATRIX_H) {  \
+    MATRIX_DES;              \
+  }                          \
+  if constexpr (NETWORK_H) { \
+    NETWORK_DES;             \
+  }                          \
+  if constexpr (ROM_H) {     \
+    ROM_DES;                 \
+  }                          \
+  if constexpr (LOG_H) {     \
+    LOG_DES;                 \
   }
 
 /**

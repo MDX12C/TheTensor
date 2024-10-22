@@ -18,6 +18,8 @@ template <typename T, typename U>
 inline linalg::Vector<T> pow(linalg::Vector<T> const&, U const&);
 template <typename T, typename U>
 inline linalg::Vector<T> pow(T const&, linalg::Vector<U> const&);
+template <typename T>
+inline linalg::Vector<T> log(linalg::Vector<T> const&);
 }  // namespace basic_math
 
 namespace linalg {
@@ -40,6 +42,28 @@ class Vector {
   friend inline Vector<U> basic_math::pow(Vector<U> const&, V const&);
   template <typename W, typename U>
   friend inline Vector<W> basic_math::pow(W const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<U> basic_math::log(Vector<U> const&);
+  template <typename U>
+  friend inline Vector<U> operator+(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<U> operator-(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<U> operator*(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<U> operator/(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator==(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator!=(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator<(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator<=(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator>(U const&, Vector<U> const&);
+  template <typename U>
+  friend inline Vector<bool> operator>=(U const&, Vector<U> const&);
   template <typename U>
   friend class Vector;
   template <typename U>
@@ -65,6 +89,7 @@ class Vector {
   inline Vector& absolute();
   inline Vector& powF(T const&);
   inline Vector& powB(T const&);
+  inline Vector& log();
 
   // Operator overloads
   inline T& operator[](unsigned int const&) const;
@@ -118,7 +143,26 @@ class Vector {
 
 template <typename Data>
 inline std::ostream& operator<<(std::ostream&, const Vector<Data>&);
-
+template <typename T>
+inline Vector<T> operator+(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<T> operator-(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<T> operator*(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<T> operator/(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator==(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator!=(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator<(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator<=(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator>(T const&, Vector<T> const&);
+template <typename T>
+inline Vector<bool> operator>=(T const&, Vector<T> const&);
 }  // namespace linalg
 
 // Implementation
@@ -304,6 +348,24 @@ Vector<T>& Vector<T>::powB(T const& value) {
   return *this;
 }
 
+/**
+ * @brief log
+ * @return itself
+ */
+template <typename T>
+Vector<T>& Vector<T>::log() {
+  LOG("C:log");
+  if constexpr (std::is_same_v<T, bool>) {
+    for (unsigned int i = 0; i < size_; i++) {
+      data_[i] = static_cast<T>(0);
+    }
+    return *this;
+  }
+  for (unsigned int i = 0; i < size_; i++) {
+    data_[i] = std::log(data_[i]);
+  }
+  return *this;
+}
 template <typename T>
 T& Vector<T>::operator[](unsigned int const& i) const {
   if (i >= size_) {
@@ -699,6 +761,87 @@ Vector<bool> Vector<T>::operator>=(T const& value) const {
     result.data_[i] = (data_[i] >= value);
   return result;
 }
+
+template <typename T>
+inline Vector<T> operator+(T const& a, Vector<T> const& b) {
+  Vector<T> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    __ADD(b.data_[i], a, c.data_[i], T);
+  }
+  return c;
+}
+template <typename T>
+inline Vector<T> operator-(T const& a, Vector<T> const& b) {
+  Vector<T> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    __MNS(a, b.data_[i], c.data_[i], T);
+  }
+  return c;
+}
+template <typename T>
+inline Vector<T> operator*(T const& a, Vector<T> const& b) {
+  Vector<T> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    __MUL(a, b.data_[i], c.data_[i], T);
+  }
+  return c;
+}
+template <typename T>
+inline Vector<T> operator/(T const& a, Vector<T> const& b) {
+  Vector<T> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    __DIV(a, b.data_[i], c.data_[i], T);
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator==(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a == b.data_[i];
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator!=(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a != b.data_[i];
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator<(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a < b.data_[i];
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator<=(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a <= b.data_[i];
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator>(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a > b.data_[i];
+  }
+  return c;
+}
+template <typename T>
+inline Vector<bool> operator>=(T const& a, Vector<T> const& b) {
+  Vector<bool> c(b.size_);
+  for (unsigned int i = 0; i < b.size_; i++) {
+    c.data_[i] = a >= b.data_[i];
+  }
+  return c;
+}
 }  // namespace linalg
 namespace basic_math {
 /**
@@ -761,6 +904,24 @@ linalg::Vector<T> pow(T const& value, linalg::Vector<U> const& param) {
   }
   for (unsigned int i = 0; i < result.size_; i++) {
     result.data_[i] = std::pow(value, param.data_[i]);
+  }
+  return result;
+}
+/**
+ * @brief log
+ * @param param the vector
+ * @return log(param)
+ */
+template <typename T>
+linalg::Vector<T> log(linalg::Vector<T> const& param) {
+  LOG("C:log vector");
+  linalg::Vector<T> result(param);
+  if constexpr (std::is_same_v<bool, T>) {
+    result = static_cast<T>(0);
+    return result;
+  }
+  for (unsigned int i = 0; i < result.size_; i++) {
+    result.data_[i] = std::log(result.data_[i]);
   }
   return result;
 }

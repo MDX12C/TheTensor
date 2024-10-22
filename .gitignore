@@ -27,6 +27,7 @@ Makefile
 *.swo
 dist
 log
+datas
 
 # Ignore dependency files
 *.d

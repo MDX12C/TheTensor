@@ -69,12 +69,12 @@ class LogSupport {
         workSpace = LogSupport::taskQueue.front();
         LogSupport::taskQueue.pop();
         LogSupport::queueLock.unlock();
-        if (static_cast<int>(workSpace[0]) == 65) {
+        if ((workSpace[0] == 'A') && (workSpace[1] == 'P')) {
           delete[] workSpace;
           writer.close();
           CHECK_C(writer);
-          workSpace = new char[3];
-          sprintf(workSpace, "F\n");
+          workSpace = new char[4];
+          sprintf(workSpace, "FN\n");
           LogSupport::queueLock.lock();
           LogSupport::taskQueue.push(workSpace);
           LogSupport::queueLock.unlock();
@@ -153,8 +153,8 @@ inline void logInit() {
  * the pack function, please don't use it directly
  */
 inline void logPack() {
-  LogSupport::mainBuffer = new char[3];
-  sprintf(LogSupport::mainBuffer, "A\n");
+  LogSupport::mainBuffer = new char[4];
+  sprintf(LogSupport::mainBuffer, "AP\n");
   LogSupport::queueLock.lock();
   LogSupport::taskQueue.push(LogSupport::mainBuffer);
   LogSupport::queueLock.unlock();
@@ -165,9 +165,9 @@ inline void logPack() {
     LogSupport::queueLock.lock();
     if (!LogSupport::taskQueue.empty()) {
       LogSupport::mainBuffer = LogSupport::taskQueue.front();
-      LogSupport::taskQueue.pop();
       LogSupport::queueLock.unlock();
-      if (static_cast<int>(LogSupport::mainBuffer[0]) == 70) {
+      if ((LogSupport::mainBuffer[0] == 'F') &&
+          (LogSupport::mainBuffer[1] == 'N')) {
         delete[] LogSupport::mainBuffer;
         break;
       }
