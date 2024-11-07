@@ -1,7 +1,7 @@
-﻿#ifndef NETWORK_H
+﻿#include "define.hpp"
+#ifndef NETWORK_H
 #define NETWORK_H 1
 #include "basic.hpp"
-#include "define.hpp"
 #include "log.hpp"
 #include "matrix.hpp"
 #include "vector.hpp"

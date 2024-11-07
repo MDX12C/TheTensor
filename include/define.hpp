@@ -6,9 +6,12 @@
 //   #define _SIMD_MODE_    1         // open SIMD mode
 //   #define _AVX2_WILL_BE_USED_ON_   1// open AVX2
 //  #define _SPEED_MODE_ 1
+// #define LIMIT 1
 /*end of constants*/
 
-#define LIMIT
+#ifdef LIMIT
+#define ROM_H 0
+#endif
 
 /*control block*/
 #ifdef _SIMD_MODE_
@@ -30,6 +33,7 @@
 #ifndef _SPEED_MODE_
 #define _SPEED_MODE_ 0
 #endif
+#include <H5Cpp.h>
 #include <xmmintrin.h>
 
 #include <atomic>

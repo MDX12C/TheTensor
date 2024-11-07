@@ -1,7 +1,7 @@
+#include "define.hpp"
 #ifndef BASIC_H
 #define BASIC_H 1
 
-#include "define.hpp"
 #include "log.hpp"
 /**
  * @brief add

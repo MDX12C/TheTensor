@@ -1,3 +1,4 @@
+#include "define.hpp"
 #ifndef LOG_H
 #define LOG_H 1
 #include <chrono>
@@ -15,7 +16,6 @@
 #include <queue>
 #include <thread>
 
-#include "define.hpp"
 
 /**
  * the system space
@@ -37,7 +37,7 @@ constexpr int CARRY = 16;
 constexpr int FILE_DIGITS = 2;
 constexpr int FORMAT_LENTH = 256;
 constexpr int BUFFER_LENTH = 512;
-constexpr int DOCS_WIDE = 80;
+constexpr int DOCS_WIDE = 30;
 constexpr int WAIT_TIME = 150;
 constexpr int WHOLE_NUMBER = std::pow(CARRY, FILE_DIGITS);
 
@@ -228,9 +228,10 @@ inline void logPack() {
  * @param FN finish: the reserved word, don't use it
  * @param S system message: the reserved word, don't use it
  */
-#define LOG(_FORMAT, ...)                                                  \
-  if ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E') || (_FORMAT[0] == 'S')) { \
-    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);                                   \
+#define LOG(_FORMAT, ...)                                     \
+  if constexpr ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E') || \
+                (_FORMAT[0] == 'S')) {                        \
+    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);                      \
   }
 #else
 /**

@@ -145,7 +145,7 @@
  * @warning don't use it without urgent situation
  */
 inline void endOfMainFunction() {
-  LOG("B:!!Urgent Exit!!");
+  LOG("S:!!Urgent Exit!!");
   printf("!!Urgent Exit!!\n");
   DESTRUCT;
   exit(1);
