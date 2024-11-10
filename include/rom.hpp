@@ -11,13 +11,14 @@ class RomSupport {
   static H5::H5File fileSelf;
 
  public:
-  static inline void starter(char* const&, char* const&);
+  static inline void starter(const char* const&, const char* const&);
   static inline void ender();
+  static inline void switchMode(bool const&);
   template <typename T>
-  static inline bool read(std::string const&, T* const&);
+  static inline bool read(const char* const&, T* const&);
   template <typename T>
-  static inline bool write(std::string const&, T* const&, unsigned int const&);
-  static inline bool remove(std::string const&);
+  static inline bool write(const char* const&, T* const&, unsigned int const&);
+  static inline bool remove(const char* const&);
 };
 
 /**
@@ -26,11 +27,11 @@ class RomSupport {
  * @param stamp the __TIMESTAMP__
  * @warning don't use it
  */
-void RomSupport::starter(char* const& fileName, char* const& stamp) {
-  LOG("S:Rom IO start\n");
+void RomSupport::starter(const char* const& fileName,
+                         const char* const& stamp) {
+  LOG("S:Rom IO start");
   // create fileName
-  std::string name;
-  name = fileName;
+  std::string name = fileName;
   for (auto i = name.size() - 1; i >= 0; i--) {
     if (name[i] == '/') {
       name = name.substr(i + 1);
@@ -42,42 +43,46 @@ void RomSupport::starter(char* const& fileName, char* const& stamp) {
   name += "hdf5";
   name = "/../datas/" + name;
   name = std::filesystem::current_path().string() + name;
+  LOG("C:name %s\n", name.c_str());
   // open file
-  fileSelf.openFile(name, H5F_ACC_RDWR);
+  RomSupport::fileSelf.openFile(name, H5F_ACC_RDWR);
   // check for file version
   std::string value = stamp;
   H5::StrType sType(H5::PredType::C_S1, H5T_VARIABLE);
-  if (fileSelf.attrExists("version")) {
-    H5::Attribute attr = fileSelf.openAttribute("version");
+  if (RomSupport::fileSelf.attrExists("version")) {
+    LOG("C:version exist\n");
+    H5::Attribute attr = RomSupport::fileSelf.openAttribute("version");
     std::string temp;
     attr.read(sType, temp);
     if (temp != value) {
-      H5::Group root = fileSelf.openGroup("/");
+      LOG("C:version not match");
+      H5::Group root = RomSupport::fileSelf.openGroup("/");
       hsize_t nums;
       nums = root.getNumObjs();
+      LOG("C:%d objects in old version", nums);
       H5G_obj_t objType;
-      for (hsize_t i = nums - 1; i >= 0; i--) {
-        name = root.getObjnameByIdx(i);
-        objType = root.getObjTypeByIdx(i);
-        if (objType == H5G_DATASET) {
-          fileSelf.unlink(name);
-        }
+      for (hsize_t i = 0; i < nums; i++) {
+        LOG("C:delete\n");
+        name = root.getObjnameByIdx(0);
+        objType = root.getObjTypeByIdx(0);
+        if (objType == H5G_DATASET) RomSupport::fileSelf.unlink(name);
       }
     }
   } else {
-    H5::Attribute attr =
-        fileSelf.createAttribute("version", sType, H5::DataSpace(H5S_SCALAR));
+    LOG("C:version not exist");
+    H5::Attribute attr = RomSupport::fileSelf.createAttribute(
+        "version", sType, H5::DataSpace(H5S_SCALAR));
     attr.write(sType, value);
-    H5::Group root = fileSelf.openGroup("/");
+    H5::Group root = RomSupport::fileSelf.openGroup("/");
     hsize_t nums;
     nums = root.getNumObjs();
+    LOG("C:%d objects in old version", nums);
     H5G_obj_t objType;
-    for (hsize_t i = nums - 1; i >= 0; i--) {
-      name = root.getObjnameByIdx(i);
-      objType = root.getObjTypeByIdx(i);
-      if (objType == H5G_DATASET) {
-        fileSelf.unlink(name);
-      }
+    for (hsize_t i = 0; i < nums; i++) {
+      LOG("C:delete\n");
+      name = root.getObjnameByIdx(0);
+      objType = root.getObjTypeByIdx(0);
+      if (objType == H5G_DATASET) RomSupport::fileSelf.unlink(name);
     }
   }
   name.clear();
@@ -88,9 +93,8 @@ void RomSupport::starter(char* const& fileName, char* const& stamp) {
  * @warning don't use it
  */
 void RomSupport::ender() {
-  LOG("S:Rom IO end\n");
-  block.close();
-  fileSelf.close();
+  LOG("S:Rom IO end");
+  RomSupport::fileSelf.close();
   return;
 }
 /**
@@ -98,10 +102,10 @@ void RomSupport::ender() {
  * @param name the name of the block
  * @return if remove success, true. False otherwise.
  */
-bool RomSupport::remove(std::string const& name) {
-  LOG("C:remove for %s\n", name);
-  if (fileSelf.nameExists(name)) {
-    fileSelf.unlink(name);
+bool RomSupport::remove(const char* const& name) {
+  LOG("C:remove for %s", name);
+  if (RomSupport::fileSelf.nameExists(name)) {
+    RomSupport::fileSelf.unlink(name);
     return true;
   }
   return false;
@@ -114,25 +118,29 @@ bool RomSupport::remove(std::string const& name) {
  * @return If it success, true. False otherwise.
  */
 template <typename T>
-bool RomSupport::write(std::string const& name, T* const& obj,
+bool RomSupport::write(const char* const& name, T* const& obj,
                        unsigned int const& size) {
-  LOG("C:write %s\n", name);
+  LOG("C:write %s", name);
+  if ((size == 0) || (obj == nullptr)) return false;
   H5::DataSet block;
-  if (fileSelf.nameExists(name)) {
-    block = fileSelf.openDataSet(name);
+  if (RomSupport::fileSelf.nameExists(name)) {
+    LOG("C:name exist");
+    block = RomSupport::fileSelf.openDataSet(name);
     if ((block.getStorageSize() / sizeof(T)) != size) {
-      LOG("E:wrong size\n");
+      LOG("E:wrong size");
       block.close();
-      fileSelf.unlink(name);
+      RomSupport::fileSelf.unlink(name);
       hsize_t dim[1];
       dim[0] = size;
       H5::DataSpace space(1, dim);
       if constexpr (std::is_same_v<T, int>) {
-        block = fileSelf.createDataSet(name, H5::PredType::NATIVE_INT, space);
+        block = RomSupport::fileSelf.createDataSet(
+            name, H5::PredType::NATIVE_INT, space);
       } else if constexpr (std::is_same_v<T, float>) {
-        block = fileSelf.createDataSet(name, H5::PredType::NATIVE_FLOAT, space);
+        block = RomSupport::fileSelf.createDataSet(
+            name, H5::PredType::NATIVE_FLOAT, space);
       } else {
-        LOG("B:unsupport type\n");
+        LOG("B:unsupport type");
         return false;
       }
     }
@@ -141,21 +149,26 @@ bool RomSupport::write(std::string const& name, T* const& obj,
     } else if constexpr (std::is_same_v<T, float>) {
       block.write(obj, H5::PredType::NATIVE_FLOAT);
     } else {
-      LOG("B:unsupport type\n");
+      LOG("B:unsupport type");
       return false;
     }
   } else {
+    LOG("C:name not exist");
     hsize_t dim[1];
     dim[0] = size;
     H5::DataSpace space(1, dim);
     if constexpr (std::is_same_v<T, int>) {
-      block = fileSelf.createDataSet(name, H5::PredType::NATIVE_INT, space);
+      LOG("C:write int");
+      block = RomSupport::fileSelf.createDataSet(name, H5::PredType::NATIVE_INT,
+                                                 space);
       block.write(obj, H5::PredType::NATIVE_INT);
     } else if constexpr (std::is_same_v<T, float>) {
-      block = fileSelf.createDataSet(name, H5::PredType::NATIVE_FLOAT, space);
+      LOG("C:write float");
+      block = RomSupport::fileSelf.createDataSet(
+          name, H5::PredType::NATIVE_FLOAT, space);
       block.write(obj, H5::PredType::NATIVE_FLOAT);
     } else {
-      LOG("B:unsupport type\n");
+      LOG("B:unsupport type");
       return false;
     }
   }
@@ -169,17 +182,17 @@ bool RomSupport::write(std::string const& name, T* const& obj,
  * @warning if memory of obj is not enough, will leak memory
  */
 template <typename T>
-bool RomSupport::read(std::string const& name, T* const& obj) {
-  LOG("C:read %s\n", name);
+bool RomSupport::read(const char* const& name, T* const& obj) {
+  LOG("C:read %s", name);
   H5::DataSet block;
-  if (fileSelf.nameExists(name)) {
-    block = fileSelf.openDataSet(name);
+  if (RomSupport::fileSelf.nameExists(name)) {
+    block = RomSupport::fileSelf.openDataSet(name);
     if constexpr (std::is_same_v<T, int>) {
       block.read(obj, H5::PredType::NATIVE_INT);
     } else if constexpr (std::is_same_v<T, float>) {
       block.read(obj, H5::PredType::NATIVE_FLOAT);
     } else {
-      LOG("B:unsupport type\n");
+      LOG("B:unsupport type");
       return false;
     }
     return true;

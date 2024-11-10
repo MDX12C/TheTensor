@@ -4,13 +4,16 @@ project(tensor_next)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall")
 
-include_directories(include)
+find_package(HDF5 REQUIRED COMPONENTS CXX)
+include_directories(
+    include
+    ${HDF5_INCLUDE_DIRS}
+)
 
 add_library(basic_hpp STATIC src/basic.cc)
 add_library(memory_maintainer STATIC src/memory.cc)
 add_library(logger STATIC src/log.cc)
 add_library(rom STATIC src/rom.cc)
-find_package(HDF5 REQUIRED COMPONENTS CXX)
 
 add_executable(test_basic_hpp test/test_basic_hpp.cc)
 target_link_libraries(test_basic_hpp logger memory_maintainer basic_hpp HDF5::HDF5 rom)

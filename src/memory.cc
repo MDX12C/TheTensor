@@ -1,7 +1,7 @@
 #ifndef MEMORY_CC
 #define MEMORY_CC 1
 #include "memory.hpp"
-
+#if MEMORY_H
 #include "basic.hpp"
 #include "matrix.hpp"
 #include "vector.hpp"
@@ -71,4 +71,5 @@ MemoryType MemoryManager::getMemoryType(std::type_index typeIdx) {
   throw std::invalid_argument("Unsupported type");
 }
 }  // namespace memory_maintainer
+#endif
 #endif

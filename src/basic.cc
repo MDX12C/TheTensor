@@ -1,7 +1,7 @@
 #ifndef BASIC_CC
 #define BASIC_CC 1
 #include "basic.hpp"
-
+#if BASIC_H
 namespace basic_math {
 std::mt19937 BasicSupport::generator;
 }  // namespace basic_math
@@ -24,4 +24,5 @@ std::ostream& operator<<(std::ostream& os, const MaShape& ms) {
   return os;
 }
 }  // namespace linalg
+#endif
 #endif
