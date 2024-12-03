@@ -7,17 +7,9 @@
 #include "memory.hpp"
 #include "network.hpp"
 #include "rom.hpp"
+#include "story.hpp"
 #include "vector.hpp"
 
-#ifndef _SPEED_MODE_
-#define _SPEED_MODE_ 0
-#endif
-#ifndef _AVX2_WILL_BE_USED_ON_
-#define _AVX2_WILL_BE_USED_ON_ 0
-#endif
-#ifndef _SIMD_MODE_
-#define _SIMD_MODE_ 0
-#endif
 #ifndef BASIC_H
 #define BASIC_H 0
 #endif
@@ -41,6 +33,9 @@
 #endif
 #ifndef ROM_H
 #define ROM_H 0
+#endif
+#ifndef STORY_H
+#define STORY_H 0
 #endif
 #ifndef BASIC_CON
 #define BASIC_CON
@@ -84,40 +79,50 @@
 #ifndef ROM_DES
 #define ROM_DES
 #endif
-
+#ifndef STORY_CON
+#define STORY_CON
+#endif
+#ifndef STORY_DES
+#define STORY_DES
+#endif
+#if (!LOG_H)
+#define LOG(X, ...)
+#endif
 /**
  * @brief initialize all the constants
  */
-#define CONSTRUCT                 \
-  if constexpr (LOG_H) {          \
-    LOG_CON;                      \
-    if constexpr (_SPEED_MODE_) { \
-      LOG("S:SPEED MODE\n");      \
-    }                             \
-  }                               \
-  if constexpr (BASIC_H) {        \
-    BASIC_CON;                    \
-  }                               \
-  if constexpr (MEMORY_H) {       \
-    MEMORY_CON;                   \
-  }                               \
-  if constexpr (VECTOR_H) {       \
-    VECTOR_CON;                   \
-  }                               \
-  if constexpr (MATRIX_H) {       \
-    MATRIX_CON;                   \
-  }                               \
-  if constexpr (NETWORK_H) {      \
-    NETWORK_CON;                  \
-  }                               \
-  if constexpr (ROM_H) {          \
-    ROM_CON;                      \
-  }
+#define CONSTRUCT                   \
+  if constexpr (LOG_H) {            \
+    LOG_CON;                        \
+    if constexpr (__SPEED_MODE__) { \
+      LOG("S:SPEED MODE\n");        \
+    }                               \
+  }                                 \
+  if constexpr (BASIC_H) {          \
+    BASIC_CON;                      \
+  }                                 \
+  if constexpr (MEMORY_H) {         \
+    MEMORY_CON;                     \
+  }                                 \
+  if constexpr (VECTOR_H) {         \
+    VECTOR_CON;                     \
+  }                                 \
+  if constexpr (MATRIX_H) {         \
+    MATRIX_CON;                     \
+  }                                 \
+  if constexpr (NETWORK_H) {        \
+    NETWORK_CON;                    \
+  }                                 \
+  if constexpr (ROM_H) {            \
+    ROM_CON;                        \
+  }                                 \
+  LOG("S:main start");
 
 /**
  * @brief deinitialize all the constants
  */
 #define DESTRUCT             \
+  LOG("S:main end");         \
   if constexpr (VECTOR_H) {  \
     VECTOR_DES;              \
   }                          \
@@ -144,7 +149,7 @@
  * @brief exit
  * @warning don't use it without urgent situation
  */
-inline void endOfMainFunction() {
+inline __attribute__((__noreturn__)) void endOfMainFunction() noexcept {
   LOG("S:!!Urgent Exit!!");
   printf("!!Urgent Exit!!\n");
   DESTRUCT;

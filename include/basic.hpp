@@ -3,12 +3,9 @@
 #define BASIC_H 1
 
 #include "log.hpp"
+
 /**
- * @brief add
- * @param first the first operand
- * @param second the second operand
- * @param third the answer
- * @param type the type of the operands
+ * @warning don't use it directly
  */
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
@@ -17,11 +14,7 @@
     third = first + second;                   \
   }
 /**
- * @brief sub
- * @param first the first operand
- * @param second the second operand
- * @param third the answer
- * @param type the type of the operands
+ * @warning don't use it directly
  */
 #define __MNS(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
@@ -30,11 +23,7 @@
     third = first - second;                   \
   }
 /**
- * @brief mul
- * @param first the first operand
- * @param second the second operand
- * @param third the answer
- * @param type the type of the operands
+ * @warning don't use it directly
  */
 #define __MUL(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
@@ -43,11 +32,7 @@
     third = first * second;                   \
   }
 /**
- * @brief div
- * @param first the first operand
- * @param second the second operand
- * @param third the answer
- * @param type the type of the operands
+ * @warning don't use it directly
  */
 #define __DIV(first, second, third, type)              \
   if constexpr (std::is_same_v<type, bool>) {          \
@@ -55,41 +40,75 @@
   } else {                                             \
     third = first / second;                            \
   }
+/**
+ * @brief add
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
+#define ADD(first, second, third, type) __ADD(first, second, third, type);
+
+/**
+ * @brief sub
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
+#define MNS(first, second, third, type) __MNS(first, second, third, type);
+
+/**
+ * @brief mul
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
+#define MUL(first, second, third, type) __MUL(first, second, third, type);
+
+/**
+ * @brief div
+ * @param first the first operand
+ * @param second the second operand
+ * @param third the answer
+ * @param type the type of the operands
+ */
+#define DIV(first, second, third, type) __DIV(first, second, third, type);
 
 namespace basic_math {
-constexpr unsigned int ACCURACY = 3;
-constexpr float exprision = static_cast<float>(std::exp(1.0F));
+constexpr size_t PRINT_ACCURACY = 3;
+constexpr FloatType EXPRISION = static_cast<FloatType>(std::exp(1.0F));
+
 class BasicSupport {
  public:
-  static std::mt19937 generator;
   /**
-   * @brief init for basic
-   * @warning don't use it
+   * @warning don't use it directly
    */
-  static void init() {
-    BasicSupport::generator.seed(static_cast<unsigned long long>(time(0)));
-    LOG("C:set seed");
+  static std::mt19937 generator_;
+  /**
+   * @warning don't use it directly
+   */
+  static inline void init() noexcept {
+    BasicSupport::generator_.seed(static_cast<unsigned long long>(time(0)));
+    LOG("S:Basic init");
     return;
   }
 };
 /**
- * Returns the number of digits in an integer.
- *
+ * @return the number of digits in an unsigned integer.
  * @param alpha The number to determine the number of digits in
- *
  * @return The number of digits in alpha, only return number of digits before
  * the decimal point
- *
  * @throws None
  */
 template <typename U>
-inline unsigned int intDigits(U const& alpha) {
+inline size_t intDigits(U const& __alpha) noexcept(basic_math::support<U>) {
   LOG("C:intDigits");
-  if constexpr (std::is_same_v<U, bool>) return 1;
-  if (alpha > -1 && alpha < 1) return 1;
-  return static_cast<unsigned int>(std::floor(std::log10(std::abs(alpha)) + 1));
+  if constexpr (std::is_same_v<U, bool>) return size_t(1);
+  if (__alpha > -1 && __alpha < 1) return size_t(1);
+  return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
 }
-
 /**
  * Generates a random number within the range [min, max] based on the input
  * type.
@@ -98,75 +117,57 @@ inline unsigned int intDigits(U const& alpha) {
  * @param max The maximum value of the range
  *
  * @return A random number within the specified range based on the input type
- *
- * @throws None
+ * @throw if the type isn't support, throw.
  */
 template <typename U>
-inline U random(U const& min, U const& max) {
-  if constexpr (std::is_same_v<U, int>) {
-    LOG("C:random<int>");
-    std::uniform_int_distribution<int> dist(min, max);
-    return dist(BasicSupport::generator);
-  } else if constexpr (std::is_same_v<U, float>) {
-    LOG("C:random<float>");
-    std::uniform_real_distribution<float> dist(min, max);
-    return dist(BasicSupport::generator);
-  } else if constexpr (std::is_same_v<U, bool>) {
+inline U random(U const& __min,
+                U const& __max) noexcept(basic_math::support<U>) {
+  if constexpr (std::is_same_v<bool, U>) {
     LOG("C:random<bool>");
     std::uniform_int_distribution<int> dist(0, 1);
-    return static_cast<bool>(dist(BasicSupport::generator));
+    return static_cast<bool>(dist(BasicSupport::generator_));
+  } else if constexpr (std::is_integral_v<U>) {
+    LOG("C:random<intergral>");
+    std::uniform_int_distribution<U> dist(__min, __max);
+    return dist(BasicSupport::generator_);
+  } else if constexpr (std::is_floating_point_v<U>) {
+    LOG("C:random<float_point>");
+    std::uniform_real_distribution<U> dist(__min, __max);
+    return dist(BasicSupport::generator_);
   } else {
-    LOG("C:random<U>");
-    if (std::is_arithmetic_v<U>) {
-      std::uniform_real_distribution<U> dist(min, max);
-      return dist(BasicSupport::generator);
-    } else {
-      LOG("E:arithmetic unsupported type will be set to 0");
-      return static_cast<U>(0);
-    }
+    LOG("B:unsupport type for random");
+    throw system_message::Error("unsupport type for random\n");
+    U ans;
+    return ans;
   }
 }
 }  // namespace basic_math
-
-namespace linalg {
-
-template <typename U>
-class Vector;
-template <typename U>
-class Matrix;
-
-typedef struct MatrixShape {
-  unsigned int rows;
-  unsigned int cols;
-} MaShape;
-
-bool operator==(MaShape const&, MaShape const&);
-bool operator<(MaShape const&, MaShape const&);
-bool operator<=(MaShape const&, MaShape const&);
-bool operator!=(MaShape const&, MaShape const&);
-std::ostream& operator<<(std::ostream&, MaShape const&);
+namespace storage {
+class StoryBase {
+ public:
+  /**
+   * @brief base constructor
+   */
+  StoryBase() {}
+  /**
+   * @brief base destructor
+   */
+  virtual ~StoryBase() {}
+  /**
+   * @brief size
+   * @return the size
+   */
+  inline virtual size_t size() const noexcept = 0;
+  /**
+   * @brief capacity
+   * @return the memorysize
+   */
+  inline virtual size_t capacity() const noexcept = 0;
+};
+}  // namespace storage
 /**
- * @brief get the size of the matrix
- * @param ms the matrix shape
- * @return the size
- */
-inline __attribute__((__always_inline__)) unsigned int msSize(
-    MaShape const& ms) {
-  return ms.rows * ms.cols;
-}
-/**
- * @brief check if the matrix shape is legal
- * @param ms the matrix shape
- * @return if the matrix shape is legal
- */
-inline __attribute__((__always_inline__)) bool msLegal(MaShape const& ms) {
-  return ms.rows > 0 && ms.cols > 0;
-}
-}  // namespace linalg
-
-/**
- * init of basic.hpp
+ * @warning don't use it
  */
 #define BASIC_CON basic_math::BasicSupport::init();
 
-#endif  // BASIC_H
+#endif

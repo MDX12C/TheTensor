@@ -16,7 +16,6 @@
 #include <queue>
 #include <thread>
 
-
 /**
  * the system space
  */
@@ -53,7 +52,7 @@ class LogSupport {
   static char* formatBuffer;
   static std::mutex queueLock;
   /**
-   * the worker function, please don't use it directly
+   * @brief the worker function, please don't use it directly
    */
   static void logWorker(std::filesystem::path fileLocation) {
     std::ofstream writer;
@@ -74,7 +73,7 @@ class LogSupport {
           writer.close();
           CHECK_C(writer);
           workSpace = new char[4];
-          sprintf(workSpace, "FN\n");
+          sprintf(workSpace, "FN");
           LogSupport::queueLock.lock();
           LogSupport::taskQueue.push(workSpace);
           LogSupport::queueLock.unlock();
@@ -138,7 +137,7 @@ inline void logInit() {
   writer.open(fileLocation, std::ios::binary);
   CHECK_O(writer);
   LogSupport::mainBuffer = new char[BUFFER_LENTH];
-  sprintf(LogSupport::mainBuffer, "run at: %s", std::ctime(&timer));
+  sprintf(LogSupport::mainBuffer, "run at : %s", std::ctime(&timer));
   writer.write(LogSupport::mainBuffer, std::strlen(LogSupport::mainBuffer));
   writer.close();
   CHECK_C(writer);
@@ -154,7 +153,7 @@ inline void logInit() {
  */
 inline void logPack() {
   LogSupport::mainBuffer = new char[4];
-  sprintf(LogSupport::mainBuffer, "AP\n");
+  sprintf(LogSupport::mainBuffer, "AP");
   LogSupport::queueLock.lock();
   LogSupport::taskQueue.push(LogSupport::mainBuffer);
   LogSupport::queueLock.unlock();
@@ -193,15 +192,15 @@ inline void logPack() {
     sprintf(log_file::LogSupport::formatBuffer, FMT, ##__VA_ARGS__);        \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
     sprintf(log_file::LogSupport::mainBuffer,                               \
-            "%s\n%s : %d\nfile: %s\n",      \ 
+            "%s\n%s: %d\nfile: %s\n",      \ 
           log_file::LogSupport::formatBuffer,                               \
             __FUNCTION__, __LINE__, __FILE__);                              \
     log_file::LogSupport::queueLock.lock();                                 \
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
-#if _DEBUG_MODE_
-/**
+#if __DEBUG_MODE__
+/**w
  * @brief write the log in the logfile
  * @param _FORMAT the format string.
  * The first character of the string is limited!!
@@ -212,11 +211,12 @@ inline void logPack() {
  * @param FN finish: the reserved word, don't use it
  * @param S system message: the reserved word, don't use it
  */
-#define LOG(_FORMAT, ...)              \
-  __LOG_MAKER(_FORMAT, ##__VA_ARGS__); \
-  printf(_FORMAT, ##__VA_ARGS__);      \
+#define LOG(__FORMAT, ...)              \
+  __LOG_MAKER(__FORMAT, ##__VA_ARGS__); \
+  printf(__FORMAT, ##__VA_ARGS__);      \
   printf("\n");
-#elif _SPEED_MODE_
+
+#elif __SPEED_MODE__
 /**
  * @brief write the log in the logfile
  * @param _FORMAT the format string.
@@ -228,10 +228,10 @@ inline void logPack() {
  * @param FN finish: the reserved word, don't use it
  * @param S system message: the reserved word, don't use it
  */
-#define LOG(_FORMAT, ...)                                     \
-  if constexpr ((_FORMAT[0] == 'B') || (_FORMAT[0] == 'E') || \
-                (_FORMAT[0] == 'S')) {                        \
-    __LOG_MAKER(_FORMAT, ##__VA_ARGS__);                      \
+#define LOG(__FORMAT, ...)                                      \
+  if constexpr ((__FORMAT[0] == 'B') || (__FORMAT[0] == 'E') || \
+                (__FORMAT[0] == 'S')) {                         \
+    __LOG_MAKER(__FORMAT, ##__VA_ARGS__);                       \
   }
 #else
 /**
@@ -245,7 +245,7 @@ inline void logPack() {
  * @param FN finish: the reserved word, don't use it
  * @param S system message: the reserved word, don't use it
  */
-#define LOG(_FORMAT, ...) __LOG_MAKER(_FORMAT, ##__VA_ARGS__)
+#define LOG(__FORMAT, ...) __LOG_MAKER(__FORMAT, ##__VA_ARGS__)
 #endif
 /**
  * the initalize of the logfile, please use it in the front of main function
@@ -262,5 +262,4 @@ inline void logPack() {
   } while (false);
 
 #define LOG_DES log_file::logPack();
-
 #endif

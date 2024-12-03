@@ -32,3 +32,6 @@ target_link_libraries(test_network logger memory_maintainer basic_hpp HDF5::HDF5
 
 add_executable(test_rom test/test_rom.cc)
 target_link_libraries(test_rom logger memory_maintainer basic_hpp HDF5::HDF5 rom)
+
+add_executable(test_story test/test_story.cc)
+target_link_libraries(test_story logger memory_maintainer basic_hpp HDF5::HDF5 rom)

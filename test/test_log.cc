@@ -1,10 +1,13 @@
-#include "../include/interface.hpp"
+#include "interface.hpp"
 
 signed main() {
   CONSTRUCT;
-  LOG("C:hello world\n");
-  int a = 1203;
-  LOG("C:a= %d\n", a);
+  LOG("S:main start");
+  int a = 18;
+  LOG("C:a=%d", a);
+  if (a == 18) {
+    endOfMainFunction();
+  }
   DESTRUCT;
   return 0;
 }

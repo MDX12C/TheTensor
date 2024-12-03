@@ -1,6 +1,6 @@
-#ifndef LOG_CC
-#define LOG_CC 1
 #include "log.hpp"
+
+#include "define.hpp"
 #if LOG_H
 namespace log_file {
 const char* const CARRY_ARRAY = "0123456789ABCDEF";
@@ -10,5 +10,4 @@ char* LogSupport::formatBuffer = nullptr;
 std::mutex LogSupport::queueLock;
 
 }  // namespace log_file
-#endif
 #endif
