@@ -17,9 +17,9 @@ class MemorySupport {
   static inline const size_t& getBlocks() noexcept {
     return MemorySupport::blocks_;
   }
-  static inline void displayUsage(std::ostream&) noexcept;
-  static inline bool track(storage::StoryBase*) noexcept; 
-  static inline bool untrack(storage::StoryBase*) noexcept;
+  static void displayUsage(std::ostream&) noexcept;
+  static bool track(storage::StoryBase*) noexcept;
+  static bool untrack(storage::StoryBase*) noexcept;
   /**
    * @warning don't use it
    */
