@@ -29,6 +29,7 @@ makefile
 dist
 log
 datas
+*.sh
 
 # Ignore dependency files
 *.d
