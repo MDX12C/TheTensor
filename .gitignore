@@ -4,7 +4,6 @@ CMakeFiles/
 CMakeCache.txt
 Makefile
 *.cmake
-makefile
 
 # Ignore executables and libraries
 *.exe
