@@ -5,7 +5,7 @@
 signed main() {
   CONSTRUCT;
   auto alpha = new storage::Story<int>();
-  *alpha = 23;
+  alpha->at(0) = 23;
   SHOW(*alpha);
   memory_manage::MemorySupport::displayUsage(std::cout);
   DESTRUCT;

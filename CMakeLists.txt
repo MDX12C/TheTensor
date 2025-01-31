@@ -4,6 +4,26 @@ project(tensor_next)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall")
 
+option(debugMode "Debug Mode?" OFF)
+option(speedMode "Speed Mode?" OFF)
+option(f16Mode "Use Float 16?" OFF)
+
+if(debugMode)
+message("### In DEBUG MODE ###")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG_MODE")
+elseif(speedMode)
+message("### In NORMAL MODE ###")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSPEED_MODE")
+else()
+message("### In SPEED MODE ###")
+endif()
+if(f16Mode)
+message("### Use Float16 ###")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DF16")
+else()
+message("### Use Float32 ###")
+endif()
+
 find_package(HDF5 REQUIRED COMPONENTS CXX)
 
 include_directories(

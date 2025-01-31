@@ -19,6 +19,8 @@ void MemorySupport::displayUsage(std::ostream& __output = std::cout) noexcept {
   }
   __output << "\ntotal " << total << " bytes in " << MemorySupport::blocks_
            << " blocks\n";
+  for (auto i = 0; i < log_file::DOCS_WIDE; i++) __output << '-';
+  __output << '\n';
   return;
 }
 unsigned long long MemorySupport::getTotalUsage() noexcept {

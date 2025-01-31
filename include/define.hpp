@@ -2,29 +2,27 @@
 #define DEFINE_H 1
 
 /*constants*/
-#define __DEBUG_MODE__ 1
-// #define __SPEED_MODE__ 1
-// #define __LIMIT__ 1
-// #define __F16__ 1
+// #define DEBUG_MODE 1
+//  #define SPEED_MODE 1
+//  #define F16 1
 
 /*constants control*/
-#ifndef __DEBUG_MODE__
+#ifndef DEBUG_MODE
 #define __DEBUG_MODE__ 0
+#else
+#define __DEBUG_MODE__ 1
 #endif
-#ifndef __SPEED_MODE__
+#ifndef SPEED_MODE
 #define __SPEED_MODE__ 0
+#else
+#define __SPEED_MODE__ 1
 #endif
-#ifndef __LIMIT__
-#define __LIMIT__ 0
-#endif
-#ifndef __F16__
+#ifndef F16
 #define __F16__ 0
+#else
+#define __F16__ 1
 #endif
 
-/*include control*/
-#if __LIMIT__
-
-#endif
 
 /*control block*/
 #ifndef __GNUC__
