@@ -6,6 +6,9 @@
 namespace storage {
 template <typename T>
 class Story : public StoryBase {
+  template <typename W>
+  friend class Story;
+
  protected:
   T* datas_;
   size_t size_;
@@ -31,14 +34,20 @@ class Story : public StoryBase {
   inline virtual T& at(size_t const&) const;
   inline virtual T& operator[](size_t const&) const;
   template <typename U>
-  inline operator Story<U>() const noexcept {
-    LOG("C:cast operator");
+  inline operator Story<U>() const noexcept(basic_math::support<T>) {
+    LOG("C:cast operator of Story");
+    if constexpr (!basic_math::support<U>) {
+      LOG("B:unsupportted type");
+      throw system_message::Error("unsupport type of Story");
+    }
     if constexpr (std::is_same_v<T, U>) return *this;
     Story<U> result(this->size_);
     for (size_t i = 0; i < this->size_; i++)
       result.datas_[i] = static_cast<U>(this->datas_[i]);
     return result;
   }
+  inline Story& operator=(Story const&) noexcept;
+  inline Story& operator=(T const&) noexcept;
 };
 template <typename T>
 std::ostream& operator<<(std::ostream& __stream, Story<T>& __item) noexcept {
@@ -216,6 +225,7 @@ bool Story<T>::load(size_t const& __size, T* const& __datas) {
   if (__size && __datas) {
     delete[] this->datas_;
     this->datas_ = new T[__size];
+    this->size_ = __size;
     std::copy(__datas, __datas + __size, this->datas_);
     return true;
   } else {
@@ -247,14 +257,28 @@ T& Story<T>::at(size_t const& __where) const {
   }
   return this->datas_[__where];
 }
-/**
- * @brief the function does as you think
- * @warning it won't chek for overflow
- */
 template <typename T>
 T& Story<T>::operator[](size_t const& __where) const {
   LOG("C:operator[] of Story");
   return this->datas_[__where];
+}
+template <typename T>
+Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
+  LOG("C:operator= of Story");
+  if (!(this->size_ == __other.size_)) {
+    delete[] this->datas_;
+    this->datas_ = new T[__other.size_];
+    this->size_ = __other.size_;
+  }
+  for (size_t i = 0; i < __other.size_; i++)
+    this->datas_[i] = __other.datas_[i];
+  return *this;
+}
+template <typename T>
+Story<T>& Story<T>::operator=(T const& __other) noexcept {
+  LOG("C:operator= of Story");
+  for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other;
+  return *this;
 }
 }  // namespace storage
 #endif

@@ -9,36 +9,72 @@
  */
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first || second;                  \
+    third = first | second;                   \
   } else {                                    \
     third = first + second;                   \
   }
 /**
  * @warning don't use it directly
  */
+#define __EADD(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first += second;                          \
+  } else {                                    \
+    first |= second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
 #define __MNS(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first && (!second);               \
+    third = first & (~second);                \
   } else {                                    \
     third = first - second;                   \
   }
 /**
  * @warning don't use it directly
  */
+#define __EMNS(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first &= (~second);                       \
+  } else {                                    \
+    first -= second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
 #define __MUL(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first && second;                  \
+    third = first & second;                   \
   } else {                                    \
     third = first * second;                   \
   }
 /**
  * @warning don't use it directly
  */
-#define __DIV(first, second, third, type)              \
-  if constexpr (std::is_same_v<type, bool>) {          \
-    third = (first || second) && (!(first && second)); \
-  } else {                                             \
-    third = first / second;                            \
+#define __EMUL(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first &= second;                          \
+  } else {                                    \
+    first *= second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
+#define __DIV(first, second, third, type)     \
+  if constexpr (std::is_same_v<type, bool>) { \
+    third = first ^ second;                   \
+  } else {                                    \
+    third = first / second;                   \
+  }
+/**
+ * @warning don't use it directly
+ */
+#define __EDIV(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first ^= second;                          \
+  } else {                                    \
+    first /= second;                          \
   }
 /**
  * @brief add
@@ -48,6 +84,13 @@
  * @param type the type of the operands
  */
 #define ADD(first, second, third, type) __ADD(first, second, third, type);
+/**
+ * @brief add
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EADD(first, second, type) __EADD(first, second, type);
 
 /**
  * @brief sub
@@ -57,6 +100,13 @@
  * @param type the type of the operands
  */
 #define MNS(first, second, third, type) __MNS(first, second, third, type);
+/**
+ * @brief sub
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EMNS(first, second, type) __EMNS(first, second, type);
 
 /**
  * @brief mul
@@ -66,6 +116,13 @@
  * @param type the type of the operands
  */
 #define MUL(first, second, third, type) __MUL(first, second, third, type);
+/**
+ * @brief mul
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EMUL(first, second, type) __EMUL(first, second, type);
 
 /**
  * @brief div
@@ -75,6 +132,13 @@
  * @param type the type of the operands
  */
 #define DIV(first, second, third, type) __DIV(first, second, third, type);
+/**
+ * @brief div
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EDIV(first, second, type) __EDIV(first, second, type);
 
 namespace basic_math {
 constexpr size_t PRINT_ACCURACY = 3;
@@ -164,7 +228,7 @@ class StoryBase {
    */
   inline virtual size_t capacity() const noexcept = 0;
 };
-}  // namespace storage
+}  // namespace ling_lg
 /**
  * @warning don't use it
  */

@@ -1,1 +1,7 @@
-signed main() { return 0; }
+#include"interface.hpp"
+signed main(){
+  CONSTRUCT;
+  lina_lg::Matrix<int> alpha;
+  
+  DESTRUCT;
+}
