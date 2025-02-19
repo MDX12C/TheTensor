@@ -15,7 +15,7 @@ signed main() {
     SHOW(*beta);
     beta->resize(6);
     SHOW(*beta);
-    for (auto i = 0; i < beta->size(); i++) beta->at(i) += i;
+    for (size_t i = 0; i < beta->size(); i++) beta->at(i) += i;
     SHOW(*beta);
     SHOW(beta->sum());
     beta->freedom();
@@ -25,8 +25,6 @@ signed main() {
     SHOW(*beta);
 
     memory_manage::MemorySupport::displayUsage();
-
-    auto gamma = new storage::Story<std::vector<int> >();
   } catch (system_message::Error& __epsilon) {
     __epsilon.print();
   }

@@ -8,6 +8,9 @@ template <typename T>
 class Story : public StoryBase {
   template <typename W>
   friend class Story;
+  template <typename W>
+  friend std::ostream& operator<<(std::ostream& __stream,
+                                  Story<W> const& __item) noexcept;
 
  protected:
   T* datas_;
@@ -27,10 +30,8 @@ class Story : public StoryBase {
   inline virtual bool resize(size_t const&);
   inline virtual bool load(size_t const&, T* const&);
   inline virtual void freedom() noexcept;
-  inline const T* const begin() const noexcept { return this->datas_; }
-  inline const T* const end() const noexcept {
-    return this->datas_ + this->size_;
-  }
+  inline T* const begin() const noexcept { return this->datas_; }
+  inline T* const end() const noexcept { return this->datas_ + this->size_; }
   inline virtual T& at(size_t const&) const;
   inline virtual T& operator[](size_t const&) const;
   template <typename U>
@@ -50,10 +51,32 @@ class Story : public StoryBase {
   inline Story& operator=(T const&) noexcept;
 };
 template <typename T>
-std::ostream& operator<<(std::ostream& __stream, Story<T>& __item) noexcept {
+std::ostream& operator<<(std::ostream& __stream,
+                         Story<T> const& __item) noexcept {
   LOG("C:ostream to Story");
-  __stream << '(' << __item.size() << ")[" << __item[0];
-  for (size_t i = 1; i < __item.size(); i++) __stream << ',' << __item[i];
+  size_t digits = 0;
+  __stream << std::noshowpos << '(' << __item.size_ << ')';
+  if constexpr (std::is_same_v<T, bool>) {
+    digits = 1;
+    __stream << '[';
+  } else if constexpr (std::is_floating_point_v<T>) {
+    for (size_t i = 0; i < __item.size_; i++)
+      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    digits += 2;
+    digits += basic_math::PRINT_ACCURACY;
+    __stream << std::setprecision(basic_math::PRINT_ACCURACY) << std::fixed
+             << std::showpos << std::internal << std::setfill(' ')
+             << std::showpoint << '[';
+  } else {
+    for (size_t i = 0; i < __item.size_; i++)
+      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    digits += 1;
+    __stream << std::showpos << std::internal << std::setfill(' ') << '[';
+  }
+  __stream << std::setw(digits) << __item.datas_[0];
+  for (size_t i = 0; i < __item.size_; i++) {
+    __stream << ',' << std::setw(digits) << __item.datas_[i];
+  }
   __stream << "]\n";
   return __stream;
 }
@@ -122,7 +145,7 @@ Story<T>::Story(size_t const& __lenth,
     if (__lenth && __init) {
       this->size_ = __lenth;
       this->datas_ = new T[this->size_];
-      std::copy(__init, __init + __lenth, this->size_);
+      std::copy(__init, __init + __lenth, this->datas_);
     } else {
       LOG("E:bad lenth or null datas");
       this->size_ = 1;
@@ -169,7 +192,7 @@ Story<T>::~Story() noexcept {
  * @return the total, if the type is bool, return the majority
  */
 template <typename T>
-T Story<T>::sum() const noexcept {
+inline T Story<T>::sum() const noexcept {
   LOG("C:Sum of Story");
   if constexpr (std::is_same_v<T, bool>) {
     size_t total = 0;
@@ -192,7 +215,7 @@ T Story<T>::sum() const noexcept {
  * @throw none
  */
 template <typename T>
-bool Story<T>::resize(size_t const& __argSize) {
+inline bool Story<T>::resize(size_t const& __argSize) {
   LOG("C:Resize of Story");
   if (__argSize == 0) {
     LOG("E:bad lenth");
@@ -220,7 +243,7 @@ bool Story<T>::resize(size_t const& __argSize) {
  * @throw none
  */
 template <typename T>
-bool Story<T>::load(size_t const& __size, T* const& __datas) {
+inline bool Story<T>::load(size_t const& __size, T* const& __datas) {
   LOG("C:Load of Story");
   if (__size && __datas) {
     delete[] this->datas_;
@@ -237,7 +260,7 @@ bool Story<T>::load(size_t const& __size, T* const& __datas) {
  * @brief freedom for memory
  */
 template <typename T>
-void Story<T>::freedom() noexcept {
+inline void Story<T>::freedom() noexcept {
   LOG("C:Freedom of Story");
   delete[] this->datas_;
   this->size_ = 1;
@@ -249,7 +272,7 @@ void Story<T>::freedom() noexcept {
  * @brief the function does as you think
  */
 template <typename T>
-T& Story<T>::at(size_t const& __where) const {
+inline T& Story<T>::at(size_t const& __where) const {
   LOG("C:At of Story");
   if (__where >= this->size_) {
     LOG("E:memory overflow");
@@ -258,24 +281,23 @@ T& Story<T>::at(size_t const& __where) const {
   return this->datas_[__where];
 }
 template <typename T>
-T& Story<T>::operator[](size_t const& __where) const {
+inline T& Story<T>::operator[](size_t const& __where) const {
   LOG("C:operator[] of Story");
   return this->datas_[__where];
 }
 template <typename T>
-Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
+inline Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
   LOG("C:operator= of Story");
   if (!(this->size_ == __other.size_)) {
     delete[] this->datas_;
     this->datas_ = new T[__other.size_];
     this->size_ = __other.size_;
   }
-  for (size_t i = 0; i < __other.size_; i++)
-    this->datas_[i] = __other.datas_[i];
+  std::copy(__other.datas_, __other.datas_ + __other.size_, this->datas_);
   return *this;
 }
 template <typename T>
-Story<T>& Story<T>::operator=(T const& __other) noexcept {
+inline Story<T>& Story<T>::operator=(T const& __other) noexcept {
   LOG("C:operator= of Story");
   for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other;
   return *this;

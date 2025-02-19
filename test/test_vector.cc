@@ -1,10 +1,77 @@
 #include "interface.hpp"
-#define SHOW(X) std::cout << #X << " = " << X << std::endl;
+#define SHOW(X) std::cout << #X << " = " << (X) << std::endl;
+
 signed main() {
   CONSTRUCT;
-  lina_lg::Vector<int> alpha;
-
-  SHOW(alpha.size());
+  // below are math function and constructor
+  lina_lg::Vector<float> alpha;
+  SHOW(alpha);
+  alpha.resize(8);
+  SHOW(alpha);
+  auto beta = basic_math::random(alpha, (float)-10, (float)10);
+  SHOW(alpha);
+  SHOW(beta);
+  basic_math::absolute(alpha);
+  basic_math::pow((float)2, beta);
+  SHOW(alpha);
+  SHOW(beta);
+  auto mu = (lina_lg::Vector<int>)alpha;
+  SHOW(mu);
+  basic_math::pow(mu, 4);
+  SHOW(mu);
+  alpha = (lina_lg::Vector<float>)mu;
+  SHOW(alpha);
+  alpha.resize(5);
+  SHOW(alpha);
+  basic_math::log(alpha);
+  SHOW(alpha);
+  lina_lg::Vector<float> nu(alpha.size(), alpha.begin());
+  SHOW(nu);
+  // below are operator overloading to float
+  lina_lg::Vector<float> delta, omega;
+  delta.resize(10);
+  omega.resize(10);
+  basic_math::random(delta, (float)-10, (float)10);
+  basic_math::random(omega, (float)-10, (float)10);
+  auto sigma = basic_math::random((float)-10, (float)10);
+  SHOW(delta);
+  SHOW(omega);
+  SHOW(delta + omega);
+  SHOW(delta - omega);
+  SHOW(delta * omega);
+  SHOW(delta / omega);
+  SHOW(delta += omega);
+  SHOW(delta *= omega);
+  SHOW(!delta);
+  SHOW(omega);
+  SHOW(sigma);
+  SHOW(omega + sigma);
+  // below are operator overloading to bool
+  lina_lg::Vector<bool> zeta, eta;
+  zeta.resize(10);
+  eta.resize(10);
+  basic_math::random(zeta, false, true);
+  basic_math::random(eta, false, true);
+  SHOW(zeta);
+  SHOW(eta);
+  SHOW(zeta + eta);
+  SHOW(zeta - eta);
+  SHOW(zeta * eta);
+  SHOW(zeta / eta);
+  // below are compare operator to Vector
+  lina_lg::Vector<int> theta, lota;
+  theta.resize(10);
+  lota.resize(10);
+  basic_math::random(theta, 1, 5);
+  basic_math::random(lota, 1, 5);
+  SHOW(theta);
+  SHOW(lota);
+  SHOW(theta == lota);
+  SHOW(theta != lota);
+  SHOW(theta >= lota);
+  SHOW(theta <= lota);
+  SHOW(theta > lota);
+  SHOW(theta < lota);
   DESTRUCT;
-  return;
+  return 0;
 }

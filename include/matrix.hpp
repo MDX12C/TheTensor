@@ -4,6 +4,58 @@
 #include "basic.hpp"
 #include "story.hpp"
 namespace lina_lg {
+typedef struct ShapeOfMatrix {
+  // row: horizontal
+  size_t row_;
+  // column: vertical
+  size_t col_;
+  inline ShapeOfMatrix& operator=(ShapeOfMatrix const& __other) noexcept {
+    row_ = __other.row_;
+    col_ = __other.col_;
+    return *this;
+  }
+  inline ShapeOfMatrix& operator+=(ShapeOfMatrix const& __other) noexcept {
+    row_ += __other.row_;
+    col_ += __other.col_;
+    return *this;
+  }
+  inline ShapeOfMatrix& operator-=(ShapeOfMatrix const& __other) noexcept {
+    row_ -= __other.row_;
+    col_ -= __other.col_;
+    return *this;
+  }
+  inline bool operator==(ShapeOfMatrix const& __other) const noexcept {
+    return (row_ == __other.row_) && (col_ == __other.col_);
+  }
+  inline bool operator<(ShapeOfMatrix const& __other) const noexcept {
+    return (row_ < __other.row_) && (col_ < __other.col_);
+  }
+  inline bool operator!=(ShapeOfMatrix const& __other) const noexcept {
+    return (row_ != __other.row_) || (col_ != __other.col_);
+  }
+  inline bool operator<=(ShapeOfMatrix const& __other) const noexcept {
+    return (row_ <= __other.row_) && (col_ <= __other.col_);
+  }
+  inline ShapeOfMatrix operator+(ShapeOfMatrix const& __other) const noexcept {
+    return ShapeOfMatrix{row_ + __other.row_, col_ + __other.col_};
+  }
+  inline ShapeOfMatrix operator-(ShapeOfMatrix const& __other) const noexcept {
+    return ShapeOfMatrix{row_ - __other.row_, col_ - __other.col_};
+  }
+} MatrixShape;
+using MaShape = MatrixShape;
+/**
+ * @brief check if the MatrixShape is legal
+ */
+inline bool legalShape(MatrixShape const& __param) noexcept {
+  return __param.row_ && __param.col_;
+}
+/**
+ * @brief the MatrixShape's size
+ */
+inline size_t sizeofShape(MatrixShape const& __param) noexcept {
+  return __param.col_ * __param.row_;
+}
 template <typename T>
 class Matrix final : public storage::Story<T> {
   template <typename W>
@@ -28,43 +80,19 @@ class Matrix final : public storage::Story<T> {
   friend inline Matrix<bool> operator>(W const&, Matrix<W> const&) noexcept;
   template <typename W>
   friend inline Matrix<bool> operator<(W const&, Matrix<W> const&) noexcept;
-
- public:
-  typedef struct MatrixShape {
-    // row: horizontal
-    size_t row_;
-    // column: vertical
-    size_t col_;
-    inline MatrixShape& operator=(MatrixShape const& __other) const noexcept {
-      row_ = __other.row_;
-      col_ = __other.col_;
-      return *this;
-    }
-    inline bool operator==(MatrixShape const& __other) const noexcept {
-      return (row_ == __other.row_) && (col_ == __other.col_);
-    }
-    inline bool operator<(MatrixShape const& __other) const noexcept {
-      return (row_ < __other.row_) && (col_ < __other.col_);
-    }
-    inline bool operator!=(MatrixShape const& __other) const noexcept {
-      return (row_ != __other.row_) || (col_ != __other.col_);
-    }
-  } MaShape;
-  /**
-   * @brief check if the MatrixShape is legal
-   */
-  static inline bool legalShape(MatrixShape const& __param) noexcept {
-    return __param.row_ && __param.col_;
-  }
-  /**
-   * @brief the MatrixShape's size
-   */
-  static inline size_t sizeofShape(MatrixShape const& __param) noexcept {
-    return __param.col_ * __param.row_;
-  }
+  template <typename W>
+  friend inline Matrix<W> mergeUD(Matrix<W> const&, Matrix<W> const&) noexcept;
+  template <typename W>
+  friend inline Matrix<W> mergeLR(Matrix<W> const&, Matrix<W> const&) noexcept;
+  template <typename W>
+  friend inline Matrix<W> scan(Matrix<W> const&, MaShape const&,
+                               MaShape const&) noexcept;
+  template <typename W>
+  friend std::ostream& operator<<(std::ostream& __stream,
+                                  Matrix<W> const& __item) noexcept;
 
  protected:
-  MaShape shape_;
+  MatrixShape shape_;
 
  public:
   inline virtual bool resize(size_t const& __temp) override {
@@ -72,31 +100,21 @@ class Matrix final : public storage::Story<T> {
     throw system_message::Error("unsupport function of Matrix");
     return false;
   }
-  inline virtual bool load(size_t const& __size, T* const __data) override {
-    LOG("B:unsupport function");
-    throw system_message::Error("unsupport function of Matrix");
-    return false;
-  }
-  inline virtual T& at(size_t const& __temp) const override {
-    LOG("B:unsupport function");
-    throw system_message::Error("unsupport function of Matrix");
-    return false;
-  }
-  inline virtual T& operator[](size_t const& __temp) const override {
+  inline virtual bool load(size_t const& __size, T* const& __data) override {
     LOG("B:unsupport function");
     throw system_message::Error("unsupport function of Matrix");
     return false;
   }
   Matrix() noexcept(basic_math::support<T>);
-  Matrix(MaShape const&) noexcept(basic_math::support<T>);
-  Matrix(MaShape const&, T* const&) noexcept(basic_math::support<T>);
+  Matrix(MatrixShape const&) noexcept(basic_math::support<T>);
+  Matrix(MatrixShape const&, T* const&) noexcept(basic_math::support<T>);
   Matrix(Matrix const&) noexcept(basic_math::support<T>);
   ~Matrix() noexcept;
 
-  inline MaShape shape() const noexcept { return this->shape_; }
-  inline bool resize(MaShape const&) noexcept;
-  inline bool reshape(MaShape const&) noexcept;
-  inline bool load(MaShape const&, T* const&) noexcept;
+  inline MatrixShape shape() const noexcept { return this->shape_; }
+  inline bool resize(MatrixShape const&) noexcept;
+  inline bool reshape(MatrixShape const&) noexcept;
+  inline bool load(MatrixShape const&, T* const&) noexcept;
   inline virtual void freedom() noexcept override;
   inline Matrix transpose() const noexcept;
   template <typename U>
@@ -112,8 +130,8 @@ class Matrix final : public storage::Story<T> {
       result.datas_[i] = static_cast<U>(this->datas_[i]);
     return result;
   }
-  inline T& at(MaShape const&) const noexcept;
-  inline T& operator[](MaShape const&) const noexcept;
+  inline T& at(MatrixShape const&) const noexcept;
+  inline T& at(size_t const&, size_t const&) const noexcept;
   inline Matrix& operator=(Matrix const&) noexcept;
   inline Matrix& operator+=(Matrix const&) noexcept;
   inline Matrix& operator-=(Matrix const&) noexcept;
@@ -150,25 +168,43 @@ class Matrix final : public storage::Story<T> {
   inline Matrix<bool> operator<(T const&) const noexcept;
 };
 template <typename T>
-std::ostream& operator<<(std::ostream& __stream, Matrix<T>& __item) noexcept {
+std::ostream& operator<<(std::ostream& __os, MaShape const& __shape) noexcept {
+  LOG("C:operator<< to MatrixShape");
+  __os << std::noshowpos << '(' << __shape.row_ << ',' << __shape.col_ << ")\n";
+  return __os;
+}
+template <typename T>
+std::ostream& operator<<(std::ostream& __os, Matrix<T> const& __it) noexcept {
   LOG("C:ostream to Matrix");
-  __stream << '(' << __item.shape().row_ << __item.shape().col_ << ")\n";
-  auto wide = __item.shape().col_;
-  size_t i = 0;
-  for (auto w : __item) {
-    if (i == 0) {
-      __stream << '[';
-    }
-    __stream << w;
-    i++;
-    if (i == wide) {
-      __stream << "]\n";
-      i = 0;
-    } else {
-      __stream << ',';
-    }
+  size_t digits = 0;
+  __os << __it.shape_;
+  if constexpr (std::is_same_v<T, bool>) {
+    digits = 1;
+  } else if constexpr (std::is_floating_point_v<T>) {
+    for (size_t i = 0; i < __it.size_; i++)
+      digits = std::max(digits, basic_math::intDigits(__it.datas_[i]));
+    digits += 2;
+    digits += basic_math::PRINT_ACCURACY;
+    __os << std::setprecision(basic_math::PRINT_ACCURACY) << std::fixed
+         << std::showpos << std::internal << std::setfill(' ')
+         << std::showpoint;
+  } else {
+    for (size_t i = 0; i < __it.size_; i++)
+      digits = std::max(digits, basic_math::intDigits(__it.datas_[i]));
+    digits += 1;
+    __os << std::showpos << std::internal << std::setfill(' ');
   }
-  return __stream;
+  size_t i = 0;
+  for (size_t r = 0; r < __it.shape_.row_; r++) {
+    __os << '[' << std::setw(digits) << __it.datas_[i];
+    i++;
+    for (size_t c = 0; c < __it.shape_.col_; c++) {
+      __os << ',' << std::setw(digits) << __it.datas_[i];
+      i++;
+    }
+    __os << "]\n";
+  }
+  return __os;
 }
 template <typename T>
 inline Matrix<T> operator+(T const&, Matrix<T> const&) noexcept;
@@ -190,6 +226,13 @@ template <typename T>
 inline Matrix<bool> operator>(T const&, Matrix<T> const&) noexcept;
 template <typename T>
 inline Matrix<bool> operator<(T const&, Matrix<T> const&) noexcept;
+template <typename T>
+inline Matrix<T> mergeUD(Matrix<T> const&, Matrix<T> const&) noexcept;
+template <typename T>
+inline Matrix<T> mergeLR(Matrix<T> const&, Matrix<T> const&) noexcept;
+template <typename T>
+inline Matrix<T> scan(Matrix<T> const&, MaShape const&,
+                      MaShape const&) noexcept;
 }  // namespace lina_lg
 namespace basic_math {
 template <typename T>
@@ -202,7 +245,13 @@ inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>&, T const&) noexcept;
 template <typename T>
 inline lina_lg::Matrix<T>& pow(T const&, lina_lg::Matrix<T>&) noexcept;
 template <typename T>
+inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>&, lina_lg::Matrix<T>&,
+                               lina_lg::Matrix<T>&) noexcept;
+template <typename T>
 inline lina_lg::Matrix<T>& log(lina_lg::Matrix<T>&) noexcept;
+template <typename T>
+inline lina_lg::Matrix<T>& dot(lina_lg::Matrix<T>&, lina_lg::Matrix<T>&,
+                               lina_lg::Matrix<T>&) noexcept;
 }  // namespace basic_math
 namespace lina_lg {
 /**
@@ -219,7 +268,7 @@ Matrix<T>::Matrix() noexcept(basic_math::support<T>) : storage::Story<T>() {
  * @param __shape the init shape
  */
 template <typename T>
-Matrix<T>::Matrix(MaShape const& __shape) noexcept(basic_math::support<T>)
+Matrix<T>::Matrix(MatrixShape const& __shape) noexcept(basic_math::support<T>)
     : storage::Story<T>(Matrix::sizeofShape(__shape)) {
   LOG("C:size constructor of Matrix");
   if (Matrix::legalShape(__shape))
@@ -234,7 +283,7 @@ Matrix<T>::Matrix(MaShape const& __shape) noexcept(basic_math::support<T>)
  * @param __init init datas
  */
 template <typename T>
-Matrix<T>::Matrix(MaShape const& __shape,
+Matrix<T>::Matrix(MatrixShape const& __shape,
                   T* const& __init) noexcept(basic_math::support<T>)
     : storage::Story<T>(Matrix::sizeofShape(__shape), __init) {
   LOG("C:init constructor of Matrix");
@@ -270,7 +319,7 @@ Matrix<T>::~Matrix() noexcept {
  * @return true is success, false otherwise
  */
 template <typename T>
-inline bool Matrix<T>::resize(MaShape const& __shape) noexcept {
+inline bool Matrix<T>::resize(MatrixShape const& __shape) noexcept {
   LOG("C:resize of Matrix");
   if (!Matrix::legalShape(__shape)) {
     LOG("E:error shape");
@@ -278,7 +327,7 @@ inline bool Matrix<T>::resize(MaShape const& __shape) noexcept {
   }
   if (this->shape_ == __shape) return true;
   T* temp = new T[Matrix::sizeofShape(__shape)];
-  MaShape shape;
+  MatrixShape shape;
   for (shape.row_ = 0; shape.row_ < __shape.row_; shape.row_++) {
     for (shape.col_ = 0; shape.col_ < __shape.col_; shape.col_++) {
       temp[shape.row_ * __shape.col_ + shape.col_] =
@@ -300,7 +349,7 @@ inline bool Matrix<T>::resize(MaShape const& __shape) noexcept {
  * @return true is success, false otherwise
  */
 template <typename T>
-inline bool Matrix<T>::reshape(MaShape const& __shape) noexcept {
+inline bool Matrix<T>::reshape(MatrixShape const& __shape) noexcept {
   LOG("C:reshape of Matrix");
   if (!Matrix::legalShape(__shape)) {
     LOG("E:error shape");
@@ -320,7 +369,8 @@ inline bool Matrix<T>::reshape(MaShape const& __shape) noexcept {
  * @return true is success, false otherwise
  */
 template <typename T>
-inline bool Matrix<T>::load(MaShape const& __shape, T* const& __init) noexcept {
+inline bool Matrix<T>::load(MatrixShape const& __shape,
+                            T* const& __init) noexcept {
   LOG("C:load of Matrix");
   if (!Matrix::legalShape(__shape)) {
     LOG("E:error shape");
@@ -332,19 +382,19 @@ inline bool Matrix<T>::load(MaShape const& __shape, T* const& __init) noexcept {
     this->datas_ = new T[this->size_];
   }
   this->shape_ = __shape;
-  std::copy(__init, __init + this->size_; this->datas_);
+  std::copy(__init, __init + this->size_, this->datas_);
   return true;
 }
 /**
  * @brief freedom, freedom the memory
  */
 template <typename T>
-inline void Matrix<T>::freedom() noexcept override {
+inline void Matrix<T>::freedom() noexcept {
   LOG("C:freedom of Matrix");
   delete[] this->datas_;
   this->datas_ = new T[1];
   this->datas_[0] = static_cast<T>(0);
-  this->size_ = this->shape_.col = this->shape_.row = 1;
+  this->size_ = this->shape_.col_ = this->shape_.row_ = 1;
   return;
 };
 /**
@@ -353,8 +403,8 @@ inline void Matrix<T>::freedom() noexcept override {
 template <typename T>
 inline Matrix<T> Matrix<T>::transpose() const noexcept {
   LOG("C:transpose of Matrix");
-  Matrix<T> result(MaShape{this->shape_.col, this->shape_.row});
-  MaShape shape;
+  Matrix<T> result(MatrixShape{this->shape_.col_, this->shape_.row_});
+  MatrixShape shape;
   for (shape.row_ = 0; shape.row_ < this->shape_.col_; shape.row_++) {
     for (shape.col_ = 0; shape.col_ < this->shape_.row_; shape.col_++) {
       result.datas_[shape.row_ * this->shape_.row_ + shape.row_] =
@@ -362,6 +412,33 @@ inline Matrix<T> Matrix<T>::transpose() const noexcept {
     }
   }
   return result;
+}
+/**
+ * @brief at, the function does as you think
+ * @param __where where
+ */
+template <typename T>
+T& Matrix<T>::at(MatrixShape const& __where) const noexcept {
+  LOG("C:at of Matrix");
+  if (__where < this->shape_) {
+    return this->datas_[this->shape_.col_ * __where.row_ + __where.col_];
+  }
+  LOG("E:memory overflow");
+  return this->datas_[0];
+}
+/**
+ * @brief at, the function does as you think
+ * @param __row the row
+ * @param __col the column
+ */
+template <typename T>
+T& Matrix<T>::at(size_t const& __row, size_t const& __col) const noexcept {
+  LOG("C:at of Matrix");
+  if ((this->shape_.row_ > __row) && (this->shape_.col_ > __col)) {
+    return this->datas_[this->shape_.col_ * __row + __col];
+  }
+  LOG("E:memory overflow");
+  return this->datas_[0];
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix<T> const& __other) noexcept {
@@ -751,11 +828,84 @@ inline Matrix<bool> operator<(T const& __first,
     result.datas_[i] = __first < __second.datas_[i];
   return result;
 }
+/**
+ * @brief merge up and down
+ * @param __up the up one
+ * @param __down the down one
+ * @return the merge one
+ * @throw none
+ */
+template <typename T>
+inline Matrix<T> mergeUD(Matrix<T> const& __up,
+                         Matrix<T> const& __down) noexcept {
+  LOG("C:mergeUD to Matrix");
+  if (__up.shape_.col_ != __down.shape_.col_) {
+    LOG("E:unmatch size");
+    return Matrix<T>();
+  }
+  Matrix<T> ans({__up.shape_.row_ + __down.shape_.row_, __up.shape_.col_});
+  std::copy(__up.datas_, __up.datas_ + __up.size_, ans.datas_);
+  std::copy(__down.datas_, __down.datas_ + __down.size_,
+            ans.datas_ + __up.size_);
+  return ans;
+}
+/**
+ * @brief merge left and right
+ * @param __left the left one
+ * @param __right the right one
+ * @return the merge one
+ * @throw none
+ */
+template <typename T>
+inline Matrix<T> mergeLR(Matrix<T> const& __left,
+                         Matrix<T> const& __right) noexcept {
+  LOG("C:mergeLR to Matrix");
+  if (__left.shape_.row_ != __right.shape_.row_) {
+    LOG("E:unmatch size");
+    return Matrix<T>();
+  }
+  Matrix<T> ans({__left.shape_.row_, __left.shape_.col_ + __right.shape_.col_});
+  T *left = __left.datas_, *right = __right.datas_, *answer = ans.datas_;
+  for (size_t i = 0; i < __left.shape_.row_; i++) {
+    answer = std::copy(left, left + __left.shape_.col_, answer);
+    left += __left.shape_.col_;
+    answer = std::copy(right, right + __right.shape_.col_, answer);
+    right += __right.shape_.col_;
+  }
+  return ans;
+}
+/**
+ * @brief scan matrix from a matrix
+ * @param __matrix the base matrix
+ * @param __low the lower bond
+ * @param __up the upper bond
+ * @return the sub matrix
+ * @throw none
+ */
+template <typename T>
+inline Matrix<T> scan(Matrix<T> const& __matrix, MaShape const& __low,
+                      MaShape const& __up) noexcept {
+  LOG("C:scan to Matrix");
+  if (!((__low < __up) && (__up <= __matrix.shape_))) {
+    LOG("E:bad param");
+    return Matrix<T>();
+  }
+  MaShape ansShape;
+  ansShape = __up - __low;
+  Matrix<T> ans(ansShape);
+  T *alpha = __matrix.datas_ + __matrix.shape_.col_ * __low.row_ + __low.col_,
+    *beta = ans.datas_;
+  for (size_t i = 0; i < ansShape.row_; i++) {
+    beta = std::copy(alpha, alpha + __matrix.shape_.col_, beta);
+    alpha += __matrix.shape_.col_;
+  }
+  return ans;
+}
 }  // namespace lina_lg
 namespace basic_math {
 /**
  * @brief random
- * @param __matrix the reference of Matrix
+ * @param __matrix the Matrix, also the answer
  * @param __min the min
  * @param __max the max
  * @return itself
@@ -765,24 +915,26 @@ template <typename T>
 inline lina_lg::Matrix<T>& random(lina_lg::Matrix<T>& __matrix, T const& __min,
                                   T const& __max) noexcept {
   LOG("C:random to Matrix");
-  for (auto& i : __matrix) i = random(__min, __max);
+  for (size_t i = 0; i < __matrix.size(); i++)
+    __matrix[i] = random(__min, __max);
   return __matrix;
 }
 /**
  * @brief absolute
- * @param __matrix the reference of Matrix
+ * @param __matrix the Matrix, also the answer
  * @return itself
  * @throw none
  */
 template <typename T>
 inline lina_lg::Matrix<T>& absolute(lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::abs(i);
+  for (size_t i = 0; i < __matrix.size(); i++)
+    __matrix[i] = std::abs(__matrix[i]);
   return __matrix;
 }
 /**
  * @brief pow
- * @param __matrix the base
+ * @param __matrix the base, also the answer
  * @param __exponent the exponent
  * @return itself
  * @throw none
@@ -791,13 +943,14 @@ template <typename T>
 inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>& __matrix,
                                T const& __exponent) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::pow(i, __exponent);
+  for (size_t i = 0; i < __matrix.size(); i++)
+    __matrix[i] = std::pow(__matrix[i], __exponent);
   return __matrix;
 }
 /**
  * @brief pow
  * @param __base the base
- * @param __matrix the exponent
+ * @param __matrix the exponent, also the answer
  * @return itself
  * @throw none
  */
@@ -805,19 +958,74 @@ template <typename T>
 inline lina_lg::Matrix<T>& pow(T const& __base,
                                lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::pow(__base, i);
+  for (size_t i = 0; i < __matrix.size(); i++)
+    __matrix[i] = std::pow(__base, __matrix[i]);
   return __matrix;
 }
 /**
  * @brief log
- * @param __matrix the Matrix
+ * @param __matrix the Matrix, also the answer
  * @return itself
  * @throw none
  */
 template <typename T>
 inline lina_lg::Matrix<T>& log(lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::log(i);
+  for (size_t i = 0; i < __matrix.size(); i++)
+    __matrix[i] = std::log(__matrix[i]);
+  return __matrix;
+}
+/**
+ * @brief pow
+ * @param __base the base
+ * @param __exponent the exponent, size match to __base
+ * @param __answer the answer
+ * @return the answer
+ * @throw none
+ */
+template <typename T>
+inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>& __base,
+                               lina_lg::Matrix<T>& __exponent,
+                               lina_lg::Matrix<T>& __answer) noexcept {
+  LOG("C:pow to Matrix");
+  if (__base.shape() != __exponent.shape()) {
+    LOG("E:unmatch shape");
+    return __answer;
+  }
+  __answer.resize(__base.shape());
+  for (size_t i = 0; i < __answer.size(); i++)
+    __answer[i] = std::pow(__base[i], __exponent[i]);
+  return __answer;
+}
+/**
+ * @brief dot
+ * @param __alpha the first
+ * @param __beta the second one
+ * @param __matrix the answer
+ * @return the answer itself
+ * @throw none
+ */
+template <typename T>
+inline lina_lg::Matrix<T>& dot(lina_lg::Matrix<T>& __alpha,
+                               lina_lg::Matrix<T>& __beta,
+                               lina_lg::Matrix<T>& __matrix) noexcept {
+  LOG("C:dot to Matrix");
+  if (__alpha.shape().col_ != __beta.shape().row_) {
+    LOG("E:bad size for dot");
+    return __matrix;
+  }
+  lina_lg::MaShape shape, where;
+  size_t step = __alpha.shape().col_;
+  shape = {__alpha.shape().row_, __beta.shape().col_};
+  __matrix.resize(shape);
+  for (where.row_ = 0; where.row_ < shape.row_; where.row_++) {
+    for (where.col_ = 0; where.col_ < shape.col_; where.col_++) {
+      __matrix[where] = static_cast<T>(0);
+      for (size_t k = 0; k < step; k++) {
+        __matrix[where] += __alpha[{where.row_, k}] * __beta[{k, where.col_}];
+      }
+    }
+  }
   return __matrix;
 }
 }  // namespace basic_math

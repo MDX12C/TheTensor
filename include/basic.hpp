@@ -18,9 +18,9 @@
  */
 #define __EADD(first, second, type)           \
   if constexpr (std::is_same_v<type, bool>) { \
-    first += second;                          \
-  } else {                                    \
     first |= second;                          \
+  } else {                                    \
+    first += second;                          \
   }
 /**
  * @warning don't use it directly
@@ -228,7 +228,7 @@ class StoryBase {
    */
   inline virtual size_t capacity() const noexcept = 0;
 };
-}  // namespace ling_lg
+}  // namespace storage
 /**
  * @warning don't use it
  */
