@@ -71,7 +71,10 @@ class Error final : public std::exception {
    * @param __out the ostream, std::cerr is default
    */
   inline void print(std::ostream& __out = std::cerr) const noexcept {
-    __out << "//////////" << message_ << "//////////\n";
+    for (int i = 0; i < 45; i++) __out << '*';
+    __out << '\n' << this->message_ << '\n';
+    for (int i = 0; i < 45; i++) __out << '*';
+    __out << '\n';
     return;
   }
   /**

@@ -117,7 +117,7 @@ std::ostream& operator<<(std::ostream& __stream,
     __stream << std::showpos << std::internal << std::setfill(' ') << '[';
   }
   __stream << std::setw(digits) << __item.datas_[0];
-  for (size_t i = 0; i < __item.size_; i++) {
+  for (size_t i = 1; i < __item.size_; i++) {
     __stream << ',' << std::setw(digits) << __item.datas_[i];
   }
   __stream << "]\n";
@@ -736,8 +736,7 @@ template <typename T>
 inline lina_lg::Vector<T>& random(lina_lg::Vector<T>& __vector, T const& __min,
                                   T const& __max) noexcept {
   LOG("C:random to Vector");
-  for (size_t i = 0; i < __vector.size(); i++)
-    __vector[i] = random(__min, __max);
+  for (auto& i : __vector) i = random(__min, __max);
   return __vector;
 }
 /**
@@ -749,8 +748,7 @@ inline lina_lg::Vector<T>& random(lina_lg::Vector<T>& __vector, T const& __min,
 template <typename T>
 inline lina_lg::Vector<T>& absolute(lina_lg::Vector<T>& __vector) noexcept {
   LOG("C:absolute to Vector");
-  for (size_t i = 0; i < __vector.size(); i++)
-    __vector[i] = std::abs(__vector[i]);
+  for (auto& i : __vector) i = std::abs(i);
   return __vector;
 }
 /**
@@ -764,8 +762,7 @@ template <typename T>
 inline lina_lg::Vector<T>& pow(lina_lg::Vector<T>& __vector,
                                T const& __exponent) noexcept {
   LOG("C:absolute to Vector");
-  for (size_t i = 0; i < __vector.size(); i++)
-    __vector[i] = std::pow(__vector[i], __exponent);
+  for (auto& i : __vector) i = std::pow(i, __exponent);
   return __vector;
 }
 /**
@@ -779,8 +776,7 @@ template <typename T>
 inline lina_lg::Vector<T>& pow(T const& __base,
                                lina_lg::Vector<T>& __vector) noexcept {
   LOG("C:absolute to Vector");
-  for (size_t i = 0; i < __vector.size(); i++)
-    __vector[i] = std::pow(__base, __vector[i]);
+  for (auto& i : __vector) i = std::pow(__base, i);
   return __vector;
 }
 /**
@@ -801,8 +797,13 @@ inline lina_lg::Vector<T>& pow(lina_lg::Vector<T>& __base,
     return __answer;
   }
   __answer.resize(__base.size());
-  for (size_t i = 0; i < __answer.size(); i++)
-    __answer[i] = std::pow(__base[i], __exponent[i]);
+  auto a = __base.begin(), b = __exponent.begin(), c = __answer.begin();
+  while (c != __answer.end()) {
+    (*c) = std::pow(*a, *b);
+    a++;
+    b++;
+    c++;
+  }
   return __answer;
 }
 /**
@@ -814,8 +815,7 @@ inline lina_lg::Vector<T>& pow(lina_lg::Vector<T>& __base,
 template <typename T>
 inline lina_lg::Vector<T>& log(lina_lg::Vector<T>& __vector) noexcept {
   LOG("C:absolute to Vector");
-  for (size_t i = 0; i < __vector.size(); i++)
-    __vector[i] = std::log(__vector[i]);
+  for (auto& i : __vector) i = std::log(i);
   return __vector;
 }
 }  // namespace basic_math

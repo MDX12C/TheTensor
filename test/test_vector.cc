@@ -3,7 +3,8 @@
 
 signed main() {
   CONSTRUCT;
-  // below are math function and constructor
+  system_message::Status::refresh("math function and member function");
+  system_message::Status::print();
   lina_lg::Vector<float> alpha;
   SHOW(alpha);
   alpha.resize(8);
@@ -27,7 +28,8 @@ signed main() {
   SHOW(alpha);
   lina_lg::Vector<float> nu(alpha.size(), alpha.begin());
   SHOW(nu);
-  // below are operator overloading to float
+  system_message::Status::refresh("operator overloading for float");
+  system_message::Status::print();
   lina_lg::Vector<float> delta, omega;
   delta.resize(10);
   omega.resize(10);
@@ -46,7 +48,8 @@ signed main() {
   SHOW(omega);
   SHOW(sigma);
   SHOW(omega + sigma);
-  // below are operator overloading to bool
+  system_message::Status::refresh("operator overloading for bool");
+  system_message::Status::print();
   lina_lg::Vector<bool> zeta, eta;
   zeta.resize(10);
   eta.resize(10);
@@ -58,7 +61,8 @@ signed main() {
   SHOW(zeta - eta);
   SHOW(zeta * eta);
   SHOW(zeta / eta);
-  // below are compare operator to Vector
+  system_message::Status::refresh("compare operator for Vector");
+  system_message::Status::print();
   lina_lg::Vector<int> theta, lota;
   theta.resize(10);
   lota.resize(10);
@@ -72,6 +76,12 @@ signed main() {
   SHOW(theta <= lota);
   SHOW(theta > lota);
   SHOW(theta < lota);
+  system_message::Status::refresh("other support function");
+  system_message::Status::print();
+  SHOW(alpha);
+  SHOW(beta);
+  SHOW(lina_lg::merge(alpha, beta));
+  SHOW(lina_lg::scan(alpha, 2, 5));
   DESTRUCT;
   return 0;
 }
