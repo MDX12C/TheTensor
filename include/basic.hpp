@@ -253,11 +253,16 @@ class BasicSupport {
  * @throws None
  */
 template <typename U>
-inline size_t intDigits(U const& __alpha) noexcept(basic_math::support<U>) {
+inline size_t intDigits(U const& __alpha) noexcept(support<U>) {
   LOG("C:intDigits");
-  if constexpr (std::is_same_v<U, bool>) return size_t(1);
-  if (__alpha > -1 && __alpha < 1) return size_t(1);
-  return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+  if constexpr (support<U>) {
+    if constexpr (std::is_same_v<U, bool>) return size_t(1);
+    if (__alpha > -1 && __alpha < 1) return size_t(1);
+    return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+  } else {
+    throw system_message::Error("unsupport type for intDigits");
+    return size_t(0);
+  }
 }
 /**
  * Generates a random number within the range [min, max] based on the input

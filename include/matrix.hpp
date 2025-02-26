@@ -122,6 +122,7 @@ class Matrix final : public storage::Story<T> {
   Matrix(MatrixShape const&) noexcept(basic_math::support<T>);
   Matrix(MatrixShape const&, T* const&) noexcept(basic_math::support<T>);
   Matrix(Matrix const&) noexcept(basic_math::support<T>);
+  Matrix(Matrix&&) noexcept(basic_math::support<T>);
   ~Matrix() noexcept;
 
   inline MatrixShape shape() const noexcept { return this->shape_; }
@@ -151,6 +152,7 @@ class Matrix final : public storage::Story<T> {
   inline Matrix& operator-=(Matrix const&) noexcept;
   inline Matrix& operator*=(Matrix const&) noexcept;
   inline Matrix& operator/=(Matrix const&) noexcept;
+  inline Matrix& operator=(Matrix&&) noexcept;
   inline Matrix& operator=(T const&) noexcept;
   inline Matrix& operator+=(T const&) noexcept;
   inline Matrix& operator-=(T const&) noexcept;
@@ -249,22 +251,22 @@ inline Matrix<T> scan(Matrix<T> const&, MaShape const&,
 }  // namespace lina_lg
 namespace basic_math {
 template <typename T>
-inline lina_lg::Matrix<T>& random(lina_lg::Matrix<T>&, T const&,
-                                  T const&) noexcept;
+inline lina_lg::Matrix<T> random(lina_lg::MaShape const&, T const&,
+                                 T const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& absolute(lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>&, T const&) noexcept;
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>&, T const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& pow(T const&, lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> pow(T const&, lina_lg::Matrix<T>&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>&, lina_lg::Matrix<T>&,
-                               lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>&,
+                              lina_lg::Matrix<T>&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& log(lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T>& dot(lina_lg::Matrix<T>&, lina_lg::Matrix<T>&,
-                               lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T>&,
+                              lina_lg::Matrix<T>&) noexcept;
 }  // namespace basic_math
 namespace lina_lg {
 /**
@@ -315,6 +317,24 @@ Matrix<T>::Matrix(Matrix const& __other) noexcept(basic_math::support<T>)
     : storage::Story<T>(__other.size_, __other.datas_) {
   LOG("C:copy constructor of Matrix");
   this->shape_ = __other.shape_;
+  return;
+}
+/**
+ * @brief move constructor
+ * @param __other the other one
+ * @warning the other will be unusable after the constructor
+ */
+template <typename T>
+Matrix<T>::Matrix(Matrix&& __other) noexcept(basic_math::support<T>)
+    : storage::Story<T>() {
+  LOG("C:move constructor of Matrix");
+  delete[] this->datas_;
+  this->datas_ = __other.datas_;
+  this->size_ = __other.size_;
+  this->shape_ = __other.shape_;
+  __other.datas_ = nullptr;
+  memory_manage::MemorySupport::untrack(
+      dynamic_cast<storage::StoryBase*>(&__other));
   return;
 }
 /**
@@ -468,6 +488,22 @@ Matrix<T>& Matrix<T>::operator=(Matrix<T> const& __other) noexcept {
   }
   this->shape_ = __other.shape_;
   for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other.datas_[i];
+  return *this;
+}
+template <typename T>
+inline Matrix<T>& Matrix<T>::operator=(Matrix<T>&& __other) noexcept {
+  LOG("C:move operator= of Matrix");
+  if (this == &__other) {
+    LOG("B:inlegal way to move between one Matrix");
+    return *this;
+  }
+  if (this->datas_) delete[] this->datas_;
+  this->datas_ = __other.datas_;
+  this->shape_ = __other.shape_;
+  this->size_ = __other.size_;
+  __other.datas_ = nullptr;
+  memory_manage::MemorySupport::untrack(
+      dynamic_cast<storage::StoryBase*>(&__other));
   return *this;
 }
 template <typename T>
@@ -761,7 +797,7 @@ inline Matrix<T> operator+(T const& __first,
                            Matrix<T> const& __second) noexcept {
   LOG("C:operator+ to Matrix");
   Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     ADD(__first, __second.datas_[i], result.datas_[i], T);
   return result;
 }
@@ -770,7 +806,7 @@ inline Matrix<T> operator-(T const& __first,
                            Matrix<T> const& __second) noexcept {
   LOG("C:operator- to Matrix");
   Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     MNS(__first, __second.datas_[i], result.datas_[i], T);
   return result;
 }
@@ -779,7 +815,7 @@ inline Matrix<T> operator*(T const& __first,
                            Matrix<T> const& __second) noexcept {
   LOG("C:operator* to Matrix");
   Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     MUL(__first, __second.datas_[i], result.datas_[i], T);
   return result;
 }
@@ -788,7 +824,7 @@ inline Matrix<T> operator/(T const& __first,
                            Matrix<T> const& __second) noexcept {
   LOG("C:operator/ to Matrix");
   Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     DIV(__first, __second.datas_[i], result.datas_[i], T);
   return result;
 }
@@ -797,7 +833,7 @@ inline Matrix<bool> operator==(T const& __first,
                                Matrix<T> const& __second) noexcept {
   LOG("C:operator== to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first == __second.datas_[i];
   return result;
 }
@@ -806,7 +842,7 @@ inline Matrix<bool> operator!=(T const& __first,
                                Matrix<T> const& __second) noexcept {
   LOG("C:operator!= to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first != __second.datas_[i];
   return result;
 }
@@ -815,7 +851,7 @@ inline Matrix<bool> operator>=(T const& __first,
                                Matrix<T> const& __second) noexcept {
   LOG("C:operator>= to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first >= __second.datas_[i];
   return result;
 }
@@ -824,7 +860,7 @@ inline Matrix<bool> operator<=(T const& __first,
                                Matrix<T> const& __second) noexcept {
   LOG("C:operator<= to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first <= __second.datas_[i];
   return result;
 }
@@ -833,7 +869,7 @@ inline Matrix<bool> operator>(T const& __first,
                               Matrix<T> const& __second) noexcept {
   LOG("C:operator> to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first > __second.datas_[i];
   return result;
 }
@@ -842,7 +878,7 @@ inline Matrix<bool> operator<(T const& __first,
                               Matrix<T> const& __second) noexcept {
   LOG("C:operator< to Matrix");
   Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size; i++)
+  for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first < __second.datas_[i];
   return result;
 }
@@ -923,128 +959,129 @@ inline Matrix<T> scan(Matrix<T> const& __matrix, MaShape const& __low,
 namespace basic_math {
 /**
  * @brief random
- * @param __matrix the Matrix, also the answer
+ * @param __shape the shape of Matrix
  * @param __min the min
  * @param __max the max
- * @return itself
+ * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& random(lina_lg::Matrix<T>& __matrix, T const& __min,
-                                  T const& __max) noexcept {
+inline lina_lg::Matrix<T> random(lina_lg::MaShape const& __shape,
+                                 T const& __min, T const& __max) noexcept {
   LOG("C:random to Matrix");
-  for (auto& i : __matrix) i = random(__min, __max);
-  return __matrix;
+  lina_lg::Matrix<T> result(__shape);
+  for (auto& i : result) i = random(__min, __max);
+  return result;
 }
 /**
  * @brief absolute
- * @param __matrix the Matrix, also the answer
- * @return itself
+ * @param __matrix the Matrix
+ * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& absolute(lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::abs(i);
-  return __matrix;
+  lina_lg::Matrix<T> result(__matrix);
+  for (auto& i : result) i = std::abs(i);
+  return result;
 }
 /**
  * @brief pow
- * @param __matrix the base, also the answer
+ * @param __matrix the base
  * @param __exponent the exponent
- * @return itself
+ * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>& __matrix,
-                               T const& __exponent) noexcept {
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __matrix,
+                              T const& __exponent) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::pow(i, __exponent);
-  return __matrix;
+  lina_lg::Matrix<T> result(__matrix);
+  for (auto& i : result) i = std::pow(i, __exponent);
+  return result;
 }
 /**
  * @brief pow
  * @param __base the base
- * @param __matrix the exponent, also the answer
- * @return itself
+ * @param __matrix the exponent
+ * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& pow(T const& __base,
-                               lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> pow(T const& __base,
+                              lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::pow(__base, i);
-  return __matrix;
+  lina_lg::Matrix<T> result(__matrix);
+  for (auto& i : result) i = std::pow(__base, i);
+  return result;
 }
 /**
  * @brief log
- * @param __matrix the Matrix, also the answer
- * @return itself
+ * @param __matrix the Matrix
+ * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& log(lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
-  for (auto& i : __matrix) i = std::log(i);
-  return __matrix;
+  lina_lg::Matrix<T> result(__matrix);
+  for (auto& i : result) i = std::log(i);
+  return result;
 }
 /**
  * @brief pow
  * @param __base the base
  * @param __exponent the exponent, size match to __base
- * @param __answer the answer
  * @return the answer
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& pow(lina_lg::Matrix<T>& __base,
-                               lina_lg::Matrix<T>& __exponent,
-                               lina_lg::Matrix<T>& __answer) noexcept {
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __base,
+                              lina_lg::Matrix<T>& __exponent) noexcept {
   LOG("C:pow to Matrix");
   if (__base.shape() != __exponent.shape()) {
     LOG("E:unmatch shape");
-    return __answer;
+    return lina_lg::Matrix<T>(__base);
   }
-  __answer.resize(__base.shape());
-  auto a = __base.begin(), b = __exponent.begin(), c = __answer.begin();
-  while (c != __answer.end()) {
-    (*c) = std::pow(*a, *b);
-    a++;
-    b++;
-    c++;
+  lina_lg::Matrix<T> result(__base);
+  auto i = result.begin(), w = __exponent.begin();
+  while (i != result.end()) {
+    (*i) = std::pow(*i, *w);
+    i++;
+    w++;
   }
-  return __answer;
+  return result;
 }
 /**
  * @brief dot
  * @param __alpha the first
  * @param __beta the second one
- * @param __matrix the answer
  * @return the answer itself
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T>& dot(lina_lg::Matrix<T>& __alpha,
-                               lina_lg::Matrix<T>& __beta,
-                               lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T>& __alpha,
+                              lina_lg::Matrix<T>& __beta) noexcept {
   LOG("C:dot to Matrix");
   if (__alpha.shape().col_ != __beta.shape().row_) {
     LOG("E:bad size for dot");
-    return __matrix;
+    return lina_lg::Matrix<T>(__alpha);
   }
   lina_lg::MaShape shape, where;
   size_t step = __alpha.shape().col_;
   shape = {__alpha.shape().row_, __beta.shape().col_};
-  __matrix.resize(shape);
+  lina_lg::Matrix<T> result(shape);
   for (where.row_ = 0; where.row_ < shape.row_; where.row_++) {
     for (where.col_ = 0; where.col_ < shape.col_; where.col_++) {
-      __matrix[where] = static_cast<T>(0);
+      result[where] = static_cast<T>(0);
       for (size_t k = 0; k < step; k++) {
-        __matrix[where] += __alpha[{where.row_, k}] * __beta[{k, where.col_}];
+        result[where] += __alpha[lina_lg::MaShape{where.row_, k}] *
+                         __beta[lina_lg::MaShape{k, where.col_}];
       }
     }
   }
-  return __matrix;
+  return result;
 }
 }  // namespace basic_math
 #endif

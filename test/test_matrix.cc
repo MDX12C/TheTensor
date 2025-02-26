@@ -1,131 +1,154 @@
 #include "interface.hpp"
-#define TEST_MATRIX 1
-#define SHOW(X) std::cout << #X << ":\n" << (X) << std::endl;
-#define DO(X)                           \
-  system_message::Status::announce(#X); \
-  (X);
-namespace ll = lina_lg;
+#define SHOW(X) std::cout << #X << " = " << (X) << std::endl;
+using sms = system_message::Status;
 namespace bsm = basic_math;
-namespace stms = system_message;
+namespace ll = lina_lg;
+auto mks = *lina_lg::makeShape;
 signed main() {
   CONSTRUCT;
-#if 1
-  system_message::Status::refresh("math function and member function");
-  system_message::Status::print();
-  lina_lg::Matrix<float> alpha;
-  SHOW(alpha);
-  DO(alpha.resize(lina_lg::makeShape(2, 4)))
-  SHOW(alpha);
-  system_message::Status::announce("beta=random(alpha,-10,10)");
-  auto beta = basic_math::random(alpha, (float)-10, (float)10);
-  SHOW(alpha);
-  SHOW(beta);
-  DO(basic_math::absolute(alpha));
-  DO(basic_math::pow((float)2, beta));
-  SHOW(alpha);
-  SHOW(beta);
-  system_message::Status::announce("mu=Matrix<int>(alpha)");
-  auto mu = (lina_lg::Matrix<int>)alpha;
-  SHOW(mu);
-  DO(basic_math::pow(mu, 4));
-  SHOW(mu);
-  DO(alpha = (lina_lg::Matrix<float>)mu);
-  SHOW(alpha);
-  DO(alpha.resize(lina_lg::makeShape(1, 3)));
-  SHOW(alpha);
-  DO(basic_math::log(alpha));
-  SHOW(alpha);
-  system_message::Status::announce("nu(alpha.shape(),alpha.begin());");
-  lina_lg::Matrix<float> nu(alpha.shape(), alpha.begin());
-  SHOW(nu);
-  SHOW(nu.transpose());
-  memory_manage::MemorySupport::displayUsage();
-#endif
-#if 1
+  sms::refresh("struct function");
+  sms::print();
+  [] {
+    sms::announce("defult constructor");
+    ll::Matrix<int> alpha;
+    SHOW(alpha);
+    sms::announce("shape constructor");
+    ll::Matrix<int> beta(mks(4, 3));
+    SHOW(beta);
+    sms::announce("init constructor");
+    int init[8] = {9, 3, 0, -1, 3, -5, 0, 1};
+    ll::Matrix<int> gamma(mks(2, 4), init);
+    SHOW(gamma);
+    sms::announce("copy constructor");
+    ll::Matrix<int> delta(gamma);
+    SHOW(delta);
+    memory_manage::MemorySupport::displayUsage();
+    sms::announce("move constructor");
+    ll::Matrix<int> zeta(std::move(delta));
+    SHOW(zeta);
+    memory_manage::MemorySupport::displayUsage();
+    sms::announce("bad type constructor");
+    try {
+      ll::Matrix<char*> omega;
+      SHOW(omega);
+    } catch (system_message::Error& __epsilon) {
+      __epsilon.print();
+    }
+  }();
+  sms::refresh("member function");
+  sms::print();
+  [] {
+    ll::Matrix<int> alpha;
+    SHOW(alpha);
+    sms::announce("resize");
+    alpha.resize(mks(2, 3));
+    SHOW(alpha);
+    sms::announce("load");
+    int init[6] = {0, -1, 5, 3, 2, 10};
+    alpha.load(mks(3, 2), init);
+    SHOW(alpha);
+    sms::announce("resize");
+    alpha.resize(mks(2, 4));
+    SHOW(alpha);
+    SHOW(alpha.shape());
+    SHOW(alpha.size());
+    SHOW(alpha.capacity());
+    SHOW(alpha.sum());
+    SHOW(alpha.transpose());
+    sms::announce("reshape");
+    alpha.reshape(mks(1, 8));
+    SHOW(alpha);
+    sms::announce("wrong way to use resize");
+    try {
+      alpha.resize(4);
+    } catch (system_message::Error& __epsilon) {
+      __epsilon.print();
+    }
+    sms::announce("sum for bool");
+    bool temp[5] = {false, true, true, false, true};
+    ll::Matrix<bool> beta(mks(1, 5), temp);
+    SHOW(beta);
+    SHOW(beta.sum());
+    sms::announce("range based for loop");
+    for (auto i : alpha) SHOW(i);
+    sms::announce("freedom");
+    alpha.freedom();
+    SHOW(alpha);
+  }();
   system_message::Status::refresh("operator overloading for float");
   system_message::Status::print();
-  lina_lg::Matrix<float> delta, omega;
-  SHOW(delta);
-  SHOW(omega);
-  DO(delta.resize(lina_lg::makeShape(2, 5)));
-  DO(omega.resize(lina_lg::makeShape(2, 5)));
-  SHOW(delta);
-  SHOW(omega);
-  DO(basic_math::random(delta, (float)-10, (float)10));
-  DO(basic_math::random(omega, (float)-10, (float)10));
-  SHOW(delta);
-  SHOW(omega);
-  SHOW(delta + omega);
-  SHOW(delta - omega);
-  SHOW(delta * omega);
-  SHOW(delta / omega);
-  SHOW(delta += omega);
-  SHOW(delta *= omega);
-  SHOW(!delta);
-  SHOW(omega);
-  SHOW(basic_math::EXPRISION);
-  SHOW(omega + basic_math::EXPRISION);
-  memory_manage::MemorySupport::displayUsage();
-#endif
-#if 1
+  [] {
+    auto alpha = bsm::random(mks(2, 3), (float)-10, (float)10);
+    auto beta = bsm::random(mks(2, 3), (float)-10, (float)10);
+    auto sigma = bsm::random((float)-10, (float)10);
+    SHOW(alpha);
+    SHOW(beta);
+    SHOW(alpha + beta);
+    SHOW(alpha - beta);
+    SHOW(alpha * beta);
+    SHOW(alpha / beta);
+    SHOW(alpha += beta);
+    SHOW(alpha *= beta);
+    SHOW(!alpha);
+    SHOW(beta);
+    SHOW(sigma);
+    SHOW(beta + sigma);
+    SHOW(alpha);
+    SHOW(sigma + alpha);
+  }();
   system_message::Status::refresh("operator overloading for bool");
   system_message::Status::print();
-  lina_lg::Matrix<bool> zeta, eta;
-  DO(zeta.resize(lina_lg::makeShape(2, 5)));
-  DO(eta.resize(lina_lg::makeShape(2, 5)));
-  DO(basic_math::random(zeta, false, true));
-  DO(basic_math::random(eta, false, true));
-  SHOW(zeta);
-  SHOW(eta);
-  SHOW(zeta + eta);
-  SHOW(zeta - eta);
-  SHOW(zeta * eta);
-  SHOW(zeta / eta);
-  memory_manage::MemorySupport::displayUsage();
-#endif
-#if 1
+  [] {
+    auto alpha = bsm::random(mks(2, 5), false, true);
+    auto beta = bsm::random(mks(2, 5), false, true);
+    SHOW(alpha);
+    SHOW(beta);
+    SHOW(alpha + beta);
+    SHOW(alpha - beta);
+    SHOW(alpha * beta);
+    SHOW(alpha / beta);
+  }();
   system_message::Status::refresh("compare operator for Matrix");
   system_message::Status::print();
-  lina_lg::Matrix<int> theta, lota;
-  DO(theta.resize(lina_lg::makeShape(2, 5)));
-  DO(lota.resize(lina_lg::makeShape(2, 5)));
-  DO(basic_math::random(theta, 1, 5));
-  DO(basic_math::random(lota, 1, 5));
-  SHOW(theta);
-  SHOW(lota);
-  SHOW(theta == lota);
-  SHOW(theta != lota);
-  SHOW(theta >= lota);
-  SHOW(theta <= lota);
-  SHOW(theta > lota);
-  SHOW(theta < lota);
-  memory_manage::MemorySupport::displayUsage();
-#endif
-#if 1
-  system_message::Status::refresh("other function");
+  [] {
+    auto alpha = bsm::random(mks(2, 5), 1, 5);
+    auto beta = bsm::random(mks(2, 5), 1, 5);
+    SHOW(alpha);
+    SHOW(beta);
+    SHOW(alpha == beta);
+    SHOW(alpha != beta);
+    SHOW(alpha >= beta);
+    SHOW(alpha <= beta);
+    SHOW(alpha > beta);
+    SHOW(alpha < beta);
+  }();
+  system_message::Status::refresh("other support function");
   system_message::Status::print();
-  DO(alpha.resize(beta.shape()));
-  SHOW(alpha);
-  SHOW(beta);
-  SHOW(lina_lg::mergeLR(alpha, beta));
-  SHOW(lina_lg::mergeUD(alpha, beta));
-  DO(alpha = lina_lg::mergeUD(alpha, beta));
-  SHOW(alpha);
-  SHOW(ll::scan(alpha, ll::makeShape(1, 1), ll::makeShape(3, 4)));
-  DO(alpha.resize(ll::makeShape(5, 6)));
-  DO(bsm::random(alpha, (float)-10, (float)10));
-  SHOW(alpha);
-  SHOW(ll::scan(alpha, ll::makeShape(2, 1), ll::makeShape(4, 4)));
-  DO(theta.resize(ll::makeShape(2, 3)));
-  DO(lota.resize(ll::makeShape(2, 3)));
-  SHOW(theta);
-  SHOW(lota);
-  stms::Status::announce("finalAnswer");
-  ll::Matrix<int> finalAnswer;
-  DO(finalAnswer = theta.transpose());
-  SHOW(finalAnswer);
-  SHOW(bsm::dot(finalAnswer, lota, theta));
-  memory_manage::MemorySupport::displayUsage();
-#endif
+  [] {
+    auto alpha = bsm::random(mks(2, 3), 1, 10);
+    auto beta = bsm::random(mks(2, 3), -5, 5);
+    SHOW(alpha);
+    SHOW(ll::mergeUD(alpha, beta));
+    SHOW(ll::mergeLR(alpha, beta));
+    sms::announce("make new alpha");
+    alpha = std::move(bsm::random(mks(6, 8), 1, 10));
+    SHOW(alpha);
+    SHOW(ll::scan(alpha, mks(1, 2), mks(6, 5)));
+    alpha.resize(beta.shape());
+    SHOW(alpha);
+    SHOW(beta);
+    [&] {
+      auto gamma = alpha.transpose();
+      SHOW(bsm::dot(gamma, beta));
+    }();
+    SHOW(bsm::absolute(beta));
+    SHOW(bsm::pow(2, alpha));
+    SHOW(bsm::pow(beta, 2));
+    SHOW(bsm::pow(beta, alpha));
+    auto gamma = bsm::random(10, 2.0F, 1024.0F);
+    SHOW(gamma);
+    SHOW(bsm::log(gamma));
+  }();
   DESTRUCT;
+  return 0;
 }

@@ -21,6 +21,7 @@ class Story : public StoryBase {
   Story(size_t const&) noexcept(basic_math::support<T>);
   Story(size_t const&, T* const&) noexcept(basic_math::support<T>);
   Story(Story const&) noexcept(basic_math::support<T>);
+  Story(Story&&) noexcept(basic_math::support<T>);
   virtual ~Story() noexcept;
   inline T sum() const noexcept;
   inline virtual size_t size() const noexcept override { return this->size_; }
@@ -48,6 +49,7 @@ class Story : public StoryBase {
     return result;
   }
   inline Story& operator=(Story const&) noexcept;
+  inline Story& operator=(Story&&) noexcept;
   inline Story& operator=(T const&) noexcept;
 };
 template <typename T>
@@ -100,7 +102,7 @@ Story<T>::Story() noexcept(basic_math::support<T>) : StoryBase() {
 }
 /**
  * @brief size constructor
- * @param lenth the lenth of memory
+ * @param __lenth the lenth of memory
  */
 template <typename T>
 Story<T>::Story(size_t const& __lenth) noexcept(basic_math::support<T>)
@@ -126,8 +128,8 @@ Story<T>::Story(size_t const& __lenth) noexcept(basic_math::support<T>)
 }
 /**
  * @brief init constructor
- * @param lenth the lenth of memory
- * @param init the init datas
+ * @param __lenth the lenth of memory
+ * @param __init the init datas
  * @warning if the size isn't equal to the lenth of datas, it will come to
  * memory leak
  */
@@ -157,7 +159,7 @@ Story<T>::Story(size_t const& __lenth,
 }
 /**
  * @brief copy constructor
- * @param other the copy one
+ * @param __other the copy one
  */
 template <typename T>
 Story<T>::Story(Story const& __other) noexcept(basic_math::support<T>)
@@ -176,15 +178,40 @@ Story<T>::Story(Story const& __other) noexcept(basic_math::support<T>)
   }
 }
 /**
+ * @brief move constructor
+ * @param __other the item
+ * @warning __other one will be unusable after the constructor
+ */
+template <typename T>
+Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
+    : StoryBase() {
+  LOG("C:Move constructor of Story");
+  if constexpr (!basic_math::support<T>) {
+    LOG("B:unsupport type for Story");
+    throw system_message::Error("unsupport type for Story");
+    return;
+  }
+  memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(&__other));
+  memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
+  this->datas_ = __other.datas_;
+  this->size_ = __other.size_;
+  __other.datas_ = nullptr;
+  return;
+}
+/**
  * @brief destructor
  */
 template <typename T>
 Story<T>::~Story() noexcept {
   LOG("C:Destructor of Story");
-  if constexpr (basic_math::support<T>) {
-    memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
+  if (this->datas_) {
+    if constexpr (basic_math::support<T>)
+      memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
+    delete[] this->datas_;
+  } else {
+    if constexpr (basic_math::support<T>)
+      memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
   }
-  delete[] this->datas_;
   return;
 }
 /**
@@ -294,6 +321,21 @@ inline Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
     this->size_ = __other.size_;
   }
   std::copy(__other.datas_, __other.datas_ + __other.size_, this->datas_);
+  return *this;
+}
+template <typename T>
+inline Story<T>& Story<T>::operator=(Story<T>&& __other) noexcept {
+  LOG("C:move operator= of Story");
+  if (this == &__other) {
+    LOG("B:inlegal way to move between one Story");
+    return *this;
+  }
+  if (this->datas_) delete[] this->datas_;
+  this->datas_ = __other.datas_;
+  this->size_ = __other.size_;
+  __other.datas_ = nullptr;
+  memory_manage::MemorySupport::untrack(
+      dynamic_cast<storage::StoryBase*>(&__other));
   return *this;
 }
 template <typename T>
