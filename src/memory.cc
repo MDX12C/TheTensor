@@ -6,7 +6,11 @@ namespace memory_manage {
 size_t MemorySupport::blocks_ = 0;
 std::set<storage::StoryBase*> MemorySupport::zone_;
 
-void MemorySupport::displayUsage(std::ostream& __output = std::cout) noexcept {
+/**
+ * @brief display usage
+ * @param __output the ostream, std::cout is defult
+ */
+void MemorySupport::displayUsage(std::ostream& __output) noexcept {
   LOG("C:display usage");
   unsigned long long total = 0;
   for (auto& item : MemorySupport::zone_) {
@@ -17,12 +21,16 @@ void MemorySupport::displayUsage(std::ostream& __output = std::cout) noexcept {
              << "\ncapacity: " << item->capacity();
     total += item->capacity();
   }
-  __output << "\ntotal " << total << " bytes in " << MemorySupport::blocks_
-           << " blocks\n";
-  for (auto i = 0; i < log_file::DOCS_WIDE; i++) __output << '-';
   __output << '\n';
+  for (auto i = 0; i < log_file::DOCS_WIDE; i++) __output << '-';
+  __output << "\ntotal " << total << " bytes in " << MemorySupport::blocks_
+           << " blocks\n\n";
   return;
 }
+/**
+ * @brief count total usage
+ * @return total usage counted in bytes
+ */
 unsigned long long MemorySupport::getTotalUsage() noexcept {
   LOG("C:get total");
   unsigned long long total = 0;

@@ -9,36 +9,72 @@
  */
 #define __ADD(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first || second;                  \
+    third = first | second;                   \
   } else {                                    \
     third = first + second;                   \
   }
 /**
  * @warning don't use it directly
  */
+#define __EADD(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first |= second;                          \
+  } else {                                    \
+    first += second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
 #define __MNS(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first && (!second);               \
+    third = first & (~second);                \
   } else {                                    \
     third = first - second;                   \
   }
 /**
  * @warning don't use it directly
  */
+#define __EMNS(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first &= (~second);                       \
+  } else {                                    \
+    first -= second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
 #define __MUL(first, second, third, type)     \
   if constexpr (std::is_same_v<type, bool>) { \
-    third = first && second;                  \
+    third = first & second;                   \
   } else {                                    \
     third = first * second;                   \
   }
 /**
  * @warning don't use it directly
  */
-#define __DIV(first, second, third, type)              \
-  if constexpr (std::is_same_v<type, bool>) {          \
-    third = (first || second) && (!(first && second)); \
-  } else {                                             \
-    third = first / second;                            \
+#define __EMUL(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first &= second;                          \
+  } else {                                    \
+    first *= second;                          \
+  }
+/**
+ * @warning don't use it directly
+ */
+#define __DIV(first, second, third, type)     \
+  if constexpr (std::is_same_v<type, bool>) { \
+    third = first ^ second;                   \
+  } else {                                    \
+    third = first / second;                   \
+  }
+/**
+ * @warning don't use it directly
+ */
+#define __EDIV(first, second, type)           \
+  if constexpr (std::is_same_v<type, bool>) { \
+    first ^= second;                          \
+  } else {                                    \
+    first /= second;                          \
   }
 /**
  * @brief add
@@ -48,6 +84,13 @@
  * @param type the type of the operands
  */
 #define ADD(first, second, third, type) __ADD(first, second, third, type);
+/**
+ * @brief add
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EADD(first, second, type) __EADD(first, second, type);
 
 /**
  * @brief sub
@@ -57,6 +100,13 @@
  * @param type the type of the operands
  */
 #define MNS(first, second, third, type) __MNS(first, second, third, type);
+/**
+ * @brief sub
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EMNS(first, second, type) __EMNS(first, second, type);
 
 /**
  * @brief mul
@@ -66,6 +116,13 @@
  * @param type the type of the operands
  */
 #define MUL(first, second, third, type) __MUL(first, second, third, type);
+/**
+ * @brief mul
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EMUL(first, second, type) __EMUL(first, second, type);
 
 /**
  * @brief div
@@ -75,7 +132,100 @@
  * @param type the type of the operands
  */
 #define DIV(first, second, third, type) __DIV(first, second, third, type);
+/**
+ * @brief div
+ * @param first the first operand
+ * @param second the second operand
+ * @param type the type of the operands
+ */
+#define EDIV(first, second, type) __EDIV(first, second, type);
+namespace system_message {
+class Status {
+ private:
+  static size_t blocks_;
+  static std::string progress_;
 
+ public:
+  /**
+   * @brief refresh Status
+   * @param __progress the new status
+   * @return the sequence
+   * @throw none
+   */
+  static inline size_t refresh(std::string const& __progress) noexcept {
+    Status::progress_ = __progress;
+    Status::blocks_++;
+    return Status::blocks_;
+  }
+  /**
+   * @brief refresh Status
+   * @param __progress the new status
+   * @return the sequence
+   * @throw none
+   */
+  static inline size_t refresh(const char* const& __progress) noexcept {
+    Status::progress_ = __progress;
+    Status::blocks_++;
+    return Status::blocks_;
+  }
+  /**
+   * @return the sequence now
+   * @throw none
+   */
+  static inline size_t blocks() noexcept { return Status::blocks_; }
+  /**
+   * @return the progress now
+   * @throw none
+   */
+  static inline std::string progress() noexcept { return Status::progress_; }
+  /**
+   * @warning don't use it directly
+   */
+  static inline void init() {
+    LOG("S:system init");
+    Status::blocks_ = 0;
+    Status::progress_ = "Start";
+    return;
+  }
+  static inline void print(std::ostream& __os = std::cout) noexcept {
+    __os << '/';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    __os << "\\\nBlock sequence: " << Status::blocks_
+         << " \nProgress: " << Status::progress_ << "\n\\";
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    __os << "/\n";
+    return;
+  }
+  /**
+   * @brief announce the message
+   * @param __it the content
+   * @param __os the ostream, std::cout in default
+   * @throw none
+   */
+  static inline void announce(std::string const& __it,
+                              std::ostream& __os = std::cout) noexcept {
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    __os << '\n' << __it << '\n';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    __os << '\n';
+    return;
+  }
+  /**
+   * @brief announce the message
+   * @param __it the content
+   * @param __os the ostream, std::cout in default
+   * @throw none
+   */
+  static inline void announce(const char* const& __it,
+                              std::ostream& __os = std::cout) noexcept {
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    __os << '\n' << __it << '\n';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    __os << '\n';
+    return;
+  }
+};
+}  // namespace system_message
 namespace basic_math {
 constexpr size_t PRINT_ACCURACY = 3;
 constexpr FloatType EXPRISION = static_cast<FloatType>(std::exp(1.0F));
@@ -103,11 +253,16 @@ class BasicSupport {
  * @throws None
  */
 template <typename U>
-inline size_t intDigits(U const& __alpha) noexcept(basic_math::support<U>) {
+inline size_t intDigits(U const& __alpha) noexcept(support<U>) {
   LOG("C:intDigits");
-  if constexpr (std::is_same_v<U, bool>) return size_t(1);
-  if (__alpha > -1 && __alpha < 1) return size_t(1);
-  return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+  if constexpr (support<U>) {
+    if constexpr (std::is_same_v<U, bool>) return size_t(1);
+    if (__alpha > -1 && __alpha < 1) return size_t(1);
+    return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+  } else {
+    throw system_message::Error("unsupport type for intDigits");
+    return size_t(0);
+  }
 }
 /**
  * Generates a random number within the range [min, max] based on the input
@@ -168,6 +323,10 @@ class StoryBase {
 /**
  * @warning don't use it
  */
-#define BASIC_CON basic_math::BasicSupport::init();
+#define BASIC_CON                     \
+  do {                                \
+    basic_math::BasicSupport::init(); \
+    system_message::Status::init();   \
+  } while (false);
 
 #endif

@@ -91,35 +91,34 @@
 /**
  * @brief initialize all the constants
  */
-#define CONSTRUCT                   \
-  if constexpr (LOG_H) {            \
-    LOG_CON;                        \
-    if constexpr (__SPEED_MODE__) { \
-      LOG("S:SPEED MODE\n");        \
-    }                               \
-  }                                 \
-  if constexpr (BASIC_H) {          \
-    BASIC_CON;                      \
-  }                                 \
-  if constexpr (MEMORY_H) {         \
-    MEMORY_CON;                     \
-  }                                 \
-  if constexpr (VECTOR_H) {         \
-    VECTOR_CON;                     \
-  }                                 \
-  if constexpr (MATRIX_H) {         \
-    MATRIX_CON;                     \
-  }                                 \
-  if constexpr (NETWORK_H) {        \
-    NETWORK_CON;                    \
-  }                                 \
-  if constexpr (ROM_H) {            \
-    ROM_CON;                        \
-  }                                 \
-  LOG("S:main start");
-
-/**
- * @brief deinitialize all the constants
+#define CONSTRUCT                        \
+  if constexpr (LOG_H) {                 \
+    LOG_CON;                             \
+    if constexpr (__SPEED_MODE__) {      \
+      LOG("S:SPEED MODE\n");             \
+    }                                    \
+  }                                      \
+  if constexpr (BASIC_H) {               \
+    BASIC_CON;                           \
+  }                                      \
+  if constexpr (MEMORY_H) {              \
+    MEMORY_CON;                          \
+  }                                      \
+  if constexpr (VECTOR_H) {              \
+    VECTOR_CON;                          \
+  }                                      \
+  if constexpr (MATRIX_H) {              \
+    MATRIX_CON;                          \
+  }                                      \
+  if constexpr (NETWORK_H) {             \
+    NETWORK_CON;                         \
+  }                                      \
+  if constexpr (ROM_H) {                 \
+    ROM_CON;                             \
+  }                                      \
+  LOG("S:main start");                   \
+/**                                      \
+ * @brief deinitialize all the constants \
  */
 #define DESTRUCT             \
   LOG("S:main end");         \
