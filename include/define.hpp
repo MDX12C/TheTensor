@@ -59,6 +59,14 @@ struct the_type_is_absolute_supportable {
 };
 template <typename T>
 inline constexpr bool support = the_type_is_absolute_supportable<T>::value;
+template <typename T>
+struct the_type_is_relative_longer {
+  static constexpr bool value =
+      (std::is_same_v<T, unsigned long long> | std::is_same_v<T, long long> |
+       std::is_same_v<T, double>);
+};
+template <typename T>
+inline constexpr bool longer = the_type_is_relative_longer<T>::value;
 }  // namespace basic_math
 namespace system_message {
 class Error final : public std::exception {

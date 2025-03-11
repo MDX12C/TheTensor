@@ -224,6 +224,12 @@ class Status {
     __os << '\n';
     return;
   }
+  template <typename T>
+  static inline void debug(T& __item, const char* const& __name,
+                           std::ostream& __os = std::cout) noexcept {
+    __os << "\n###debug\n" << __name << "=\n" << __item << "\n########\n";
+    return;
+  }
 };
 }  // namespace system_message
 namespace basic_math {
@@ -257,8 +263,13 @@ inline size_t intDigits(U const& __alpha) noexcept(support<U>) {
   LOG("C:intDigits");
   if constexpr (support<U>) {
     if constexpr (std::is_same_v<U, bool>) return size_t(1);
-    if (__alpha > -1 && __alpha < 1) return size_t(1);
-    return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+    if constexpr (std::is_signed_v<U>) {
+      if (__alpha > -1 && __alpha < 1) return size_t(1);
+      return static_cast<size_t>(std::floor(std::log10(std::abs(__alpha)) + 1));
+    } else {
+      if (__alpha < 1) return size_t(1);
+      return static_cast<size_t>(std::floor(std::log10(__alpha) + 1));
+    }
   } else {
     throw system_message::Error("unsupport type for intDigits");
     return size_t(0);
@@ -329,4 +340,9 @@ class StoryBase {
     system_message::Status::init();   \
   } while (false);
 
+#if __DEBUG_MODE__
+#define DEBUG(X) system_message::Status::debug(X, #X);
+#else
+#define DEBUG(X)
+#endif
 #endif
