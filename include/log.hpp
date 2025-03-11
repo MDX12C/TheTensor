@@ -23,13 +23,13 @@ namespace log_file {
 #define CHECK_O(X)                               \
   {                                              \
     if (!X.is_open()) {                          \
-      throw std::invalid_argument("open fail!"); \
+      throw system_message::Error("open fail!"); \
     }                                            \
   }
 #define CHECK_C(X)                                \
   {                                               \
     if (X.is_open()) {                            \
-      throw std::invalid_argument("close fail!"); \
+      throw system_message::Error("close fail!"); \
     }                                             \
   }
 constexpr int CARRY = 16;
@@ -129,7 +129,7 @@ inline void logInit() {
   writer.close();
   CHECK_C(writer);
   serialTemp = serial;
-  for (int i = 12; i > 12 - FILE_DIGITS; i--) {
+  for (int i = 10 + FILE_DIGITS; i > 10; i--) {
     filename[i] = CARRY_ARRAY[serialTemp % CARRY];
     serialTemp /= CARRY;
   }
@@ -158,7 +158,7 @@ inline void logPack() {
   LogSupport::taskQueue.push(LogSupport::mainBuffer);
   LogSupport::queueLock.unlock();
   LogSupport::mainBuffer = nullptr;
-  printf("#####\nplease wait 3s\n");
+  printf("~~~~~\nplease wait 3s\n~~~~~\n");
   std::this_thread::sleep_for(std::chrono::seconds(3));
   while (true) {
     LogSupport::queueLock.lock();
@@ -199,24 +199,8 @@ inline void logPack() {
     log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
-#if __DEBUG_MODE__
-/**w
- * @brief write the log in the logfile
- * @param _FORMAT the format string.
- * The first character of the string is limited!!
- * @param C check: check for value or memory, also used as check work process
- * @param E error: happened error, but had solved
- * @param B bug: happened the unexpect bug and can't solve it
- * @param AP all pass: the reserved word, don't use it
- * @param FN finish: the reserved word, don't use it
- * @param S system message: the reserved word, don't use it
- */
-#define LOG(__FORMAT, ...)              \
-  __LOG_MAKER(__FORMAT, ##__VA_ARGS__); \
-  printf(__FORMAT, ##__VA_ARGS__);      \
-  printf("\n");
 
-#elif __SPEED_MODE__
+#if __SPEED_MODE__
 /**
  * @brief write the log in the logfile
  * @param _FORMAT the format string.

@@ -98,6 +98,9 @@
       LOG("S:SPEED MODE\n");             \
     }                                    \
   }                                      \
+  if constexpr (ROM_H) {                 \
+    ROM_CON;                             \
+  }                                      \
   if constexpr (BASIC_H) {               \
     BASIC_CON;                           \
   }                                      \
@@ -112,9 +115,6 @@
   }                                      \
   if constexpr (NETWORK_H) {             \
     NETWORK_CON;                         \
-  }                                      \
-  if constexpr (ROM_H) {                 \
-    ROM_CON;                             \
   }                                      \
   LOG("S:main start");                   \
 /**                                      \

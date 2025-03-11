@@ -109,12 +109,10 @@ class Matrix final : public storage::Story<T> {
 
  public:
   inline virtual bool resize(size_t const& __temp) override {
-    LOG("B:unsupport function");
     throw system_message::Error("unsupport function of Matrix");
     return false;
   }
   inline virtual bool load(size_t const& __size, T* const& __data) override {
-    LOG("B:unsupport function");
     throw system_message::Error("unsupport function of Matrix");
     return false;
   }
