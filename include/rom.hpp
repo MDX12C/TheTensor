@@ -148,7 +148,7 @@ inline T& stringToNum(std::string& __str, T& __num) noexcept {
   return __num;
 }
 
-class RomIO {
+class FileIO {
  public:
   // the mode of file item
   typedef enum IOMode {
@@ -169,8 +169,8 @@ class RomIO {
   inline void regist(std::string&);
 
  public:
-  RomIO() noexcept;
-  ~RomIO() noexcept;
+  FileIO() noexcept;
+  ~FileIO() noexcept;
   inline void setFile(const char* const&, const char* const&);
   inline bool switchMode(Status const&) noexcept;
   // return the name of file
@@ -183,14 +183,14 @@ class RomIO {
   template <typename T, typename W>
   inline bool write(W&, T* const&, size_t const&);
 };
-RomIO::RomIO() noexcept {
-  LOG("C:constructor of RomIO");
+FileIO::FileIO() noexcept {
+  LOG("C:constructor of FileIO");
   fileName_ = "";
   mode_ = idle;
   return;
 }
-RomIO::~RomIO() noexcept {
-  LOG("C:destructor of RomIO");
+FileIO::~FileIO() noexcept {
+  LOG("C:destructor of FileIO");
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
   return;
@@ -200,9 +200,9 @@ RomIO::~RomIO() noexcept {
  * @param __file put __FILE__ define in here
  * @param __type the type of the file, "txt" is default
  */
-inline void RomIO::setFile(const char* const& __file,
-                           const char* const& __type = "txt") {
-  LOG("C:set file of RomIO");
+inline void FileIO::setFile(const char* const& __file,
+                            const char* const& __type = "txt") {
+  LOG("C:set file of FileIO");
   fileName_ = __file;
   fileName_.pop_back();
   fileName_.pop_back();
@@ -218,8 +218,8 @@ inline void RomIO::setFile(const char* const& __file,
  * @param __obj mode you want
  * @return if the switch is successful, return true
  */
-inline bool RomIO::switchMode(Status const& __obj = idle) noexcept {
-  LOG("C:switch mode of RomIO");
+inline bool FileIO::switchMode(Status const& __obj = idle) noexcept {
+  LOG("C:switch mode of FileIO");
   if (mode_ == __obj) {
     LOG("E:same mode");
     return true;
@@ -252,8 +252,8 @@ inline bool RomIO::switchMode(Status const& __obj = idle) noexcept {
  * @brief print the file status now
  * @param __os the stream, std::cout is default
  */
-inline void RomIO::print(std::ostream& __os = std::cout) noexcept {
-  LOG("C:print of RomIO");
+inline void FileIO::print(std::ostream& __os = std::cout) noexcept {
+  LOG("C:print of FileIO");
   __os << "++++++++++\nfile name: " << fileName_ << "\nmode: ";
   if (mode_ == idle) {
     __os << "idle\n++++++++++\n";
@@ -265,8 +265,8 @@ inline void RomIO::print(std::ostream& __os = std::cout) noexcept {
   return;
 }
 // the private function
-inline bool RomIO::find(std::string& __str) {
-  LOG("C:find of RomIO");
+inline bool FileIO::find(std::string& __str) {
+  LOG("C:find of FileIO");
   fileIndex_.seekg(0, std::ios::beg);
   char c;
   size_t i = 0;
@@ -311,8 +311,8 @@ inline bool RomIO::find(std::string& __str) {
   return false;
 }
 // the private function
-inline void RomIO::regist(std::string& __str) {
-  LOG("C:regist of RomIO");
+inline void FileIO::regist(std::string& __str) {
+  LOG("C:regist of FileIO");
   unsigned long long position = fileSelf_.tellp();
   std::string s;
   numToString(s, position);
@@ -331,8 +331,8 @@ inline void RomIO::regist(std::string& __str) {
  * @return true if the read is successful, false otherwise
  */
 template <typename T, typename W>
-inline bool RomIO::read(W& __str, T* const& __ptr, size_t const& __size) {
-  LOG("C:read of RomIO");
+inline bool FileIO::read(W& __str, T* const& __ptr, size_t const& __size) {
+  LOG("C:read of FileIO");
   if (mode_ != reading) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
@@ -371,14 +371,184 @@ inline bool RomIO::read(W& __str, T* const& __ptr, size_t const& __size) {
  * @return true if the write is successful, false otherwise
  */
 template <typename T, typename W>
-inline bool RomIO::write(W& __str, T* const& __ptr, size_t const& __size) {
-  LOG("C:write of RomIO");
+inline bool FileIO::write(W& __str, T* const& __ptr, size_t const& __size) {
+  LOG("C:write of FileIO");
   if (mode_ != writing) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
   }
   std::string temp = __str;
   regist(temp);
+  fileSelf_.put('[');
+  for (size_t i = 0; i < __size - 1; i++) {
+    numToString(temp, __ptr[i]);
+    for (size_t w = 0; w < temp.size(); w++) fileSelf_.put(temp[w]);
+    fileSelf_.put(',');
+  }
+  numToString(temp, __ptr[__size - 1]);
+  for (size_t w = 0; w < temp.size(); w++) fileSelf_.put(temp[w]);
+  fileSelf_.put(']');
+  return true;
+}
+
+class FileIOOrdered {
+ public:
+  // the mode of file item
+  typedef enum IOMode {
+    // idling, also the default mode
+    idle,
+    // reading, read from the file
+    reading,
+    // writing, write into the file
+    writing
+  } Status;
+
+ private:
+  std::string fileName_;
+  std::fstream fileSelf_;
+  Status mode_;
+
+ public:
+  FileIOOrdered() noexcept;
+  ~FileIOOrdered() noexcept;
+  inline void setFile(const char* const&, const char* const&);
+  inline bool switchMode(Status const&) noexcept;
+  // return the name of file
+  inline std::string checkName() noexcept { return fileName_; }
+  // retrun the mode now
+  inline Status checkMode() noexcept { return mode_; }
+  inline void print(std::ostream&) noexcept;
+  template <typename T>
+  inline bool read(T* const&, size_t const&);
+  template <typename T>
+  inline bool write(T* const&, size_t const&);
+};
+FileIOOrdered::FileIOOrdered() noexcept {
+  LOG("C:constructor of FileIOOrdered");
+  fileName_ = "";
+  mode_ = idle;
+  return;
+}
+FileIOOrdered::~FileIOOrdered() noexcept {
+  LOG("C:destructor of FileIOOrdered");
+  if (fileSelf_.is_open()) fileSelf_.close();
+  return;
+}
+/**
+ * @brief set the file
+ * @param __file put __FILE__ define in here
+ * @param __type the type of the file, "txt" is default
+ */
+inline void FileIOOrdered::setFile(const char* const& __file,
+                                   const char* const& __type = "txt") {
+  LOG("C:set file of FileIOOrdered");
+  fileName_ = __file;
+  fileName_.pop_back();
+  fileName_.pop_back();
+  fileName_ = fileName_.substr(fileName_.find_last_of('/'));
+  fileName_.insert(0, "/../datas");
+  fileName_.insert(0, std::filesystem::current_path().string());
+  fileName_ += __type;
+  DEBUG(fileName_);
+  return;
+}
+/**
+ * @brief switch mode in [idle,read,writing]
+ * @param __obj mode you want
+ * @return if the switch is successful, return true
+ */
+inline bool FileIOOrdered::switchMode(Status const& __obj = idle) noexcept {
+  LOG("C:switch mode of FileIOOrdered");
+  if (mode_ == __obj) {
+    LOG("E:same mode");
+    return true;
+  }
+  if (__obj >= 3) {
+    LOG("E:bad argument");
+    return false;
+  }
+  if (fileSelf_.is_open()) fileSelf_.close();
+  mode_ = __obj;
+  if (__obj == idle) return true;
+  if (__obj == reading) {
+    fileSelf_.open(fileName_, std::ios::in | std::ios::binary);
+    fileSelf_.seekg(0, std::ios::beg);
+  } else if (__obj == writing) {
+    fileSelf_.open(fileName_,
+                   std::ios::out | std::ios::trunc | std::ios::binary);
+    fileSelf_.seekp(0, std::ios::beg);
+  }
+  if (!fileSelf_.is_open()) {
+    mode_ = idle;
+    LOG("E:open fail!");
+    return false;
+  }
+  return true;
+}
+/**
+ * @brief print the file status now
+ * @param __os the stream, std::cout is default
+ */
+inline void FileIOOrdered::print(std::ostream& __os = std::cout) noexcept {
+  LOG("C:print of FileIOOrdered");
+  __os << "++++++++++\nfile name: " << fileName_ << "\nmode: ";
+  if (mode_ == idle) {
+    __os << "idle\n++++++++++\n";
+  } else if (mode_ == reading) {
+    __os << "reading\n++++++++++\n";
+  } else if (mode_ == writing) {
+    __os << "writing\n++++++++++\n";
+  }
+  return;
+}
+/**
+ * @brief read datas from the file
+ * @param __ptr the pointer of the datas buffer
+ * @param __size how many datas you want read
+ * @return true if the read is successful, false otherwise
+ */
+template <typename T>
+inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
+  LOG("C:read of FileIOOrdered");
+  if (mode_ != reading) {
+    LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
+    return false;
+  }
+  std::string temp;
+  char c;
+  fileSelf_.get(c);
+  while (c != '[') {
+    fileSelf_.get(c);
+  }
+  size_t i = 0;
+  temp.clear();
+  while ((!fileSelf_.eof()) && (i < __size)) {
+    fileSelf_.get(c);
+    if (isNumber(c)) {
+      temp.push_back(c);
+    } else {
+      stringToNum(temp, __ptr[i]);
+      temp.clear();
+      i++;
+      if (c == ']') break;
+    }
+  }
+  return true;
+}
+/**
+ * @brief write datas into the file
+ * @param __ptr the pointer of the datas buffer
+ * @param __size how many datas you want write
+ * @return true if the write is successful, false otherwise
+ */
+template <typename T>
+inline bool FileIOOrdered::write(T* const& __ptr, size_t const& __size) {
+  LOG("C:write of FileIOOrdered");
+  if (mode_ != writing) {
+    LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
+    return false;
+  }
+  std::string temp;
   fileSelf_.put('[');
   for (size_t i = 0; i < __size - 1; i++) {
     numToString(temp, __ptr[i]);
