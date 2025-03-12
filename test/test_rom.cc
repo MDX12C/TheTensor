@@ -91,10 +91,10 @@ signed main() {
       __epsilon.print();
     }
   }
-  if constexpr (true) {
+  if constexpr (false) {
     system_message::Status::refresh("try rom io");
     system_message::Status::print();
-    rom_io::RomIO file;
+    rom_io::FileIO file;
     try {
       [&] {
         system_message::Status::announce("<set file> function of RomIO");
@@ -107,7 +107,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<writing file> function of RomIO 01");
-        file.switchMode(rom_io::RomIO::writing);
+        file.switchMode(rom_io::FileIO::writing);
         file.print();
         auto alpha = basic_math::random(8, -5, 5);
         SHOW(alpha);
@@ -119,7 +119,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<writing file> function of RomIO 02");
-        file.switchMode(rom_io::RomIO::writing);
+        file.switchMode(rom_io::FileIO::writing);
         file.print();
         auto beta = basic_math::random(15, -7, 7);
         SHOW(beta);
@@ -131,7 +131,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<reading file> function of RomIO");
-        file.switchMode(rom_io::RomIO::reading);
+        file.switchMode(rom_io::FileIO::reading);
         file.print();
         lina_lg::Vector<int> beta;
         beta.resize(15);
@@ -145,7 +145,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<reading file> function of RomIO");
-        file.switchMode(rom_io::RomIO::reading);
+        file.switchMode(rom_io::FileIO::reading);
         file.print();
         lina_lg::Vector<int> alpha;
         alpha.resize(8);
@@ -157,8 +157,41 @@ signed main() {
       __epsilon.print();
     }
 
-    file.switchMode(rom_io::RomIO::idle);
+    file.switchMode();
     file.print();
+  }
+  if constexpr (true) {
+    system_message::Status::refresh("File IO Ordered");
+    system_message::Status::print();
+    rom_io::FileIOOrdered orderFile;
+    orderFile.setFile(__FILE__, "order");
+    orderFile.print();
+    [&] {
+      system_message::Status::announce("write file");
+      auto alpha = basic_math::random(8, -5, 5);
+      SHOW(alpha);
+      auto beta = basic_math::random(15, -5.0F, 5.0F);
+      SHOW(beta);
+      orderFile.switchMode(rom_io::FileIOOrdered::writing);
+      orderFile.print();
+      orderFile.write(alpha.begin(), alpha.size());
+      orderFile.write(beta.begin(), beta.size());
+    }();
+    [&] {
+      system_message::Status::announce("read file");
+      lina_lg::Vector<int> alpha(8);
+      lina_lg::Vector<float> beta(15);
+      SHOW(alpha);
+      SHOW(beta);
+      orderFile.switchMode(rom_io::FileIOOrdered::reading);
+      orderFile.print();
+      orderFile.read(alpha.begin(), alpha.size());
+      orderFile.read(beta.begin(), beta.size());
+      SHOW(alpha);
+      SHOW(beta);
+    }();
+    orderFile.switchMode();
+    orderFile.print();
   }
   DESTRUCT;
 }
