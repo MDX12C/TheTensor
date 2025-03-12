@@ -514,6 +514,7 @@ inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
   }
+  if (fileSelf_.eof()) return false;
   std::string temp;
   char c;
   fileSelf_.get(c);
