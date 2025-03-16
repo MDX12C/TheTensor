@@ -22,9 +22,9 @@ signed main() {
         system_message::Status::announce("int");
         int alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(true);
       [&](bool __skip) {
@@ -32,9 +32,9 @@ signed main() {
         system_message::Status::announce("unsigned int");
         unsigned int alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(true);
       [&](bool __skip) {
@@ -42,9 +42,9 @@ signed main() {
         system_message::Status::announce("long long");
         long long alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(true);
       [&](bool __skip) {
@@ -52,9 +52,9 @@ signed main() {
         system_message::Status::announce("unsigned long long");
         unsigned long long alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(true);
       [&](bool __skip) {
@@ -62,9 +62,9 @@ signed main() {
         system_message::Status::announce("float");
         float alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(false);
       [&](bool __skip) {
@@ -72,9 +72,9 @@ signed main() {
         system_message::Status::announce("double");
         double alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(false);
       [&](bool __skip) {
@@ -82,9 +82,9 @@ signed main() {
         system_message::Status::announce("bool");
         bool alpha;
         IO(alpha);
-        rom_io::numToString(s, alpha);
+        file_io::numToString(s, alpha);
         SHOW(s);
-        rom_io::stringToNum(s, alpha);
+        file_io::stringToNum(s, alpha);
         SHOW(alpha);
       }(true);
     } catch (system_message::Error& __epsilon) {
@@ -94,7 +94,7 @@ signed main() {
   if constexpr (false) {
     system_message::Status::refresh("try rom io");
     system_message::Status::print();
-    rom_io::FileIO file;
+    file_io::FileIO file;
     try {
       [&] {
         system_message::Status::announce("<set file> function of RomIO");
@@ -107,7 +107,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<writing file> function of RomIO 01");
-        file.switchMode(rom_io::FileIO::writing);
+        file.switchMode(file_io::FileIO::writing);
         file.print();
         auto alpha = basic_math::random(8, -5, 5);
         SHOW(alpha);
@@ -119,7 +119,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<writing file> function of RomIO 02");
-        file.switchMode(rom_io::FileIO::writing);
+        file.switchMode(file_io::FileIO::writing);
         file.print();
         auto beta = basic_math::random(15, -7, 7);
         SHOW(beta);
@@ -131,7 +131,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<reading file> function of RomIO");
-        file.switchMode(rom_io::FileIO::reading);
+        file.switchMode(file_io::FileIO::reading);
         file.print();
         lina_lg::Vector<int> beta;
         beta.resize(15);
@@ -145,7 +145,7 @@ signed main() {
     try {
       [&] {
         system_message::Status::announce("<reading file> function of RomIO");
-        file.switchMode(rom_io::FileIO::reading);
+        file.switchMode(file_io::FileIO::reading);
         file.print();
         lina_lg::Vector<int> alpha;
         alpha.resize(8);
@@ -163,7 +163,7 @@ signed main() {
   if constexpr (true) {
     system_message::Status::refresh("File IO Ordered");
     system_message::Status::print();
-    rom_io::FileIOOrdered orderFile;
+    file_io::FileIOOrdered orderFile;
     orderFile.setFile(__FILE__, "order");
     orderFile.print();
     [&] {
@@ -172,7 +172,7 @@ signed main() {
       SHOW(alpha);
       auto beta = basic_math::random(15, -5.0F, 5.0F);
       SHOW(beta);
-      orderFile.switchMode(rom_io::FileIOOrdered::writing);
+      orderFile.switchMode(file_io::FileIOOrdered::writing);
       orderFile.print();
       orderFile.write(alpha.begin(), alpha.size());
       orderFile.write(beta.begin(), beta.size());
@@ -183,7 +183,7 @@ signed main() {
       lina_lg::Vector<float> beta(15);
       SHOW(alpha);
       SHOW(beta);
-      orderFile.switchMode(rom_io::FileIOOrdered::reading);
+      orderFile.switchMode(file_io::FileIOOrdered::reading);
       orderFile.print();
       orderFile.read(alpha.begin(), alpha.size());
       orderFile.read(beta.begin(), beta.size());

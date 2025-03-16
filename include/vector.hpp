@@ -95,6 +95,7 @@ class Vector final : public storage::Story<T> {
   inline Vector<bool> operator>(T const&) const noexcept;
   inline Vector<bool> operator<(T const&) const noexcept;
 };
+typedef Vector<FloatType> VectorF;
 template <typename T>
 std::ostream& operator<<(std::ostream& __stream,
                          Vector<T> const& __item) noexcept {

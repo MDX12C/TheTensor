@@ -3,7 +3,7 @@
 #define ROM_H 1
 #include "basic.hpp"
 // the suppurt space, don't touch it
-namespace rom_io {
+namespace file_io {
 // the accuracy of rom to store
 constexpr size_t ROM_ACC = 6;
 template <typename T>
@@ -172,7 +172,7 @@ class FileIO {
   FileIO() noexcept;
   ~FileIO() noexcept;
   inline void setFile(const char* const&, const char* const&);
-  inline bool switchMode(Status const&) noexcept;
+  inline bool switchMode(Status const&, bool const&) noexcept;
   // return the name of file
   inline std::string checkName() noexcept { return fileName_; }
   // retrun the mode now
@@ -218,7 +218,8 @@ inline void FileIO::setFile(const char* const& __file,
  * @param __obj mode you want
  * @return if the switch is successful, return true
  */
-inline bool FileIO::switchMode(Status const& __obj = idle) noexcept {
+inline bool FileIO::switchMode(Status const& __obj = idle,
+                               bool const& __special = false) noexcept {
   LOG("C:switch mode of FileIO");
   if (mode_ == __obj) {
     LOG("E:same mode");
@@ -236,10 +237,17 @@ inline bool FileIO::switchMode(Status const& __obj = idle) noexcept {
     fileSelf_.open(fileName_, std::ios::in | std::ios::binary);
     fileIndex_.open(fileName_ + "index", std::ios::in | std::ios::binary);
   } else if (__obj == writing) {
-    fileSelf_.open(fileName_,
-                   std::ios::out | std::ios::trunc | std::ios::binary);
-    fileIndex_.open(fileName_ + "index",
-                    std::ios::out | std::ios::trunc | std::ios::binary);
+    if (__special) {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::app | std::ios::binary);
+      fileIndex_.open(fileName_ + "index",
+                      std::ios::out | std::ios::app | std::ios::binary);
+    } else {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+      fileIndex_.open(fileName_ + "index",
+                      std::ios::out | std::ios::trunc | std::ios::binary);
+    }
   }
   if (!(fileSelf_.is_open() && fileIndex_.is_open())) {
     mode_ = idle;
@@ -412,7 +420,7 @@ class FileIOOrdered {
   FileIOOrdered() noexcept;
   ~FileIOOrdered() noexcept;
   inline void setFile(const char* const&, const char* const&);
-  inline bool switchMode(Status const&) noexcept;
+  inline bool switchMode(Status const&, bool const&) noexcept;
   // return the name of file
   inline std::string checkName() noexcept { return fileName_; }
   // retrun the mode now
@@ -457,7 +465,8 @@ inline void FileIOOrdered::setFile(const char* const& __file,
  * @param __obj mode you want
  * @return if the switch is successful, return true
  */
-inline bool FileIOOrdered::switchMode(Status const& __obj = idle) noexcept {
+inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
+                                      bool const& __special = false) noexcept {
   LOG("C:switch mode of FileIOOrdered");
   if (mode_ == __obj) {
     LOG("E:same mode");
@@ -474,9 +483,14 @@ inline bool FileIOOrdered::switchMode(Status const& __obj = idle) noexcept {
     fileSelf_.open(fileName_, std::ios::in | std::ios::binary);
     fileSelf_.seekg(0, std::ios::beg);
   } else if (__obj == writing) {
-    fileSelf_.open(fileName_,
-                   std::ios::out | std::ios::trunc | std::ios::binary);
-    fileSelf_.seekp(0, std::ios::beg);
+    if (__special) {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::app | std::ios::binary);
+    } else {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+      fileSelf_.seekp(0, std::ios::beg);
+    }
   }
   if (!fileSelf_.is_open()) {
     mode_ = idle;
@@ -561,5 +575,5 @@ inline bool FileIOOrdered::write(T* const& __ptr, size_t const& __size) {
   fileSelf_.put(']');
   return true;
 }
-}  // namespace rom_io
+}  // namespace file_io
 #endif

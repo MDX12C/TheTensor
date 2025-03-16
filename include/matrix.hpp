@@ -181,6 +181,7 @@ class Matrix final : public storage::Story<T> {
   inline Matrix<bool> operator>(T const&) const noexcept;
   inline Matrix<bool> operator<(T const&) const noexcept;
 };
+typedef Matrix<FloatType> MatrixF;
 std::ostream& operator<<(std::ostream& __os, MaShape const& __shape) noexcept {
   LOG("C:operator<< to MatrixShape");
   __os << std::noshowpos << '(' << __shape.row_ << ',' << __shape.col_ << ")\n";
