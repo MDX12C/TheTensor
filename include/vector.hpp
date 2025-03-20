@@ -219,8 +219,6 @@ Vector<T>::Vector(Vector&& __other) noexcept(basic_math::support<T>)
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
   __other.datas_ = nullptr;
-  memory_manage::MemorySupport::untrack(
-      dynamic_cast<storage::StoryBase*>(&__other));
   return;
 }
 /**
@@ -253,8 +251,6 @@ inline Vector<T>& Vector<T>::operator=(Vector<T>&& __other) noexcept {
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
   __other.datas_ = nullptr;
-  memory_manage::MemorySupport::untrack(
-      dynamic_cast<storage::StoryBase*>(&__other));
   return *this;
 }
 template <typename T>

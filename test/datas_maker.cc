@@ -39,7 +39,8 @@ signed main() {
   auto input = new FloatType[dmcc::INPUT], output = new FloatType[dmcc::OUTPUT];
   for (size_t i = 0; i < times; i++) {
   START:
-    std::cout << "put the standard answer:\n";
+    std::cout << "\nThe " << i + 1 << " of " << times
+              << "\nput the standard answer:\n";
     std::cin >> position;
     std::cin.get();
     for (size_t w = 0; w < dmcc::OUTPUT; w++) {

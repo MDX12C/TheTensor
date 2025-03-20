@@ -1,6 +1,12 @@
 #include "interface.hpp"
 
 #define SHOW(X) std::cout << #X << ":\n" << X << std::endl;
+#define PAUSE system_message::Status::pause();
+#if __DEBUG_MODE__
+#define PAUSED PAUSE
+#else
+#define PAUSED
+#endif
 
 namespace test_network_cc {
 constexpr size_t TIMES = 2;
@@ -11,6 +17,7 @@ constexpr size_t CORE_2 = 10;
 namespace tncc = test_network_cc;
 signed main() {
   CONSTRUCT;
+  size_t times;
   system_message::Status::announce(
       "This is a test for natrual network,\nwith differ the shape of numbers.");
   system_message::Status::refresh("setting");
@@ -30,9 +37,13 @@ signed main() {
   input.set(tncc::INPUTS, tncc::TIMES);
   layer1.set(tncc::CORE_1, tncc::INPUTS);
   layer3.set(tncc::CORE_2, tncc::CORE_1);
+  trainDatas.setFile(__FILE__, "in");
+  standardAns.setFile(__FILE__, "out");
+  weightFile.setFile(__FILE__,"weight");
+  PAUSE;
   [&] {
     bool retrain;
-    std::cout << "retrain?\n";
+    std::cout << "retrain?(1,0)\n";
     std::cin >> retrain;
     std::cin.get();
     if (retrain) {
@@ -44,35 +55,57 @@ signed main() {
       layer3.read("layer3", weightFile);
     }
   }();
-  trainDatas.setFile(__FILE__, "in");
-  standardAns.setFile(__FILE__, "out");
   trainDatas.switchMode(file_io::FileIOOrdered::reading);
   standardAns.switchMode(file_io::FileIOOrdered::reading);
+  std::cout << "How many times? ";
+  std::cin >> times;
+  std::cin.get();
+  PAUSE;
   system_message::Status::refresh("training");
   system_message::Status::print();
-  while (input.forward(trainDatas, alpha)) {
+  for (size_t i = 0; i < times; i++) {
+    if (!input.forward(trainDatas, alpha)) break;
+    PAUSED;
     system_message::Status::announce("a new train");
     tidy.forward(alpha);
+    PAUSED;
     layer1.forward(alpha);
+    PAUSED;
     layer2.forward(alpha);
+    PAUSED;
     tidy.forward(alpha);
+    PAUSED;
     layer3.forward(alpha);
+    PAUSED;
     layer4.forward(alpha);
+    PAUSED;
     layer5.forward(alpha);
     std::cout << "the answer is:\n" << alpha;
+    PAUSED;
     system_message::Status::announce("backward");
     temp = loss.backward(standardAns, alpha);
     std::cout << "\nthe loss is:\n" << temp << '\n';
+    PAUSED;
     layer5.backward(alpha);
+    PAUSED;
     layer4.backward(alpha);
+    PAUSED;
     layer3.backward(alpha);
+    PAUSED;
     tidy.backward(alpha);
+    PAUSED;
     layer2.backward(alpha);
+    PAUSED;
     layer1.backward(alpha);
+    system_message::Status::announce("end a train");
   }
+  system_message::Status::refresh("writing the files");
+  system_message::Status::print();
   weightFile.switchMode(file_io::FileIO::writing);
-  layer1.write("layer1", weightFile);
-  layer3.write("layer3", weightFile);
+  if (!(layer1.write("layer1", weightFile) &&
+        layer3.write("layer3", weightFile))) {
+    system_message::Status::announce("Fail to write");
+  }
   weightFile.switchMode();
   DESTRUCT;
 }

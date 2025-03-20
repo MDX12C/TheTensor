@@ -230,6 +230,11 @@ class Status {
     __os << "\n###debug\n" << __name << "=\n" << __item << "\n########\n";
     return;
   }
+  static inline void pause() noexcept {
+    std::cout << "==========\npause Enter to continue\n==========";
+    std::cin.get();
+    return;
+  }
 };
 }  // namespace system_message
 namespace basic_math {
@@ -341,8 +346,13 @@ class StoryBase {
   } while (false);
 
 #if __DEBUG_MODE__
-#define DEBUG(X) system_message::Status::debug(X, #X);
+#define __DEBUG(X)                        \
+  do {                                    \
+    __LOG;                                \
+    system_message::Status::debug(X, #X); \
+  } while (false);
 #else
-#define DEBUG(X)
+#define __DEBUG(X)
 #endif
+#define DEBUG(X) __DEBUG(X)
 #endif

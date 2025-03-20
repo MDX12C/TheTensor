@@ -200,18 +200,11 @@ inline void logPack() {
     log_file::LogSupport::queueLock.unlock();                               \
   } while (false);
 
+#define __LOG                                                               \
+  printf("\n++++++++++\n%s : %d\n%s\n++++++++++\n", __FUNCTION__, __LINE__, \
+         __FILE__);
+
 #if __SPEED_MODE__
-/**
- * @brief write the log in the logfile
- * @param _FORMAT the format string.
- * The first character of the string is limited!!
- * @param C check: check for value or memory, also used as check work process
- * @param E error: happened error, but had solved
- * @param B bug: happened the unexpect bug and can't solve it
- * @param AP all pass: the reserved word, don't use it
- * @param FN finish: the reserved word, don't use it
- * @param S system message: the reserved word, don't use it
- */
 #define LOG(__FORMAT, ...)                                      \
   if constexpr ((__FORMAT[0] == 'B') || (__FORMAT[0] == 'E') || \
                 (__FORMAT[0] == 'S')) {                         \

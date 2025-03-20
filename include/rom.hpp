@@ -220,7 +220,7 @@ inline void FileIO::setFile(const char* const& __file,
  */
 inline bool FileIO::switchMode(Status const& __obj = idle,
                                bool const& __special = false) noexcept {
-  LOG("C:switch mode of FileIO");
+  LOG("C:switch to mode %d of FileIO", __obj);
   if (mode_ == __obj) {
     LOG("E:same mode");
     return true;

@@ -332,8 +332,6 @@ Matrix<T>::Matrix(Matrix&& __other) noexcept(basic_math::support<T>)
   this->size_ = __other.size_;
   this->shape_ = __other.shape_;
   __other.datas_ = nullptr;
-  memory_manage::MemorySupport::untrack(
-      dynamic_cast<storage::StoryBase*>(&__other));
   return;
 }
 /**
@@ -501,8 +499,6 @@ inline Matrix<T>& Matrix<T>::operator=(Matrix<T>&& __other) noexcept {
   this->shape_ = __other.shape_;
   this->size_ = __other.size_;
   __other.datas_ = nullptr;
-  memory_manage::MemorySupport::untrack(
-      dynamic_cast<storage::StoryBase*>(&__other));
   return *this;
 }
 template <typename T>
