@@ -189,10 +189,10 @@ class Status {
   }
   static inline void print(std::ostream& __os = std::cout) noexcept {
     __os << '/';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '-';
     __os << "\\\nBlock sequence: " << Status::blocks_
          << " \nProgress: " << Status::progress_ << "\n\\";
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '-';
     __os << "/\n";
     return;
   }
@@ -204,9 +204,9 @@ class Status {
    */
   static inline void announce(std::string const& __it,
                               std::ostream& __os = std::cout) noexcept {
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '/';
     __os << '\n' << __it << '\n';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '\\';
     __os << '\n';
     return;
   }
@@ -218,9 +218,9 @@ class Status {
    */
   static inline void announce(const char* const& __it,
                               std::ostream& __os = std::cout) noexcept {
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '/';
     __os << '\n' << __it << '\n';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '\\';
     __os << '\n';
     return;
   }

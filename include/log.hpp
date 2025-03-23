@@ -36,18 +36,31 @@ constexpr int CARRY = 16;
 constexpr int FILE_DIGITS = 2;
 constexpr int FORMAT_LENTH = 256;
 constexpr int BUFFER_LENTH = 512;
-constexpr int DOCS_WIDE = 30;
-constexpr int WAIT_TIME = 150;
+constexpr int DOCS_WIDE = 15;
+constexpr int WAIT_TIME = 10;
 constexpr int WHOLE_NUMBER = std::pow(CARRY, FILE_DIGITS);
 
 extern const char* const CARRY_ARRAY;
+extern std::string TEMP_STRING;
 
+struct CharCompare {
+  bool operator()(const char* const& a, const char* const& b) {
+    return (b[0] == 'L') && (a[0] != 'L');
+  }
+};
 /**
  * the support class, please don't use it directly
  */
 class LogSupport {
  public:
-  static std::queue<char*> taskQueue;
+  /**
+   * L1: check logWorker is alive, from checkAlive
+   * L2: answer logWorker is alive, from logWorker
+   * L3: apply to end, from logPack
+   * L4: check the end, from logWorker
+   * L5: call force shut down
+   */
+  static std::priority_queue<char*,std::vector<char*>,CharCompare> taskQueue;
   static char* mainBuffer;
   static char* formatBuffer;
   static std::mutex queueLock;
@@ -55,6 +68,9 @@ class LogSupport {
    * @brief the worker function, please don't use it directly
    */
   static void logWorker(std::filesystem::path fileLocation) {
+#if __DEBUG_MODE__
+    printf("log worker start\n");
+#endif
     std::ofstream writer;
     writer.open(fileLocation, std::ios::binary | std::ios::app);
     CHECK_O(writer);
@@ -65,20 +81,30 @@ class LogSupport {
         LogSupport::queueLock.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
       } else {
-        workSpace = LogSupport::taskQueue.front();
+        workSpace = LogSupport::taskQueue.top();
         LogSupport::taskQueue.pop();
         LogSupport::queueLock.unlock();
-        if ((workSpace[0] == 'A') && (workSpace[1] == 'P')) {
-          delete[] workSpace;
-          writer.close();
-          CHECK_C(writer);
-          workSpace = new char[4];
-          sprintf(workSpace, "FN");
-          LogSupport::queueLock.lock();
-          LogSupport::taskQueue.push(workSpace);
-          LogSupport::queueLock.unlock();
-          workSpace = nullptr;
-          return;
+        if (workSpace[0] == 'L') {
+          if (workSpace[1] == '1') {
+#if __DEBUG_MODE__
+            printf("L1\n");
+#endif
+            delete[] workSpace;
+            workSpace = new char[4];
+            sprintf(workSpace, "L2");
+            LogSupport::queueLock.lock();
+            LogSupport::taskQueue.emplace(workSpace);
+            LogSupport::queueLock.unlock();
+            workSpace = nullptr;
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            continue;
+          } else if (workSpace[1] == '3') {
+            delete[] workSpace;
+            break;
+          } else if (workSpace[1] == '5') {
+            delete[] workSpace;
+            return;
+          }
         }
         for (unsigned int i = 0; i < std::strlen(workSpace); i++)
           writer.put(workSpace[i]);
@@ -87,6 +113,23 @@ class LogSupport {
         delete[] workSpace;
       }
     }
+    LogSupport::queueLock.lock();
+    while (!LogSupport::taskQueue.empty()) {
+      workSpace = LogSupport::taskQueue.top();
+      LogSupport::taskQueue.pop();
+      for (unsigned int i = 0; i < std::strlen(workSpace); i++)
+        writer.put(workSpace[i]);
+      for (int i = 0; i < DOCS_WIDE; i++) writer.put('-');
+      writer.put('\n');
+      delete[] workSpace;
+    }
+    writer.close();
+    CHECK_C(writer);
+    workSpace = new char[4];
+    sprintf(workSpace, "L4");
+    LogSupport::taskQueue.emplace(workSpace);
+    LogSupport::queueLock.unlock();
+    workSpace = nullptr;
     return;
   }
 };
@@ -151,53 +194,111 @@ inline void logInit() {
 /**
  * the pack function, please don't use it directly
  */
-inline void logPack() {
-  LogSupport::mainBuffer = new char[4];
-  sprintf(LogSupport::mainBuffer, "AP");
-  LogSupport::queueLock.lock();
-  LogSupport::taskQueue.push(LogSupport::mainBuffer);
-  LogSupport::queueLock.unlock();
-  LogSupport::mainBuffer = nullptr;
-  printf("~~~~~\nplease wait 3s\n~~~~~\n");
-  std::this_thread::sleep_for(std::chrono::seconds(3));
-  while (true) {
+inline void logPack(bool __force = false) {
+  if (__force) {
+    LogSupport::mainBuffer = new char[4];
+    sprintf(LogSupport::mainBuffer, "L5");
     LogSupport::queueLock.lock();
-    if (!LogSupport::taskQueue.empty()) {
-      LogSupport::mainBuffer = LogSupport::taskQueue.front();
-      LogSupport::queueLock.unlock();
-      if ((LogSupport::mainBuffer[0] == 'F') &&
-          (LogSupport::mainBuffer[1] == 'N')) {
-        delete[] LogSupport::mainBuffer;
-        break;
-      }
-    } else {
-      LogSupport::queueLock.unlock();
-      std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME * 3));
+    LogSupport::taskQueue.emplace(LogSupport::mainBuffer);
+    LogSupport::queueLock.unlock();
+    LogSupport::mainBuffer = nullptr;
+    printf("~~~~~\nshut down in 2s\n~~~~~\n");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    LogSupport::queueLock.lock();
+    while (!LogSupport::taskQueue.empty()) {
+      delete[] LogSupport::taskQueue.top();
+      LogSupport::taskQueue.pop();
     }
+    LogSupport::queueLock.unlock();
+    delete[] LogSupport::formatBuffer;
+    return;
+  } else {
+    LogSupport::mainBuffer = new char[4];
+    sprintf(LogSupport::mainBuffer, "L3");
+    LogSupport::queueLock.lock();
+    LogSupport::taskQueue.emplace(LogSupport::mainBuffer);
+    LogSupport::queueLock.unlock();
+    LogSupport::mainBuffer = nullptr;
+    printf("~~~~~\nplease wait 3s\n~~~~~\n");
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    while (true) {
+      LogSupport::queueLock.lock();
+      if (!LogSupport::taskQueue.empty()) {
+        LogSupport::mainBuffer = LogSupport::taskQueue.top();
+        LogSupport::queueLock.unlock();
+        if ((LogSupport::mainBuffer[0] == 'L') &&
+            (LogSupport::mainBuffer[1] == '4')) {
+          delete[] LogSupport::mainBuffer;
+          break;
+        }
+      } else {
+        LogSupport::queueLock.unlock();
+        printf("the log is still being writing\n");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+      }
+    }
+    LogSupport::queueLock.lock();
+    while (!LogSupport::taskQueue.empty()) LogSupport::taskQueue.pop();
+    LogSupport::queueLock.unlock();
+    delete[] LogSupport::formatBuffer;
   }
-  LogSupport::queueLock.lock();
-  while (!LogSupport::taskQueue.empty()) LogSupport::taskQueue.pop();
-  LogSupport::queueLock.unlock();
-  delete[] LogSupport::formatBuffer;
   return;
 }
 
+inline bool checkAlive() noexcept {
+  char* alpha = new char[4];
+  sprintf(alpha, "L1");
+  LogSupport::queueLock.lock();
+  LogSupport::taskQueue.emplace(alpha);
+  LogSupport::queueLock.unlock();
+  alpha = nullptr;
+  printf("\n~~~~~\nplease wait 1s\n~~~~~\n");
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  while (true) {
+    LogSupport::queueLock.lock();
+    if (LogSupport::taskQueue.empty()) return false;
+    alpha = LogSupport::taskQueue.top();
+#if __DEBUG_MODE__
+    printf("%s\n", alpha);
+#endif
+    if (alpha[0] == 'L') {
+      if (alpha[1] == '2') {
+        LogSupport::taskQueue.pop();
+        LogSupport::queueLock.unlock();
+        delete[] alpha;
+        return true;
+      } else {
+        LogSupport::queueLock.unlock();
+        alpha = nullptr;
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME * 5));
+      }
+    } else {
+      LogSupport::queueLock.unlock();
+      alpha = nullptr;
+      std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME * 5));
+    }
+  }
+}
+inline void cut(const char* const& __str) noexcept {
+  TEMP_STRING = __str;
+  TEMP_STRING = TEMP_STRING.substr(TEMP_STRING.find_last_of('/') + 1);
+}
 }  // namespace log_file
 
 /**
  * the relay define, please use LOG()
  */
-#define __LOG_MAKER(FMT, ...)                                               \
-  do {                                                                      \
-    sprintf(log_file::LogSupport::formatBuffer, FMT, ##__VA_ARGS__);        \
-    log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
-    sprintf(log_file::LogSupport::mainBuffer,                               \
-            "%s\n%s: %d\nfile: %s\n",      \ 
-          log_file::LogSupport::formatBuffer,                               \
-            __FUNCTION__, __LINE__, __FILE__);                              \
-    log_file::LogSupport::queueLock.lock();                                 \
-    log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
-    log_file::LogSupport::queueLock.unlock();                               \
+#define __LOG_MAKER(FMT, ...)                                                  \
+  do {                                                                         \
+    log_file::cut(__FILE__);                                                   \
+    sprintf(log_file::LogSupport::formatBuffer, FMT, ##__VA_ARGS__);           \
+    log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];       \
+    sprintf(log_file::LogSupport::mainBuffer, "%s\n%s : %s : %d\n",      \ 
+          log_file::LogSupport::formatBuffer,                                  \
+            log_file::TEMP_STRING.c_str(), __FUNCTION__, __LINE__);            \
+    log_file::LogSupport::queueLock.lock();                                    \
+    log_file::LogSupport::taskQueue.emplace(log_file::LogSupport::mainBuffer); \
+    log_file::LogSupport::queueLock.unlock();                                  \
   } while (false);
 
 #define __LOG                                                               \
@@ -218,25 +319,25 @@ inline void logPack() {
  * @param C check: check for value or memory, also used as check work process
  * @param E error: happened error, but had solved
  * @param B bug: happened the unexpect bug and can't solve it
- * @param AP all pass: the reserved word, don't use it
- * @param FN finish: the reserved word, don't use it
- * @param S system message: the reserved word, don't use it
+ * @param S system message: the reserved word, use it carefully
  */
 #define LOG(__FORMAT, ...) __LOG_MAKER(__FORMAT, ##__VA_ARGS__)
 #endif
 /**
  * the initalize of the logfile, please use it in the front of main function
  */
-#define LOG_CON                                                             \
-  do {                                                                      \
-    log_file::logInit();                                                    \
-    log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];    \
-    sprintf(log_file::LogSupport::mainBuffer,                               \
-            "code version : %s\nrun by : %s\n", __TIMESTAMP__, __FILE__);   \
-    log_file::LogSupport::queueLock.lock();                                 \
-    log_file::LogSupport::taskQueue.push(log_file::LogSupport::mainBuffer); \
-    log_file::LogSupport::queueLock.unlock();                               \
+#define LOG_CON                                                                \
+  do {                                                                         \
+    log_file::logInit();                                                       \
+    log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];       \
+    log_file::cut(__FILE__);                                                   \
+    sprintf(log_file::LogSupport::mainBuffer,                                  \
+            "code version : %s\nrun by : %s\n", __TIMESTAMP__,                 \
+            log_file::TEMP_STRING.c_str());                                    \
+    log_file::LogSupport::queueLock.lock();                                    \
+    log_file::LogSupport::taskQueue.emplace(log_file::LogSupport::mainBuffer); \
+    log_file::LogSupport::queueLock.unlock();                                  \
   } while (false);
 
-#define LOG_DES log_file::logPack();
+#define LOG_DES(X) log_file::logPack(X);
 #endif

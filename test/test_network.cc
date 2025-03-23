@@ -13,11 +13,13 @@ constexpr size_t TIMES = 2;
 constexpr size_t INPUTS = 15;
 constexpr size_t CORE_1 = 18;
 constexpr size_t CORE_2 = 10;
+char* TEMP;
 }  // namespace test_network_cc
 namespace tncc = test_network_cc;
 signed main() {
   CONSTRUCT;
   size_t times;
+  tncc::TEMP = new char[log_file::FORMAT_LENTH];
   system_message::Status::announce(
       "This is a test for natrual network,\nwith differ the shape of numbers.");
   system_message::Status::refresh("setting");
@@ -66,7 +68,8 @@ signed main() {
   for (size_t i = 0; i < times; i++) {
     if (!input.forward(trainDatas, alpha)) break;
     PAUSED;
-    system_message::Status::announce("a new train");
+    sprintf(tncc::TEMP, "The %ld of %ld", i + 1, times);
+    system_message::Status::announce(tncc::TEMP);
     tidy.forward(alpha);
     PAUSED;
     layer1.forward(alpha);
@@ -107,5 +110,6 @@ signed main() {
     system_message::Status::announce("Fail to write");
   }
   weightFile.switchMode();
+  delete[] tncc::TEMP;
   DESTRUCT;
 }
