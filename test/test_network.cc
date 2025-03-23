@@ -9,11 +9,36 @@
 #endif
 
 namespace test_network_cc {
+constexpr size_t WIDE = 3;
 constexpr size_t TIMES = 2;
 constexpr size_t INPUTS = 15;
 constexpr size_t CORE_1 = 18;
 constexpr size_t CORE_2 = 10;
 char* TEMP;
+inline void getInput(FloatType* const& __ptr) {
+  char c;
+  for (size_t i = 0, j = 0; i < INPUTS; i++, j++) {
+    if (j == WIDE) {
+      std::cin.get();
+      j = 0;
+    }
+    std::cin.get(c);
+    __ptr[i] = static_cast<FloatType>(c - '0');
+  }
+  std::cin.get();
+  return;
+}
+inline void print(FloatType* const& __ptr) {
+  for (size_t i = 0, j = 0; i < INPUTS; i++, j++) {
+    if (j == WIDE) {
+      std::cout << '\n';
+      j = 0;
+    }
+    std::cout << __ptr[i];
+  }
+  std::cout << '\n';
+  return;
+}
 }  // namespace test_network_cc
 namespace tncc = test_network_cc;
 signed main() {
@@ -32,13 +57,17 @@ signed main() {
   network::Sigmoid layer4;
   network::SoftMax layer5;
   network::MSE loss;
+  network::Input output;
   file_io::FileIOOrdered trainDatas, standardAns;
   file_io::FileIO weightFile;
   lina_lg::MatrixF alpha;
+  lina_lg::MatrixF beta;
   lina_lg::VectorF temp;
   input.set(tncc::INPUTS, tncc::TIMES);
   layer1.set(tncc::CORE_1, tncc::INPUTS);
   layer3.set(tncc::CORE_2, tncc::CORE_1);
+  output.set(tncc::CORE_2, tncc::TIMES);
+  loss.set();
   trainDatas.setFile(__FILE__, "in");
   standardAns.setFile(__FILE__, "out");
   weightFile.setFile(__FILE__,"weight");
@@ -65,10 +94,10 @@ signed main() {
   PAUSE;
   system_message::Status::refresh("training");
   system_message::Status::print();
-  for (size_t i = 0; i < times; i++) {
+  for (size_t i = 0; i < times; i += tncc::TIMES) {
     if (!input.forward(trainDatas, alpha)) break;
     PAUSED;
-    sprintf(tncc::TEMP, "The %ld of %ld", i + 1, times);
+    sprintf(tncc::TEMP, "The [%ld,%ld] of %ld", i + 1, i + tncc::TIMES, times);
     system_message::Status::announce(tncc::TEMP);
     tidy.forward(alpha);
     PAUSED;
@@ -86,7 +115,8 @@ signed main() {
     std::cout << "the answer is:\n" << alpha;
     PAUSED;
     system_message::Status::announce("backward");
-    temp = loss.backward(standardAns, alpha);
+    output.forward(standardAns, beta);
+    temp = loss.backward(beta, alpha);
     std::cout << "\nthe loss is:\n" << temp << '\n';
     PAUSED;
     layer5.backward(alpha);
@@ -110,6 +140,29 @@ signed main() {
     system_message::Status::announce("Fail to write");
   }
   weightFile.switchMode();
+  system_message::Status::refresh("test for learning result");
+  system_message::Status::print();
+  FloatType testBuffer[tncc::INPUTS];
+  std::cout << "test how many times?";
+  std::cin >> times;
+  std::cin.get();
+  for (size_t i = 0; i < times; i++) {
+    PAUSE;
+    system_message::Status::announce("test");
+    std::cout << "put datas:\n";
+    tncc::getInput(testBuffer);
+    std::cout << "the datas is:\n";
+    tncc::print(testBuffer);
+    alpha.load({tncc::INPUTS, 1}, testBuffer);
+    tidy.forward(alpha);
+    layer1.forward(alpha);
+    layer2.forward(alpha);
+    tidy.forward(alpha);
+    layer3.forward(alpha);
+    layer4.forward(alpha);
+    layer5.forward(alpha);
+    std::cout << "the answer is:\n" << alpha << '\n';
+  }
   delete[] tncc::TEMP;
   DESTRUCT;
 }

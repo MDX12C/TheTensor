@@ -8,6 +8,10 @@
 #include "vector.hpp"
 namespace network {
 constexpr FloatType LEARN_RATE = static_cast<FloatType>(0.01);
+/**
+ * @brief Affine layer
+ * @warning need (set), and choose between (init,read) before use
+ */
 class Affine {
  private:
   lina_lg::MatrixF weight_;
@@ -28,6 +32,11 @@ class Affine {
 };
 Affine::Affine() noexcept { LOG("C:constructor of Affine"); }
 Affine::~Affine() noexcept { LOG("C:destructor of Affine"); }
+/**
+ * @brief set for Affine
+ * @param __cores the nural cores
+ * @param __inputs the input for each core
+ */
 inline void Affine::set(size_t const& __cores,
                         size_t const& __inputs) noexcept {
   LOG("C:set of Affine");
@@ -35,6 +44,10 @@ inline void Affine::set(size_t const& __cores,
   DEBUG(this->weight_);
   return;
 }
+/**
+ * @brief init with random
+ * @warning need set first
+ */
 inline void Affine::init() noexcept {
   LOG("C:init of Affine");
   weight_ = std::move(basic_math::random(weight_.shape(),
@@ -43,6 +56,12 @@ inline void Affine::init() noexcept {
   DEBUG(this->weight_);
   return;
 }
+/**
+ * @brief read file
+ * @warning need set first
+ * @param __str the block name
+ * @param __io the file
+ */
 template <typename T>
 inline bool Affine::read(T& __str, file_io::FileIO& __io) noexcept {
   LOG("C:read of Affine");
@@ -50,6 +69,11 @@ inline bool Affine::read(T& __str, file_io::FileIO& __io) noexcept {
   DEBUG(this->weight_);
   return i;
 }
+/**
+ * @brief write file
+ * @param __str the block name
+ * @param __io the file
+ */
 template <typename T>
 inline bool Affine::write(T& __str, file_io::FileIO& __io) noexcept {
   LOG("C:write of Affine");
@@ -57,6 +81,10 @@ inline bool Affine::write(T& __str, file_io::FileIO& __io) noexcept {
   DEBUG(this->weight_);
   return i;
 }
+/**
+ * @brief print status
+ * @param __os stream, default in std::cout
+ */
 inline void Affine::print(std::ostream& __os = std::cout) noexcept {
   LOG("C:print of Affine");
   __os << "++++++++++\nweight:\n"
@@ -64,6 +92,9 @@ inline void Affine::print(std::ostream& __os = std::cout) noexcept {
        << input_ << "++++++++++\n";
   return;
 }
+/**
+ * @brief forward
+ */
 inline void Affine::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of Affine");
   input_ = std::move(__input);
@@ -73,6 +104,9 @@ inline void Affine::forward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(this->weight_);
   return;
 }
+/**
+ * @brief backward
+ */
 inline void Affine::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Affine");
   auto xT = std::move(input_.transpose());
@@ -83,6 +117,10 @@ inline void Affine::backward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(this->weight_);
   return;
 }
+/**
+ * @brief input layer
+ * @warning need set before use
+ */
 class Input {
  private:
   lina_lg::MatrixF temp_;
@@ -98,12 +136,21 @@ Input::Input() noexcept {
   DEBUG(this->temp_);
 }
 Input::~Input() noexcept { LOG("C:destructor of Input"); }
+/**
+ * @brief set
+ * @param __inputs the input of the first layer
+ * @param __times the batchs
+ */
 inline void Input::set(size_t const& __inputs, size_t const& __times) noexcept {
   LOG("C:set of Input");
   temp_.resize(lina_lg::makeShape(__times, __inputs));
   DEBUG(this->temp_);
   return;
 }
+/**
+ * @brief forward
+ * @return true if reading for input is success, false otherwise
+ */
 inline bool Input::forward(file_io::FileIOOrdered& __file,
                            lina_lg::MatrixF& __alpha) noexcept {
   LOG("C:forward of Input");
@@ -127,6 +174,9 @@ inline bool Input::forward(file_io::FileIOOrdered& __file,
   DEBUG(this->temp_);
   return true;
 }
+/**
+ * @brief tidy layer
+ */
 class Tidy {
  public:
   Tidy() noexcept;
@@ -136,6 +186,9 @@ class Tidy {
 };
 Tidy::Tidy() noexcept { LOG("C:constructor of Tidy"); }
 Tidy::~Tidy() noexcept { LOG("C:destructor of Tidy"); }
+/**
+ * @brief forward
+ */
 inline void Tidy::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of Tidy");
   __input.resize(
@@ -148,6 +201,9 @@ inline void Tidy::forward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(__input);
   return;
 }
+/**
+ * @brief backward
+ */
 inline void Tidy::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Tidy");
   __input.resize(
@@ -155,6 +211,9 @@ inline void Tidy::backward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(__input);
   return;
 }
+/**
+ * @brief tanh layer
+ */
 class Tanh {
  private:
   lina_lg::MatrixF output_;
@@ -170,6 +229,9 @@ Tanh::Tanh() noexcept {
   DEBUG(this->output_);
 }
 Tanh::~Tanh() noexcept { LOG("C:destructor of Tanh"); }
+/**
+ * @brief forward
+ */
 inline void Tanh::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of Tanh");
   __input *= static_cast<FloatType>(2);
@@ -182,6 +244,9 @@ inline void Tanh::forward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(this->output_);
   return;
 }
+/**
+ * @brief backward
+ */
 inline void Tanh::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Tanh");
   output_ = std::move(basic_math::pow(output_, static_cast<FloatType>(2)));
@@ -189,6 +254,9 @@ inline void Tanh::backward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(__input);
   return;
 }
+/**
+ * @brief sigmoid layer
+ */
 class Sigmoid {
  private:
   lina_lg::MatrixF output_;
@@ -204,6 +272,9 @@ Sigmoid::Sigmoid() noexcept {
   DEBUG(this->output_);
 }
 Sigmoid::~Sigmoid() noexcept { LOG("C:destructor of Sigmoid"); }
+/**
+ * @brief forward
+ */
 inline void Sigmoid::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of Sigmoid");
   output_ = std::move(basic_math::pow(basic_math::EXPRISION, __input));
@@ -213,6 +284,9 @@ inline void Sigmoid::forward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(this->output_);
   return;
 }
+/**
+ * @brief backward
+ */
 inline void Sigmoid::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Sigmoid");
   __input *= output_;
@@ -220,6 +294,9 @@ inline void Sigmoid::backward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(__input);
   return;
 }
+/**
+ * @brief softmax layer
+ */
 class SoftMax {
  public:
   SoftMax() noexcept;
@@ -231,6 +308,9 @@ class SoftMax {
 };
 SoftMax::SoftMax() noexcept { LOG("C:constructor of SoftMax"); }
 SoftMax::~SoftMax() noexcept { LOG("C:destructor of SoftMax"); }
+/**
+ * @brief forward
+ */
 inline void SoftMax::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of SoftMax");
   const auto size = __input.size(), wide = __input.shape().col_;
@@ -247,42 +327,50 @@ inline void SoftMax::forward(lina_lg::MatrixF& __input) noexcept {
   DEBUG(__input);
   return;
 }
+/**
+ * @brief MSE layer
+ * @warning please set before use
+ */
 class MSE {
+ private:
+  FloatType rate_;
+
  public:
   MSE() noexcept;
   ~MSE() noexcept;
-  inline lina_lg::VectorF backward(file_io::FileIOOrdered&,
+  /**
+   * @brief set the learn rate
+   * @param __rate the rate
+   */
+  inline void set(FloatType const& __rate = LEARN_RATE) noexcept {
+    rate_ = __rate;
+    return;
+  }
+  inline lina_lg::VectorF backward(lina_lg::MatrixF&,
                                    lina_lg::MatrixF&) noexcept;
 };
 MSE::MSE() noexcept { LOG("C:constructor of MSE"); }
 MSE::~MSE() noexcept { LOG("C:destructor of MSE"); }
-inline lina_lg::VectorF MSE::backward(file_io::FileIOOrdered& __file,
+/**
+ * @brief backward
+ * @param __standard the standard answer
+ * @param __input the output answer
+ */
+inline lina_lg::VectorF MSE::backward(lina_lg::MatrixF& __standard,
                                       lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of MSE");
-  lina_lg::MatrixF standard(
-      lina_lg::makeShape(__input.shape().col_, __input.shape().row_));
+  __input -= __standard;
+  __standard = std::move(basic_math::pow(__input, static_cast<FloatType>(2)));
+  __input *= rate_;
+  lina_lg::VectorF answer(__standard.shape().col_);
   [&] {
-    auto ptr = standard.begin();
-    auto shape = standard.shape();
-    for (size_t i = 0; i < shape.row_; i++) {
-      if (__file.read(ptr, shape.col_)) {
-        ptr += shape.col_;
-      } else {
-        break;
-      }
-    }
-  }();
-  __input -= standard.transpose();
-  standard = std::move(basic_math::pow(__input, static_cast<FloatType>(2)));
-  lina_lg::VectorF answer(standard.shape().col_);
-  [&] {
-    const auto size = standard.size(), wide = standard.shape().col_;
-    const auto ptr = standard.begin();
+    const auto size = __standard.size(), wide = __standard.shape().col_;
+    const auto ptr = __standard.begin();
     for (size_t i = 0, j = 0; i < size; i++, j++) {
       if (j == wide) j = 0;
       answer[j] += ptr[i];
     }
-    answer /= static_cast<FloatType>(standard.shape().row_);
+    answer /= static_cast<FloatType>(__standard.shape().row_);
   }();
   DEBUG(__input);
   return answer;
