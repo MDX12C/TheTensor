@@ -3,7 +3,7 @@
 #define ROM_H 1
 #include "basic.hpp"
 // the suppurt space, don't touch it
-namespace rom_io {
+namespace file_io {
 // the accuracy of rom to store
 constexpr size_t ROM_ACC = 6;
 template <typename T>
@@ -172,7 +172,7 @@ class FileIO {
   FileIO() noexcept;
   ~FileIO() noexcept;
   inline void setFile(const char* const&, const char* const&);
-  inline bool switchMode(Status const&) noexcept;
+  inline bool switchMode(Status const&, bool const&) noexcept;
   // return the name of file
   inline std::string checkName() noexcept { return fileName_; }
   // retrun the mode now
@@ -218,15 +218,16 @@ inline void FileIO::setFile(const char* const& __file,
  * @param __obj mode you want
  * @return if the switch is successful, return true
  */
-inline bool FileIO::switchMode(Status const& __obj = idle) noexcept {
-  LOG("C:switch mode of FileIO");
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
-  }
+inline bool FileIO::switchMode(Status const& __obj = idle,
+                               bool const& __special = false) noexcept {
+  LOG("C:switch to mode %d of FileIO", __obj);
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
+  }
+  if (mode_ == __obj) {
+    LOG("E:same mode");
+    return true;
   }
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
@@ -236,10 +237,17 @@ inline bool FileIO::switchMode(Status const& __obj = idle) noexcept {
     fileSelf_.open(fileName_, std::ios::in | std::ios::binary);
     fileIndex_.open(fileName_ + "index", std::ios::in | std::ios::binary);
   } else if (__obj == writing) {
-    fileSelf_.open(fileName_,
-                   std::ios::out | std::ios::trunc | std::ios::binary);
-    fileIndex_.open(fileName_ + "index",
-                    std::ios::out | std::ios::trunc | std::ios::binary);
+    if (__special) {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::app | std::ios::binary);
+      fileIndex_.open(fileName_ + "index",
+                      std::ios::out | std::ios::app | std::ios::binary);
+    } else {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+      fileIndex_.open(fileName_ + "index",
+                      std::ios::out | std::ios::trunc | std::ios::binary);
+    }
   }
   if (!(fileSelf_.is_open() && fileIndex_.is_open())) {
     mode_ = idle;
@@ -400,7 +408,9 @@ class FileIOOrdered {
     // reading, read from the file
     reading,
     // writing, write into the file
-    writing
+    writing,
+    // end of file, when read to the end
+    eof
   } Status;
 
  private:
@@ -412,7 +422,7 @@ class FileIOOrdered {
   FileIOOrdered() noexcept;
   ~FileIOOrdered() noexcept;
   inline void setFile(const char* const&, const char* const&);
-  inline bool switchMode(Status const&) noexcept;
+  inline bool switchMode(Status const&, bool const&) noexcept;
   // return the name of file
   inline std::string checkName() noexcept { return fileName_; }
   // retrun the mode now
@@ -457,15 +467,16 @@ inline void FileIOOrdered::setFile(const char* const& __file,
  * @param __obj mode you want
  * @return if the switch is successful, return true
  */
-inline bool FileIOOrdered::switchMode(Status const& __obj = idle) noexcept {
+inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
+                                      bool const& __special = false) noexcept {
   LOG("C:switch mode of FileIOOrdered");
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
-  }
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
+  }
+  if (mode_ == __obj) {
+    LOG("E:same mode");
+    return true;
   }
   if (fileSelf_.is_open()) fileSelf_.close();
   mode_ = __obj;
@@ -474,9 +485,14 @@ inline bool FileIOOrdered::switchMode(Status const& __obj = idle) noexcept {
     fileSelf_.open(fileName_, std::ios::in | std::ios::binary);
     fileSelf_.seekg(0, std::ios::beg);
   } else if (__obj == writing) {
-    fileSelf_.open(fileName_,
-                   std::ios::out | std::ios::trunc | std::ios::binary);
-    fileSelf_.seekp(0, std::ios::beg);
+    if (__special) {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::app | std::ios::binary);
+    } else {
+      fileSelf_.open(fileName_,
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+      fileSelf_.seekp(0, std::ios::beg);
+    }
   }
   if (!fileSelf_.is_open()) {
     mode_ = idle;
@@ -498,6 +514,8 @@ inline void FileIOOrdered::print(std::ostream& __os = std::cout) noexcept {
     __os << "reading\n++++++++++\n";
   } else if (mode_ == writing) {
     __os << "writing\n++++++++++\n";
+  } else if (mode_ == eof) {
+    __os << "read to end\n++++++++++\n";
   }
   return;
 }
@@ -514,13 +532,19 @@ inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
   }
-  if (fileSelf_.eof()) return false;
+  if (fileSelf_.eof()) {
+    mode_ = eof;
+    return false;
+  }
   std::string temp;
   char c;
-  fileSelf_.get(c);
-  while (c != '[') {
+  do {
     fileSelf_.get(c);
-  }
+    if (fileSelf_.eof()) {
+      mode_ = eof;
+      return false;
+    }
+  } while (c != '[');
   size_t i = 0;
   temp.clear();
   while ((!fileSelf_.eof()) && (i < __size)) {
@@ -534,6 +558,7 @@ inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
       if (c == ']') break;
     }
   }
+  if (fileSelf_.eof()) mode_ = eof;
   return true;
 }
 /**
@@ -561,5 +586,5 @@ inline bool FileIOOrdered::write(T* const& __ptr, size_t const& __size) {
   fileSelf_.put(']');
   return true;
 }
-}  // namespace rom_io
+}  // namespace file_io
 #endif

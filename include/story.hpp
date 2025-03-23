@@ -191,7 +191,6 @@ Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
     throw system_message::Error("unsupport type for Story");
     return;
   }
-  memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(&__other));
   memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
@@ -204,13 +203,10 @@ Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
 template <typename T>
 Story<T>::~Story() noexcept {
   LOG("C:Destructor of Story");
+  if constexpr (basic_math::support<T>)
+    memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
   if (this->datas_) {
-    if constexpr (basic_math::support<T>)
-      memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
     delete[] this->datas_;
-  } else {
-    if constexpr (basic_math::support<T>)
-      memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
   }
   return;
 }
@@ -334,8 +330,6 @@ inline Story<T>& Story<T>::operator=(Story<T>&& __other) noexcept {
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
   __other.datas_ = nullptr;
-  memory_manage::MemorySupport::untrack(
-      dynamic_cast<storage::StoryBase*>(&__other));
   return *this;
 }
 template <typename T>

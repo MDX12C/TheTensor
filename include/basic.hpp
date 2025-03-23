@@ -189,10 +189,10 @@ class Status {
   }
   static inline void print(std::ostream& __os = std::cout) noexcept {
     __os << '/';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '-';
     __os << "\\\nBlock sequence: " << Status::blocks_
          << " \nProgress: " << Status::progress_ << "\n\\";
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '-';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '-';
     __os << "/\n";
     return;
   }
@@ -204,9 +204,9 @@ class Status {
    */
   static inline void announce(std::string const& __it,
                               std::ostream& __os = std::cout) noexcept {
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '/';
     __os << '\n' << __it << '\n';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '\\';
     __os << '\n';
     return;
   }
@@ -218,9 +218,9 @@ class Status {
    */
   static inline void announce(const char* const& __it,
                               std::ostream& __os = std::cout) noexcept {
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '/';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '/';
     __os << '\n' << __it << '\n';
-    for (size_t i = 0; i < log_file::DOCS_WIDE * 2; i++) __os << '\\';
+    for (size_t i = 0; i < log_file::DOCS_WIDE * 3; i++) __os << '\\';
     __os << '\n';
     return;
   }
@@ -228,6 +228,11 @@ class Status {
   static inline void debug(T& __item, const char* const& __name,
                            std::ostream& __os = std::cout) noexcept {
     __os << "\n###debug\n" << __name << "=\n" << __item << "\n########\n";
+    return;
+  }
+  static inline void pause() noexcept {
+    std::cout << "==========\npause Enter to continue\n==========";
+    std::cin.get();
     return;
   }
 };
@@ -341,8 +346,13 @@ class StoryBase {
   } while (false);
 
 #if __DEBUG_MODE__
-#define DEBUG(X) system_message::Status::debug(X, #X);
+#define __DEBUG(X)                        \
+  do {                                    \
+    __LOG;                                \
+    system_message::Status::debug(X, #X); \
+  } while (false);
 #else
-#define DEBUG(X)
+#define __DEBUG(X)
 #endif
+#define DEBUG(X) __DEBUG(X)
 #endif

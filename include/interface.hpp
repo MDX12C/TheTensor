@@ -59,7 +59,7 @@
 #define LOG_CON
 #endif
 #ifndef LOG_DES
-#define LOG_DES
+#define LOG_DES(X)
 #endif
 #ifndef MATRIX_CON
 #define MATRIX_CON
@@ -141,7 +141,7 @@
     ROM_DES;                 \
   }                          \
   if constexpr (LOG_H) {     \
-    LOG_DES;                 \
+    LOG_DES(false);          \
   }
 
 /**
@@ -151,7 +151,15 @@
 inline __attribute__((__noreturn__)) void endOfMainFunction() noexcept {
   LOG("S:!!Urgent Exit!!");
   printf("!!Urgent Exit!!\n");
-  DESTRUCT;
+  if constexpr (MEMORY_H) {
+    MEMORY_DES;
+  }
+  if constexpr (ROM_H) {
+    ROM_DES;
+  }
+  if constexpr (LOG_H) {
+    LOG_DES(true);
+  }
   exit(1);
 }
 

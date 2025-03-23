@@ -27,11 +27,8 @@ else()
 message("### Use Float32 ###")
 endif()
 
-find_package(HDF5 REQUIRED COMPONENTS CXX)
-
 include_directories(
     include
-    ${HDF5_INCLUDE_DIRS}
 )
 
 add_library(basic_hpp STATIC src/basic.cc)
@@ -43,7 +40,7 @@ function(add_test_executable target source)
     add_executable(${target} ${source})
     target_link_libraries(${target} 
         PRIVATE logger memory_maintainer basic_hpp 
-        PUBLIC HDF5::HDF5 rom
+        PUBLIC  rom
     )
 endfunction()
 
@@ -54,3 +51,4 @@ add_test_executable(test_matrix test/test_matrix.cc)
 add_test_executable(test_network test/test_network.cc)
 add_test_executable(test_rom test/test_rom.cc)
 add_test_executable(test_story test/test_story.cc)
+add_test_executable(maker_network test/datas_maker.cc)
