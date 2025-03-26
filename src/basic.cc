@@ -1,6 +1,6 @@
-#include "basic.hpp"
+#include "thetensor/basic.hpp"
 
-#include "define.hpp"
+#include "thetensor/define.hpp"
 #if BASIC_H
 namespace basic_math {
 std::mt19937 BasicSupport::generator_;

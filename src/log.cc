@@ -1,6 +1,6 @@
-#include "log.hpp"
+#include "thetensor/log.hpp"
 
-#include "define.hpp"
+#include "thetensor/define.hpp"
 #if LOG_H
 namespace log_file {
 const char* const CARRY_ARRAY = "0123456789ABCDEF";

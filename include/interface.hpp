@@ -1,14 +1,15 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H 1
-#include "basic.hpp"
-#include "define.hpp"
-#include "log.hpp"
-#include "matrix.hpp"
-#include "memory.hpp"
-#include "network.hpp"
-#include "rom.hpp"
-#include "story.hpp"
-#include "vector.hpp"
+
+#include "thetensor/basic.hpp"
+#include "thetensor/define.hpp"
+#include "thetensor/log.hpp"
+#include "thetensor/matrix.hpp"
+#include "thetensor/memory.hpp"
+#include "thetensor/network.hpp"
+#include "thetensor/rom.hpp"
+#include "thetensor/story.hpp"
+#include "thetensor/vector.hpp"
 
 #ifndef BASIC_H
 #define BASIC_H 0
