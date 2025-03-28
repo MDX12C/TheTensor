@@ -184,7 +184,7 @@ class Matrix final : public storage::Story<T> {
 typedef Matrix<FloatType> MatrixF;
 std::ostream& operator<<(std::ostream& __os, MaShape const& __shape) noexcept {
   LOG("C:operator<< to MatrixShape");
-  __os << std::noshowpos << '(' << __shape.row_ << ',' << __shape.col_ << ")\n";
+  __os << std::noshowpos << '(' << __shape.row_ << ',' << __shape.col_ << ')';
   return __os;
 }
 template <typename T>
@@ -210,13 +210,13 @@ std::ostream& operator<<(std::ostream& __os, Matrix<T> const& __it) noexcept {
   }
   size_t i = 0;
   for (size_t r = 0; r < __it.shape_.row_; r++) {
-    __os << '[' << std::setw(digits) << __it.datas_[i];
+    __os << "\n[" << std::setw(digits) << __it.datas_[i];
     i++;
     for (size_t c = 1; c < __it.shape_.col_; c++) {
       __os << ',' << std::setw(digits) << __it.datas_[i];
       i++;
     }
-    __os << "]\n";
+    __os << ']';
   }
   return __os;
 }

@@ -1,6 +1,6 @@
-#include "memory.hpp"
+#include "thetensor/memory.hpp"
 
-#include "define.hpp"
+#include "thetensor/define.hpp"
 #if MEMORY_H
 namespace memory_manage {
 size_t MemorySupport::blocks_ = 0;

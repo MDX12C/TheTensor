@@ -153,6 +153,7 @@ class Status {
    * @throw none
    */
   static inline size_t refresh(std::string const& __progress) noexcept {
+    LOG("S:progress:\n%s", __progress.c_str());
     Status::progress_ = __progress;
     Status::blocks_++;
     return Status::blocks_;
@@ -164,6 +165,7 @@ class Status {
    * @throw none
    */
   static inline size_t refresh(const char* const& __progress) noexcept {
+    LOG("S:progress:\n%s", __progress);
     Status::progress_ = __progress;
     Status::blocks_++;
     return Status::blocks_;
