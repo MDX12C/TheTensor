@@ -88,8 +88,8 @@ inline bool Affine::write(T& __str, file_io::FileIO& __io) noexcept {
 inline void Affine::print(std::ostream& __os = std::cout) noexcept {
   LOG("C:print of Affine");
   __os << "++++++++++\nweight:\n"
-       << weight_ << "the last input:\n"
-       << input_ << "++++++++++\n";
+       << weight_ << "\nthe last input:\n"
+       << input_ << "\n++++++++++\n";
   return;
 }
 /**
@@ -111,7 +111,7 @@ inline void Affine::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Affine");
   auto xT = std::move(input_.transpose());
   auto aT = std::move(weight_.transpose());
-  weight_ -= basic_math::dot(__input, xT);
+  weight_ -= basic_math::dot(__input, xT) * LEARN_RATE;
   __input = std::move(basic_math::dot(aT, __input));
   DEBUG(__input);
   DEBUG(this->weight_);
@@ -250,7 +250,7 @@ inline void Tanh::forward(lina_lg::MatrixF& __input) noexcept {
 inline void Tanh::backward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:backward of Tanh");
   output_ = std::move(basic_math::pow(output_, static_cast<FloatType>(2)));
-  __input = std::move(static_cast<FloatType>(1) - output_);
+  __input *= (static_cast<FloatType>(1) - output_);
   DEBUG(__input);
   return;
 }
@@ -298,12 +298,22 @@ inline void Sigmoid::backward(lina_lg::MatrixF& __input) noexcept {
  * @brief softmax layer
  */
 class SoftMax {
+ private:
+  lina_lg::VectorF stretch_;
+
  public:
   SoftMax() noexcept;
   ~SoftMax() noexcept;
-  inline void forward(lina_lg::MatrixF& __input) noexcept;
+  inline void forward(lina_lg::MatrixF&) noexcept;
   inline void backward(lina_lg::MatrixF& __input) noexcept {
     LOG("C:backward of SoftMax");
+    const auto size = __input.size(), wide = __input.shape().col_;
+    auto ptr = __input.begin();
+    for (size_t i = 0, j = 0; i < size; i++, j++) {
+      if (j == wide) j = 0;
+      ptr[i] *= stretch_[j];
+    }
+    return;
   }
 };
 SoftMax::SoftMax() noexcept { LOG("C:constructor of SoftMax"); }
@@ -315,14 +325,15 @@ inline void SoftMax::forward(lina_lg::MatrixF& __input) noexcept {
   LOG("C:forward of SoftMax");
   const auto size = __input.size(), wide = __input.shape().col_;
   auto ptr = __input.begin();
-  lina_lg::VectorF temp(wide);
+  stretch_.resize(wide);
+  stretch_ = 0;
   for (size_t i = 0, j = 0; i < size; i++, j++) {
     if (j == wide) j = 0;
-    temp[j] += ptr[i];
+    stretch_[j] += ptr[i];
   }
   for (size_t i = 0, j = 0; i < size; i++, j++) {
     if (j == wide) j = 0;
-    ptr[i] /= temp[j];
+    ptr[i] /= stretch_[j];
   }
   DEBUG(__input);
   return;
@@ -361,19 +372,53 @@ inline lina_lg::VectorF MSE::backward(lina_lg::MatrixF& __standard,
   LOG("C:backward of MSE");
   __input -= __standard;
   __standard = std::move(basic_math::pow(__input, static_cast<FloatType>(2)));
-  __input *= rate_;
+  //__input *= rate_;
   lina_lg::VectorF answer(__standard.shape().col_);
-  [&] {
-    const auto size = __standard.size(), wide = __standard.shape().col_;
-    const auto ptr = __standard.begin();
-    for (size_t i = 0, j = 0; i < size; i++, j++) {
-      if (j == wide) j = 0;
-      answer[j] += ptr[i];
-    }
-    answer /= static_cast<FloatType>(__standard.shape().row_);
-  }();
+  const auto size = __standard.size(), wide = __standard.shape().col_;
+  const auto ptr = __standard.begin();
+  for (size_t i = 0, j = 0; i < size; i++, j++) {
+    if (j == wide) j = 0;
+    answer[j] += ptr[i];
+  }
+  answer /= static_cast<FloatType>(__standard.shape().row_);
   DEBUG(__input);
   return answer;
+}
+/**
+ * @brief the Output support class
+ */
+class Output {
+ private:
+  struct count {
+    FloatType value_ = 0;
+    size_t position_ = 0;
+  };
+
+ public:
+  static inline lina_lg::MatrixF format(lina_lg::MatrixF&) noexcept;
+};
+inline lina_lg::MatrixF Output::format(lina_lg::MatrixF& __input) noexcept {
+  LOG("C:format of Output");
+  lina_lg::MatrixF ret(__input.shape());
+  auto shape = __input.shape();
+  auto size = shape.col_ * shape.row_;
+  auto const ptr = __input.begin();
+  count table[shape.col_];
+  for (size_t i = 0, w = 0; w < shape.row_; w++) {
+    for (size_t k = 0; k < shape.col_; k++, i++) {
+      if (ptr[i] > table[k].value_) {
+        table[k].value_ = ptr[i];
+        table[k].position_ = w;
+      }
+    }
+  }
+  size = shape.col_;
+  for (size_t i = 0; i < size; i++) {
+    shape.col_ = i;
+    shape.row_ = table[i].position_;
+    ret[shape] = static_cast<FloatType>(1);
+  }
+  return ret;
 }
 }  // namespace network
 #endif

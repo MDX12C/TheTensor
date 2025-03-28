@@ -112,7 +112,8 @@ signed main() {
     layer4.forward(alpha);
     PAUSED;
     layer5.forward(alpha);
-    std::cout << "the answer is:\n" << alpha;
+    std::cout << "the answer is:\n" << alpha << '\n';
+    std::cout << "the output is:\n" << network::Output::format(alpha) << '\n';
     PAUSED;
     system_message::Status::announce("backward");
     output.forward(standardAns, beta);

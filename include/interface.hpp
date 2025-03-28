@@ -1,6 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H 1
 
+#include "mnist/mnist_reader.hpp"
 #include "thetensor/basic.hpp"
 #include "thetensor/define.hpp"
 #include "thetensor/log.hpp"

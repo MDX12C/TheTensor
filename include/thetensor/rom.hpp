@@ -51,40 +51,42 @@ inline std::string& numToString(std::string& __str, T& __num) {
 template <_Int T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
   LOG("C:num to string <interal>");
+  T num = __num;
   __str.clear();
-  __str.resize(basic_math::intDigits(__num) + 1);
+  __str.resize(basic_math::intDigits(num) + 1);
   if constexpr (std::is_signed_v<T>) {
-    if (__num >= 0) {
+    if (num >= 0) {
       __str[0] = '+';
     } else {
       __str[0] = '-';
-      __num *= static_cast<T>(-1);
+      num *= static_cast<T>(-1);
     }
   } else {
     __str[0] = '+';
   }
-  for (auto i = basic_math::intDigits(__num); i > 0; i--) {
-    __str[i] = static_cast<char>((__num % 10) + '0');
-    __num /= 10;
+  for (auto i = basic_math::intDigits(num); i > 0; i--) {
+    __str[i] = static_cast<char>((num % 10) + '0');
+    num /= 10;
   }
   return __str;
 }
 template <_Float T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
   LOG("C:num to string <floating>");
+  T num=__num;
   __str.clear();
-  __str.resize(basic_math::intDigits(__num) + 2 + ROM_ACC);
-  if (__num >= 0) {
+  __str.resize(basic_math::intDigits(num) + 2 + ROM_ACC);
+  if (num >= 0) {
     __str[0] = '+';
   } else {
     __str[0] = '-';
-    __num *= static_cast<T>(-1);
+    num *= static_cast<T>(-1);
   }
-  DEBUG(__num);
+  DEBUG(num);
   unsigned long long intPart =
-      static_cast<unsigned long long>(std::floor(__num));
-  __num -= static_cast<T>(intPart);
-  unsigned long long floatPart = __num * std::pow(10, ROM_ACC);
+      static_cast<unsigned long long>(std::floor(num));
+  num -= static_cast<T>(intPart);
+  unsigned long long floatPart = num * std::pow(10, ROM_ACC);
   DEBUG(intPart);
   DEBUG(floatPart);
   size_t i = __str.size() - 1;

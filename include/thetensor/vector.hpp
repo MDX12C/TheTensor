@@ -123,7 +123,7 @@ std::ostream& operator<<(std::ostream& __stream,
   for (size_t i = 1; i < __item.size_; i++) {
     __stream << ',' << std::setw(digits) << __item.datas_[i];
   }
-  __stream << "]\n";
+  __stream << ']';
   return __stream;
 }
 template <typename T>
