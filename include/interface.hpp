@@ -4,11 +4,11 @@
 #include "mnist/mnist_reader.hpp"
 #include "thetensor/basic.hpp"
 #include "thetensor/define.hpp"
+#include "thetensor/file.hpp"
 #include "thetensor/log.hpp"
 #include "thetensor/matrix.hpp"
 #include "thetensor/memory.hpp"
 #include "thetensor/network.hpp"
-#include "thetensor/rom.hpp"
 #include "thetensor/story.hpp"
 #include "thetensor/vector.hpp"
 
@@ -33,8 +33,8 @@
 #ifndef NETWORK_H
 #define NETWORK_H 0
 #endif
-#ifndef ROM_H
-#define ROM_H 0
+#ifndef FILE_H
+#define FILE_H 0
 #endif
 #ifndef STORY_H
 #define STORY_H 0
@@ -75,11 +75,11 @@
 #ifndef NETWORK_DES
 #define NETWORK_DES
 #endif
-#ifndef ROM_CON
-#define ROM_CON
+#ifndef FILE_CON
+#define FILE_CON
 #endif
-#ifndef ROM_DES
-#define ROM_DES
+#ifndef FILE_DES
+#define FILE_DES
 #endif
 #ifndef STORY_CON
 #define STORY_CON
@@ -100,8 +100,8 @@
       LOG("S:SPEED MODE\n");             \
     }                                    \
   }                                      \
-  if constexpr (ROM_H) {                 \
-    ROM_CON;                             \
+  if constexpr (FILE_H) {                \
+    FILE_CON;                            \
   }                                      \
   if constexpr (BASIC_H) {               \
     BASIC_CON;                           \
@@ -139,8 +139,8 @@
   if constexpr (NETWORK_H) { \
     NETWORK_DES;             \
   }                          \
-  if constexpr (ROM_H) {     \
-    ROM_DES;                 \
+  if constexpr (FILE_H) {    \
+    FILE_DES;                \
   }                          \
   if constexpr (LOG_H) {     \
     LOG_DES(false);          \
@@ -156,8 +156,8 @@ inline __attribute__((__noreturn__)) void endOfMainFunction() noexcept {
   if constexpr (MEMORY_H) {
     MEMORY_DES;
   }
-  if constexpr (ROM_H) {
-    ROM_DES;
+  if constexpr (FILE_H) {
+    FILE_DES;
   }
   if constexpr (LOG_H) {
     LOG_DES(true);

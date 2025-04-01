@@ -2,9 +2,9 @@
 #ifndef NETWORK_H
 #define NETWORK_H 1
 #include "basic.hpp"
+#include "file.hpp"
 #include "log.hpp"
 #include "matrix.hpp"
-#include "rom.hpp"
 #include "vector.hpp"
 namespace network {
 constexpr FloatType LEARN_RATE = static_cast<FloatType>(0.01);
