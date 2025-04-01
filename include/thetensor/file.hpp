@@ -1,11 +1,11 @@
 #include "define.hpp"
-#ifndef ROM_H
-#define ROM_H 1
+#ifndef FILE_H
+#define FILE_H 1
 #include "basic.hpp"
 // the suppurt space, don't touch it
 namespace file_io {
 // the accuracy of rom to store
-constexpr size_t ROM_ACC = 6;
+constexpr size_t IO_ACC = 6;
 template <typename T>
 concept _FloatLong = std::is_floating_point_v<T> && basic_math::longer<T> &&
                      basic_math::support<T>;
@@ -73,9 +73,9 @@ inline std::string& numToString(std::string& __str, T& __num) noexcept {
 template <_Float T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
   LOG("C:num to string <floating>");
-  T num=__num;
+  T num = __num;
   __str.clear();
-  __str.resize(basic_math::intDigits(num) + 2 + ROM_ACC);
+  __str.resize(basic_math::intDigits(num) + 2 + IO_ACC);
   if (num >= 0) {
     __str[0] = '+';
   } else {
@@ -83,14 +83,13 @@ inline std::string& numToString(std::string& __str, T& __num) noexcept {
     num *= static_cast<T>(-1);
   }
   DEBUG(num);
-  unsigned long long intPart =
-      static_cast<unsigned long long>(std::floor(num));
+  unsigned long long intPart = static_cast<unsigned long long>(std::floor(num));
   num -= static_cast<T>(intPart);
-  unsigned long long floatPart = num * std::pow(10, ROM_ACC);
+  unsigned long long floatPart = num * std::pow(10, IO_ACC);
   DEBUG(intPart);
   DEBUG(floatPart);
   size_t i = __str.size() - 1;
-  for (size_t w = 0; w < ROM_ACC; w++) {
+  for (size_t w = 0; w < IO_ACC; w++) {
     __str[i] = static_cast<char>((floatPart % 10) + '0');
     floatPart /= 10;
     i--;
@@ -133,7 +132,7 @@ inline T& stringToNum(std::string& __str, T& __num) noexcept {
   __num = static_cast<T>(0);
   float interPart = static_cast<T>(0);
   auto i = __str.size() - 1;
-  for (size_t w = 0; w < ROM_ACC; w++) {
+  for (size_t w = 0; w < IO_ACC; w++) {
     __num += static_cast<T>(__str[i] - '0');
     __num /= static_cast<T>(10);
     i--;
