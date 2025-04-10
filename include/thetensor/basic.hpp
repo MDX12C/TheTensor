@@ -83,14 +83,15 @@
  * @param third the answer
  * @param type the type of the operands
  */
-#define ADD(first, second, third, type) __ADD(first, second, third, type);
+#define ADD(first, second, third, type) \
+  __ADD((first), (second), (third), type);
 /**
  * @brief add
  * @param first the first operand
  * @param second the second operand
  * @param type the type of the operands
  */
-#define EADD(first, second, type) __EADD(first, second, type);
+#define EADD(first, second, type) __EADD((first), (second), type);
 
 /**
  * @brief sub
@@ -99,14 +100,15 @@
  * @param third the answer
  * @param type the type of the operands
  */
-#define MNS(first, second, third, type) __MNS(first, second, third, type);
+#define MNS(first, second, third, type) \
+  __MNS((first), (second), (third), type);
 /**
  * @brief sub
  * @param first the first operand
  * @param second the second operand
  * @param type the type of the operands
  */
-#define EMNS(first, second, type) __EMNS(first, second, type);
+#define EMNS(first, second, type) __EMNS((first), (second), type);
 
 /**
  * @brief mul
@@ -115,14 +117,15 @@
  * @param third the answer
  * @param type the type of the operands
  */
-#define MUL(first, second, third, type) __MUL(first, second, third, type);
+#define MUL(first, second, third, type) \
+  __MUL((first), (second), (third), type);
 /**
  * @brief mul
  * @param first the first operand
  * @param second the second operand
  * @param type the type of the operands
  */
-#define EMUL(first, second, type) __EMUL(first, second, type);
+#define EMUL(first, second, type) __EMUL((first), (second), type);
 
 /**
  * @brief div
@@ -131,14 +134,15 @@
  * @param third the answer
  * @param type the type of the operands
  */
-#define DIV(first, second, third, type) __DIV(first, second, third, type);
+#define DIV(first, second, third, type) \
+  __DIV((first), (second), (third), type);
 /**
  * @brief div
  * @param first the first operand
  * @param second the second operand
  * @param type the type of the operands
  */
-#define EDIV(first, second, type) __EDIV(first, second, type);
+#define EDIV(first, second, type) __EDIV((first), (second), type);
 namespace system_message {
 class Status {
  private:
@@ -241,7 +245,7 @@ class Status {
 }  // namespace system_message
 namespace basic_math {
 constexpr size_t PRINT_ACCURACY = 3;
-constexpr FloatType EXPRISION = static_cast<FloatType>(std::exp(1.0F));
+constexpr FloatType EXPRISION = std::numbers::e_v<FloatType>;
 
 class BasicSupport {
  public:
