@@ -7,7 +7,7 @@
 #else
 #define PAUSED
 #endif
-
+#define PRINT 0
 namespace model_cc {
 constexpr size_t TIMES = 50;
 constexpr size_t INPUTS = 28 * 28;
@@ -65,23 +65,26 @@ signed main() {
   outputData.setFile(__FILE__, "train_labels");
   weightData.setFile(__FILE__, "weight");
   PAUSE;
-  [&] {
-    bool retrain;
-    std::cout << "retrain?(1,0)\n";
-    std::cin >> retrain;
-    std::cin.get();
-    if (retrain) {
-      layer1.init();
-      layer3.init();
-      layer5.init();
-    } else {
-      weightData.switchMode(file_io::FileIO::reading);
-      layer1.read("layer1", weightData);
-      layer3.read("layer3", weightData);
-      layer5.read("layer5", weightData);
-      weightData.switchMode();
-    }
-  }();
+  if (![&] -> bool {
+        bool retrain;
+        std::cout << "retrain?(1,0)\n";
+        std::cin >> retrain;
+        std::cin.get();
+        if (retrain) {
+          layer1.init();
+          layer3.init();
+          layer5.init();
+        } else {
+          weightData.switchMode(file_io::FileIO::reading);
+          layer1.read("layer1", weightData);
+          layer3.read("layer3", weightData);
+          layer5.read("layer5", weightData);
+          weightData.switchMode();
+        }
+        return retrain;
+      }()) {
+    goto TEST;
+  }
   inputData.switchMode(file_io::FileIOOrdered::reading);
   outputData.switchMode(file_io::FileIOOrdered::reading);
   do {
@@ -93,8 +96,10 @@ signed main() {
   for (size_t i = 0; i < times; i += mdcc::TIMES) {
     if (!layerIn.forward(inputData, alpha)) break;
     PAUSED;
+#if PRINT
     sprintf(mdcc::TEMP, "The [%ld,%ld] of %ld", i + 1, i + mdcc::TIMES, times);
     system_message::Status::announce(mdcc::TEMP);
+#endif
     layerTidy.forward(alpha);
     PAUSED;
     layer1.forward(alpha);
@@ -115,12 +120,16 @@ signed main() {
     PAUSED;
     layer7.forward(alpha);
     PAUSED;
+#if PRINT
     sys::announce("backward");
+#endif
     layerOut.forward(outputData, beta);
     mother += mdcc::TIMES;
     kid += static_cast<size_t>((beta * network::Output::format(alpha)).sum());
     gamma = std::move(layerLoss.backward(beta, alpha));
+#if PRINT
     std::cout << "\nLoss:\n" << gamma << '\n';
+#endif
     PAUSED;
     layer7.backward(alpha);
     PAUSED;
@@ -139,7 +148,9 @@ signed main() {
     layer2.backward(alpha);
     PAUSED;
     layer1.backward(alpha);
+#if PRINT
     sys::announce("end a train");
+#endif
   }
   inputData.switchMode();
   outputData.switchMode();
@@ -155,6 +166,8 @@ signed main() {
   else
     sys::announce("write fail!");
   weightData.switchMode();
+// start to test
+TEST:
   mdcc::CHECK_CONTINUE("test the training result");
   times = 0;
   do {
@@ -170,8 +183,10 @@ signed main() {
   for (size_t i = 0; i < times; i += mdcc::TIMES) {
     if (!layerIn.forward(inputData, alpha)) break;
     PAUSED;
+#if PRINT
     sprintf(mdcc::TEMP, "The [%ld,%ld] of %ld", i + 1, i + mdcc::TIMES, times);
     sys::announce(mdcc::TEMP);
+#endif
     layerTidy.forward(alpha);
     PAUSED;
     layer1.forward(alpha);
@@ -196,8 +211,10 @@ signed main() {
     mother += mdcc::TIMES;
     kid += static_cast<size_t>((beta * network::Output::format(alpha)).sum());
     gamma = std::move(layerLoss.backward(beta, alpha));
+#if PRINT
     std::cout << "\nLoss:\n" << gamma << '\n';
     sys::announce("end a test");
+#endif
   }
   inputData.switchMode();
   outputData.switchMode();

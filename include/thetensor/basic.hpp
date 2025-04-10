@@ -233,7 +233,7 @@ class Status {
     return;
   }
   static inline void pause() noexcept {
-    std::cout << "==========\npause Enter to continue\n==========";
+    std::cout << "==========\npause Enter to continue\n==========\n";
     std::cin.get();
     return;
   }
