@@ -6,11 +6,13 @@ signed main() {
   LOG("C:check test");
   LOG("E:error test");
   LOG("B:bug test");
+  if (log_file::checkAlive()) {
+    LOG("S:alive");
+  } else {
+    LOG("S:not alive");
+  }
   int a = 18;
   LOG("C:a=%d", a);
-  if (a == 18) {
-    endOfMainFunction();
-  }
   DESTRUCT;
   return 0;
 }

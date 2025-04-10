@@ -34,7 +34,7 @@ signed main() {
     if (c != 'y') endOfMainFunction();
   }();
   // setting before write
-  storage::Story<float> temp(drcc::LENTH);
+  lina_lg::VectorF temp(drcc::LENTH);
   size_t pcs = 0;
   file_io::FileIOOrdered writingFile;
   auto ioFunc = [](const char* const& __str) -> size_t {
@@ -46,12 +46,17 @@ signed main() {
     return static_cast<size_t>(alpha);
   };
   auto imgFunc = [&](std::vector<uint8_t>& __vec) {
-    for (size_t i = 0; i < drcc::LENTH; i++)
-      temp[i] = static_cast<float>(static_cast<int>(__vec[i])) / 255.0F;
+    temp.resize(__vec.size());
+    for (size_t i = 0; i < __vec.size(); i++)
+      temp[i] = static_cast<FloatType>(__vec[i]);
+    temp /= 25.0F;
+    temp -= (temp.sum() / temp.size());
+    auto sigma = (basic_math::pow(temp, FloatType(2)).sum()) / temp.size();
+    temp /= std::sqrt(sigma);
   };
   auto lbFunc = [&](uint8_t const& __pos) {
-    temp = static_cast<float>(0);
-    temp[static_cast<size_t>(__pos)] = static_cast<float>(1);
+    temp = static_cast<FloatType>(0);
+    temp[static_cast<size_t>(__pos)] = static_cast<FloatType>(1);
   };
   system_message::Status::refresh("write training files");
   system_message::Status::print();
