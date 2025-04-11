@@ -9,6 +9,7 @@ typedef struct ShapeOfMatrix {
   size_t row_;
   // column: vertical
   size_t col_;
+  static constexpr size_t LIMIT = 65536;
   inline ShapeOfMatrix& operator=(ShapeOfMatrix const& __other) noexcept {
     row_ = __other.row_;
     col_ = __other.col_;
@@ -48,7 +49,8 @@ using MaShape = MatrixShape;
  * @brief check if the MatrixShape is legal
  */
 inline bool legalShape(MatrixShape const& __param) noexcept {
-  return __param.row_ && __param.col_;
+  return __param.row_ && __param.col_ && (__param.row_ < MaShape::LIMIT) &&
+         (__param.col_ < MaShape::LIMIT);
 }
 /**
  * @brief the MatrixShape's size
@@ -892,6 +894,10 @@ inline Matrix<T> mergeUD(Matrix<T> const& __up,
     LOG("E:unmatch size");
     return Matrix<T>();
   }
+  if ((__up.shape_.row_ + __down.shape_.row_) >= MaShape::LIMIT) {
+    LOG("E:too big shape may cause unpredictable result");
+    return Matrix<T>();
+  }
   Matrix<T> ans({__up.shape_.row_ + __down.shape_.row_, __up.shape_.col_});
   std::copy(__up.datas_, __up.datas_ + __up.size_, ans.datas_);
   std::copy(__down.datas_, __down.datas_ + __down.size_,
@@ -911,6 +917,10 @@ inline Matrix<T> mergeLR(Matrix<T> const& __left,
   LOG("C:mergeLR to Matrix");
   if (__left.shape_.row_ != __right.shape_.row_) {
     LOG("E:unmatch size");
+    return Matrix<T>();
+  }
+  if ((__left.shape_.col_ + __right.shape_.col_) >= MaShape::LIMIT) {
+    LOG("E:too big shape may cause unpredictable result");
     return Matrix<T>();
   }
   Matrix<T> ans({__left.shape_.row_, __left.shape_.col_ + __right.shape_.col_});
