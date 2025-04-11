@@ -109,7 +109,7 @@ signed main() {
         system_message::Status::announce("<writing file> function of RomIO 01");
         file.switchMode(file_io::FileIO::writing);
         file.print();
-        auto alpha = basic_math::random(8, -5, 5);
+        auto alpha = basic_math::uniformRand(8, -5, 5);
         SHOW(alpha);
         SHOW(file.write("alpha", alpha.begin(), alpha.size()));
       }();
@@ -121,7 +121,7 @@ signed main() {
         system_message::Status::announce("<writing file> function of RomIO 02");
         file.switchMode(file_io::FileIO::writing);
         file.print();
-        auto beta = basic_math::random(15, -7, 7);
+        auto beta = basic_math::uniformRand(15, -7, 7);
         SHOW(beta);
         SHOW(file.write("beta", beta.begin(), beta.size()));
       }();
@@ -168,9 +168,9 @@ signed main() {
     orderFile.print();
     [&] {
       system_message::Status::announce("write file");
-      auto alpha = basic_math::random(8, -5, 5);
+      auto alpha = basic_math::uniformRand(8, -5, 5);
       SHOW(alpha);
-      auto beta = basic_math::random(15, -5.0F, 5.0F);
+      auto beta = basic_math::uniformRand(15, -5.0F, 5.0F);
       SHOW(beta);
       orderFile.switchMode(file_io::FileIOOrdered::writing);
       orderFile.print();

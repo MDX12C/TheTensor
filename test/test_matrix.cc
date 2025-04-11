@@ -78,9 +78,9 @@ signed main() {
   system_message::Status::refresh("operator overloading for float");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(mks(2, 3), (float)-10, (float)10);
-    auto beta = bsm::random(mks(2, 3), (float)-10, (float)10);
-    auto sigma = bsm::random((float)-10, (float)10);
+    auto alpha = bsm::uniformRand(mks(2, 3), (float)-10, (float)10);
+    auto beta = bsm::uniformRand(mks(2, 3), (float)-10, (float)10);
+    auto sigma = bsm::uniformRand((float)-10, (float)10);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha + beta);
@@ -99,8 +99,8 @@ signed main() {
   system_message::Status::refresh("operator overloading for bool");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(mks(2, 5), false, true);
-    auto beta = bsm::random(mks(2, 5), false, true);
+    auto alpha = bsm::uniformRand(mks(2, 5), false, true);
+    auto beta = bsm::uniformRand(mks(2, 5), false, true);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha + beta);
@@ -111,8 +111,8 @@ signed main() {
   system_message::Status::refresh("compare operator for Matrix");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(mks(2, 5), 1, 5);
-    auto beta = bsm::random(mks(2, 5), 1, 5);
+    auto alpha = bsm::uniformRand(mks(2, 5), 1, 5);
+    auto beta = bsm::uniformRand(mks(2, 5), 1, 5);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha == beta);
@@ -125,13 +125,13 @@ signed main() {
   system_message::Status::refresh("other support function");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(mks(2, 3), 1, 10);
-    auto beta = bsm::random(mks(2, 3), -5, 5);
+    auto alpha = bsm::uniformRand(mks(2, 3), 1, 10);
+    auto beta = bsm::uniformRand(mks(2, 3), -5, 5);
     SHOW(alpha);
     SHOW(ll::mergeUD(alpha, beta));
     SHOW(ll::mergeLR(alpha, beta));
     sms::announce("make new alpha");
-    alpha = std::move(bsm::random(mks(6, 8), 1, 10));
+    alpha = std::move(bsm::uniformRand(mks(6, 8), 1, 10));
     SHOW(alpha);
     SHOW(ll::scan(alpha, mks(1, 2), mks(6, 5)));
     alpha.resize(beta.shape());
@@ -145,7 +145,7 @@ signed main() {
     SHOW(bsm::pow(2, alpha));
     SHOW(bsm::pow(beta, 2));
     SHOW(bsm::pow(beta, alpha));
-    auto gamma = bsm::random(10, 2.0F, 1024.0F);
+    auto gamma = bsm::uniformRand(10, 2.0F, 1024.0F);
     SHOW(gamma);
     SHOW(bsm::log(gamma));
   }();

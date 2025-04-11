@@ -24,16 +24,6 @@ signed main() {
   printf("C:digit(%f)=%d", a, basic_math::intDigits(a));
   a = -8;
   printf("C:digit(%f)=%d", a, basic_math::intDigits(a));
-  system_message::Status::refresh("second");
-  system_message::Status::print();
-  try {
-    printf("C:rand int: %d", basic_math::random(-5, 5));
-    printf("C:rand float: %f", basic_math::random(-1.0F, 1.0F));
-    printf("C:rand bool: %d", basic_math::random(false, true));
-    printf("C:rand char: %c", basic_math::random('A', 'D'));
-  } catch (system_message::Error& epsilon) {
-    epsilon.print();
-  }
   DESTRUCT;
   return 0;
 }

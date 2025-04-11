@@ -3,7 +3,7 @@
 #define BASIC_H 1
 
 #include "log.hpp"
-
+#include "random.hpp"
 /**
  * @warning don't use it directly
  */
@@ -156,10 +156,13 @@ class Status {
    * @return the sequence
    * @throw none
    */
-  static inline size_t refresh(std::string const& __progress) noexcept {
+  static inline size_t refresh(std::string const& __progress,
+                               bool const& __prt = false,
+                               std::ostream& __os = std::cout) noexcept {
     LOG("S:progress:\n%s", __progress.c_str());
     Status::progress_ = __progress;
     Status::blocks_++;
+    if (__prt) Status::print(__os);
     return Status::blocks_;
   }
   /**
@@ -168,10 +171,13 @@ class Status {
    * @return the sequence
    * @throw none
    */
-  static inline size_t refresh(const char* const& __progress) noexcept {
+  static inline size_t refresh(const char* const& __progress,
+                               bool const& __prt = false,
+                               std::ostream& __os = std::cout) noexcept {
     LOG("S:progress:\n%s", __progress);
     Status::progress_ = __progress;
     Status::blocks_++;
+    if (__prt) Status::print(__os);
     return Status::blocks_;
   }
   /**
@@ -247,21 +253,6 @@ namespace basic_math {
 constexpr size_t PRINT_ACCURACY = 3;
 constexpr FloatType EXPRISION = std::numbers::e_v<FloatType>;
 
-class BasicSupport {
- public:
-  /**
-   * @warning don't use it directly
-   */
-  static std::mt19937 generator_;
-  /**
-   * @warning don't use it directly
-   */
-  static inline void init() noexcept {
-    BasicSupport::generator_.seed(static_cast<unsigned long long>(time(0)));
-    LOG("S:Basic init");
-    return;
-  }
-};
 /**
  * @return the number of digits in an unsigned integer.
  * @param alpha The number to determine the number of digits in
@@ -284,38 +275,6 @@ inline size_t intDigits(U const& __alpha) noexcept(support<U>) {
   } else {
     throw system_message::Error("unsupport type for intDigits");
     return size_t(0);
-  }
-}
-/**
- * Generates a random number within the range [min, max] based on the input
- * type.
- *
- * @param min The minimum value of the range
- * @param max The maximum value of the range
- *
- * @return A random number within the specified range based on the input type
- * @throw if the type isn't support, throw.
- */
-template <typename U>
-inline U random(U const& __min,
-                U const& __max) noexcept(basic_math::support<U>) {
-  if constexpr (std::is_same_v<bool, U>) {
-    LOG("C:random<bool>");
-    std::uniform_int_distribution<int> dist(0, 1);
-    return static_cast<bool>(dist(BasicSupport::generator_));
-  } else if constexpr (std::is_integral_v<U>) {
-    LOG("C:random<intergral>");
-    std::uniform_int_distribution<U> dist(__min, __max);
-    return dist(BasicSupport::generator_);
-  } else if constexpr (std::is_floating_point_v<U>) {
-    LOG("C:random<float_point>");
-    std::uniform_real_distribution<U> dist(__min, __max);
-    return dist(BasicSupport::generator_);
-  } else {
-    LOG("B:unsupport type for random");
-    throw system_message::Error("unsupport type for random\n");
-    U ans;
-    return ans;
   }
 }
 }  // namespace basic_math
@@ -345,11 +304,7 @@ class StoryBase {
 /**
  * @warning don't use it
  */
-#define BASIC_CON                     \
-  do {                                \
-    basic_math::BasicSupport::init(); \
-    system_message::Status::init();   \
-  } while (false);
+#define BASIC_CON system_message::Status::init();
 
 #if __DEBUG_MODE__
 #define __DEBUG(X)                        \

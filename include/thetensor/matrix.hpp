@@ -250,8 +250,8 @@ inline Matrix<T> scan(Matrix<T> const&, MaShape const&,
 }  // namespace lina_lg
 namespace basic_math {
 template <typename T>
-inline lina_lg::Matrix<T> random(lina_lg::MaShape const&, T const&,
-                                 T const&) noexcept;
+inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const&, T const&,
+                                      T const&) noexcept;
 template <typename T>
 inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>&) noexcept;
 template <typename T>
@@ -953,7 +953,7 @@ inline Matrix<T> scan(Matrix<T> const& __matrix, MaShape const& __low,
 }  // namespace lina_lg
 namespace basic_math {
 /**
- * @brief random
+ * @brief uniformRand
  * @param __shape the shape of Matrix
  * @param __min the min
  * @param __max the max
@@ -961,11 +961,11 @@ namespace basic_math {
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> random(lina_lg::MaShape const& __shape,
-                                 T const& __min, T const& __max) noexcept {
-  LOG("C:random to Matrix");
+inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const& __shape,
+                                      T const& __min, T const& __max) noexcept {
+  LOG("C:uniformRand to Matrix");
   lina_lg::Matrix<T> result(__shape);
-  for (auto& i : result) i = random(__min, __max);
+  for (auto& i : result) i = uniformRand(__min, __max);
   return result;
 }
 /**

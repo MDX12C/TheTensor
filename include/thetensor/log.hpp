@@ -80,9 +80,6 @@ class LogSupport {
    * @brief the worker function, please don't use it directly
    */
   static void logWorker(std::filesystem::path fileLocation) {
-#if __DEBUG_MODE__
-    printf("log worker start\n");
-#endif
     std::ofstream writer;
     writer.open(fileLocation, std::ios::binary | std::ios::app);
     CHECK_O(writer);
@@ -98,9 +95,6 @@ class LogSupport {
         LogSupport::queueLock.unlock();
         if (workSpace[0] == 'L') {
           if (workSpace[1] == '1') {
-#if __DEBUG_MODE__
-            printf("L1\n");
-#endif
             delete[] workSpace;
             workSpace = new char[4];
             sprintf(workSpace, "L2");

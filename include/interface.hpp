@@ -9,6 +9,7 @@
 #include "thetensor/matrix.hpp"
 #include "thetensor/memory.hpp"
 #include "thetensor/network.hpp"
+#include "thetensor/random.hpp"
 #include "thetensor/story.hpp"
 #include "thetensor/vector.hpp"
 
@@ -38,6 +39,9 @@
 #endif
 #ifndef STORY_H
 #define STORY_H 0
+#endif
+#ifndef RANDOM_H
+#define ROMDOM_H 0
 #endif
 #ifndef BASIC_CON
 #define BASIC_CON
@@ -87,6 +91,12 @@
 #ifndef STORY_DES
 #define STORY_DES
 #endif
+#ifndef RANDOM_CON
+#define RANDOM_CON
+#endif
+#ifndef RANDOM_DES
+#define RANDOM_DES
+#endif
 #if (!LOG_H)
 #define LOG(X, ...)
 #endif
@@ -99,6 +109,9 @@
     if constexpr (__SPEED_MODE__) {      \
       LOG("S:SPEED MODE\n");             \
     }                                    \
+  }                                      \
+  if constexpr (RANDOM_H) {              \
+    RANDOM_CON;                          \
   }                                      \
   if constexpr (FILE_H) {                \
     FILE_CON;                            \
@@ -141,6 +154,9 @@
   }                          \
   if constexpr (FILE_H) {    \
     FILE_DES;                \
+  }                          \
+  if constexpr (RANDOM_H) {  \
+    RANDOM_DES;              \
   }                          \
   if constexpr (LOG_H) {     \
     LOG_DES(false);          \
