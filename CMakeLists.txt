@@ -35,11 +35,12 @@ add_library(basic_hpp STATIC src/basic.cc)
 add_library(memory_maintainer STATIC src/memory.cc)
 add_library(logger STATIC src/log.cc)
 add_library(rom STATIC src/rom.cc)
+add_library(random STATIC src/random.cc)
 
 function(add_test_executable target source)
     add_executable(${target} ${source})
     target_link_libraries(${target} 
-        PRIVATE logger memory_maintainer basic_hpp 
+        PRIVATE logger memory_maintainer basic_hpp random
         PUBLIC  rom
     )
 endfunction()
@@ -54,3 +55,4 @@ add_test_executable(test_story test/test_story.cc)
 add_test_executable(maker_network test/datas_maker.cc)
 add_test_executable(data_reader test/data_reader.cc)
 add_test_executable(model test/model.cc)
+add_test_executable(test_random test/test_random.cc)

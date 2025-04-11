@@ -153,7 +153,8 @@ inline Vector<T> scan(Vector<T> const&, size_t const&, size_t const&) noexcept;
 }  // namespace lina_lg
 namespace basic_math {
 template <typename T>
-inline lina_lg::Vector<T> random(size_t const&, T const&, T const&) noexcept;
+inline lina_lg::Vector<T> uniformRand(size_t const&, T const&,
+                                      T const&) noexcept;
 template <typename T>
 inline lina_lg::Vector<T> absolute(lina_lg::Vector<T>&) noexcept;
 template <typename T>
@@ -753,7 +754,7 @@ inline Vector<T> scan(Vector<T> const& __vec, size_t const& __low,
 }  // namespace lina_lg
 namespace basic_math {
 /**
- * @brief random
+ * @brief uniformRand
  * @param __size the size of Vector
  * @param __min the min
  * @param __max the max
@@ -761,11 +762,11 @@ namespace basic_math {
  * @throw none
  */
 template <typename T>
-inline lina_lg::Vector<T> random(size_t const& __size, T const& __min,
-                                 T const& __max) noexcept {
-  LOG("C:random to Vector");
+inline lina_lg::Vector<T> uniformRand(size_t const& __size, T const& __min,
+                                      T const& __max) noexcept {
+  LOG("C:uniformRand to Vector");
   lina_lg::Vector<T> result(__size);
-  for (auto& i : result) i = random(__min, __max);
+  for (auto& i : result) i = uniformRand(__min, __max);
   return result;
 }
 /**

@@ -42,10 +42,22 @@ constexpr int WHOLE_NUMBER = std::pow(CARRY, FILE_DIGITS);
 
 extern const char* const CARRY_ARRAY;
 extern std::string TEMP_STRING;
+inline int8_t prioirty(const char* const& alpha) {
+  if (alpha[0] == 'L') {
+    if ((alpha[1] == '1') || (alpha[1] == '2')) return int8_t(0);
+    if ((alpha[1] == '3') || (alpha[1] == '4')) return int8_t(8);
+    if (alpha[1] == '5') return int8_t(-1);
+  }
+  if (alpha[0] == 'S') return int8_t(3);
+  if (alpha[0] == 'B') return int8_t(4);
+  if (alpha[0] == 'E') return int8_t(5);
+  if (alpha[0] == 'C') return int8_t(7);
+  return int8_t(3);
+}
 
 struct CharCompare {
   bool operator()(const char* const& a, const char* const& b) {
-    return (b[0] == 'L') && (a[0] != 'L');
+    return prioirty(b) < prioirty(a);
   }
 };
 /**
@@ -68,9 +80,6 @@ class LogSupport {
    * @brief the worker function, please don't use it directly
    */
   static void logWorker(std::filesystem::path fileLocation) {
-#if __DEBUG_MODE__
-    printf("log worker start\n");
-#endif
     std::ofstream writer;
     writer.open(fileLocation, std::ios::binary | std::ios::app);
     CHECK_O(writer);
@@ -86,9 +95,6 @@ class LogSupport {
         LogSupport::queueLock.unlock();
         if (workSpace[0] == 'L') {
           if (workSpace[1] == '1') {
-#if __DEBUG_MODE__
-            printf("L1\n");
-#endif
             delete[] workSpace;
             workSpace = new char[4];
             sprintf(workSpace, "L2");

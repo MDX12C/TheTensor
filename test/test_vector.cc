@@ -67,9 +67,9 @@ signed main() {
   system_message::Status::refresh("operator overloading for float");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(10, (float)-10, (float)10);
-    auto beta = bsm::random(10, (float)-10, (float)10);
-    auto sigma = bsm::random((float)-10, (float)10);
+    auto alpha = bsm::uniformRand(10, (float)-10, (float)10);
+    auto beta = bsm::uniformRand(10, (float)-10, (float)10);
+    auto sigma = bsm::uniformRand((float)-10, (float)10);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha + beta);
@@ -88,8 +88,8 @@ signed main() {
   system_message::Status::refresh("operator overloading for bool");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(10, false, true);
-    auto beta = bsm::random(10, false, true);
+    auto alpha = bsm::uniformRand(10, false, true);
+    auto beta = bsm::uniformRand(10, false, true);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha + beta);
@@ -100,8 +100,8 @@ signed main() {
   system_message::Status::refresh("compare operator for Vector");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(10, 1, 5);
-    auto beta = bsm::random(10, 1, 5);
+    auto alpha = bsm::uniformRand(10, 1, 5);
+    auto beta = bsm::uniformRand(10, 1, 5);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha == beta);
@@ -114,8 +114,8 @@ signed main() {
   system_message::Status::refresh("other support function");
   system_message::Status::print();
   [] {
-    auto alpha = bsm::random(9, 1, 10);
-    auto beta = bsm::random(7, -5, 5);
+    auto alpha = bsm::uniformRand(9, 1, 10);
+    auto beta = bsm::uniformRand(7, -5, 5);
     SHOW(alpha);
     SHOW(ll::merge(alpha, beta));
     SHOW(ll::scan(alpha, 2, 6));
@@ -125,7 +125,7 @@ signed main() {
     SHOW(bsm::pow(2, alpha));
     SHOW(bsm::pow(beta, 2));
     SHOW(bsm::pow(beta, alpha));
-    auto gamma = bsm::random(10, 2.0F, 1024.0F);
+    auto gamma = bsm::uniformRand(10, 2.0F, 1024.0F);
     SHOW(gamma);
     SHOW(bsm::log(gamma));
   }();

@@ -45,14 +45,14 @@ inline void Affine::set(size_t const& __cores,
   return;
 }
 /**
- * @brief init with random
+ * @brief init with uniformRand
  * @warning need set first
  */
 inline void Affine::init() noexcept {
   LOG("C:init of Affine");
-  weight_ = std::move(basic_math::random(weight_.shape(),
-                                         static_cast<FloatType>(-0.1),
-                                         static_cast<FloatType>(0.1)));
+  weight_ = std::move(basic_math::uniformRand(weight_.shape(),
+                                              static_cast<FloatType>(-0.1),
+                                              static_cast<FloatType>(0.1)));
   DEBUG(this->weight_);
   return;
 }
