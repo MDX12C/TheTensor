@@ -61,7 +61,7 @@ signed main() {
   system_message::Status::refresh("write training files");
   system_message::Status::print();
   // write [train images]
-  writingFile.setFile("/model.cc", "train_images");
+  writingFile.setFile("/mnist.", "train_images");
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   do {
     pcs = std::min(drcc::TRAIN_PCS, ioFunc("training images"));
@@ -75,7 +75,7 @@ signed main() {
   writingFile.switchMode();
   // write [train labels]
   temp.resize(drcc::OUT);
-  writingFile.setFile("/model.cc", "train_labels");
+  writingFile.setFile("/mnist.", "train_labels");
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   system_message::Status::announce("train labels");
   for (size_t times = 0; times < pcs; times++) {
@@ -97,7 +97,7 @@ signed main() {
   system_message::Status::print();
   pcs = 0;
   temp.resize(drcc::LENTH);
-  writingFile.setFile("/model.cc", "test_images");
+  writingFile.setFile("/mnist.", "test_images");
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   do {
     pcs = std::min(drcc::TEST_PCS, ioFunc("test_images"));
@@ -111,7 +111,7 @@ signed main() {
   writingFile.switchMode();
   // write [test labels]
   temp.resize(drcc::OUT);
-  writingFile.setFile("/model.cc", "test_labels");
+  writingFile.setFile("/mnist.", "test_labels");
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   system_message::Status::announce("test labels");
   for (size_t times = 0; times < pcs; times++) {

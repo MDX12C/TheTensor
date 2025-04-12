@@ -44,5 +44,19 @@ else
 fi
 break
 done
+PS3="Open Limit Mode:"
+select mode in OFF ON
+do
+if [ $REPLY -gt 2 ]; then
+  echo "undefined mode"
+  continue;
+fi
+if [ $REPLY == 1 ]; then 
+  ComMode="$ComMode -DlimitMode=OFF"
+else
+  ComMode="$ComMode -DlimitMode=ON"
+fi
+break
+done
 cmake $ComMode ..
 make

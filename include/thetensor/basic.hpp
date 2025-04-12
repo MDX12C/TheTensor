@@ -284,11 +284,11 @@ class StoryBase {
   /**
    * @brief base constructor
    */
-  StoryBase() {}
+  StoryBase() noexcept {}
   /**
    * @brief base destructor
    */
-  virtual ~StoryBase() {}
+  virtual ~StoryBase() noexcept {}
   /**
    * @brief size
    * @return the size

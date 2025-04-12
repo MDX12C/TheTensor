@@ -205,8 +205,7 @@ inline void FileIO::setFile(const char* const& __file,
                             const char* const& __type = "txt") {
   LOG("C:set file of FileIO");
   fileName_ = __file;
-  fileName_.pop_back();
-  fileName_.pop_back();
+  while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());
@@ -454,8 +453,7 @@ inline void FileIOOrdered::setFile(const char* const& __file,
                                    const char* const& __type = "txt") {
   LOG("C:set file of FileIOOrdered");
   fileName_ = __file;
-  fileName_.pop_back();
-  fileName_.pop_back();
+  while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());

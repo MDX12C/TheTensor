@@ -15,7 +15,7 @@ class RandomSupport {
    */
   static inline void init() noexcept {
     LOG("S:Random init");
-#if __DEBUG_MODE__
+#if __LIMIT_MODE__
     RandomSupport::generator_.seed(static_cast<unsigned long long>(time(0)));
 #else
     std::random_device rd;

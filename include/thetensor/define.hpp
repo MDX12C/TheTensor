@@ -3,8 +3,9 @@
 
 /*constants*/
 // #define DEBUG_MODE 1
-//  #define SPEED_MODE 1
-//  #define F16 1
+// #define SPEED_MODE 1
+// #define F16 1
+// #define LIMIT_MODE 1
 
 /*constants control*/
 #ifndef DEBUG_MODE
@@ -21,6 +22,11 @@
 #define __F16__ 0
 #else
 #define __F16__ 1
+#endif
+#ifndef LIMIT_MODE
+#define __LIMIT_MODE__ 0
+#else
+#define __LIMIT_MODE__ 1
 #endif
 
 /*control block*/
