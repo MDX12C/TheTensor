@@ -221,11 +221,11 @@ inline void FileIO::setFile(const char* const& __file,
 inline bool FileIO::switchMode(Status const& __obj = idle,
                                bool const& __special = false) noexcept {
   LOG("C:switch to mode %d of FileIO", __obj);
+  if (mode_ == __obj) return true;
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
   }
-  if (mode_ == __obj) return true;
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
   mode_ = __obj;
@@ -466,11 +466,11 @@ inline void FileIOOrdered::setFile(const char* const& __file,
 inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
                                       bool const& __special = false) noexcept {
   LOG("C:switch mode of FileIOOrdered");
+  if (mode_ == __obj) return true;
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
   }
-  if (mode_ == __obj) return true;
   if (fileSelf_.is_open()) fileSelf_.close();
   mode_ = __obj;
   if (__obj == idle) return true;
