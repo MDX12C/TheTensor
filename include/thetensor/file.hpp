@@ -205,8 +205,7 @@ inline void FileIO::setFile(const char* const& __file,
                             const char* const& __type = "txt") {
   LOG("C:set file of FileIO");
   fileName_ = __file;
-  fileName_.pop_back();
-  fileName_.pop_back();
+  while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());
@@ -222,13 +221,10 @@ inline void FileIO::setFile(const char* const& __file,
 inline bool FileIO::switchMode(Status const& __obj = idle,
                                bool const& __special = false) noexcept {
   LOG("C:switch to mode %d of FileIO", __obj);
+  if (mode_ == __obj) return true;
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
-  }
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
   }
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
@@ -454,8 +450,7 @@ inline void FileIOOrdered::setFile(const char* const& __file,
                                    const char* const& __type = "txt") {
   LOG("C:set file of FileIOOrdered");
   fileName_ = __file;
-  fileName_.pop_back();
-  fileName_.pop_back();
+  while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());
@@ -471,13 +466,10 @@ inline void FileIOOrdered::setFile(const char* const& __file,
 inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
                                       bool const& __special = false) noexcept {
   LOG("C:switch mode of FileIOOrdered");
+  if (mode_ == __obj) return true;
   if (__obj >= 3) {
     LOG("E:bad argument");
     return false;
-  }
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
   }
   if (fileSelf_.is_open()) fileSelf_.close();
   mode_ = __obj;
