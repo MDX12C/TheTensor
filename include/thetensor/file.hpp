@@ -225,10 +225,7 @@ inline bool FileIO::switchMode(Status const& __obj = idle,
     LOG("E:bad argument");
     return false;
   }
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
-  }
+  if (mode_ == __obj) return true;
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
   mode_ = __obj;
@@ -473,10 +470,7 @@ inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
     LOG("E:bad argument");
     return false;
   }
-  if (mode_ == __obj) {
-    LOG("E:same mode");
-    return true;
-  }
+  if (mode_ == __obj) return true;
   if (fileSelf_.is_open()) fileSelf_.close();
   mode_ = __obj;
   if (__obj == idle) return true;
