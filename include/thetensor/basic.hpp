@@ -174,7 +174,7 @@ class Status {
   static inline size_t refresh(const char* const& __progress,
                                bool const& __prt = false,
                                std::ostream& __os = std::cout) noexcept {
-    LOG("S:progress:\n%s", __progress);
+    LOG("C:progress:\n%s", __progress);
     Status::progress_ = __progress;
     Status::blocks_++;
     if (__prt) Status::print(__os);
@@ -284,11 +284,11 @@ class StoryBase {
   /**
    * @brief base constructor
    */
-  StoryBase() {}
+  StoryBase() noexcept {}
   /**
    * @brief base destructor
    */
-  virtual ~StoryBase() {}
+  virtual ~StoryBase() noexcept {}
   /**
    * @brief size
    * @return the size
