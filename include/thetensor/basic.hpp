@@ -144,10 +144,12 @@
  */
 #define EDIV(first, second, type) __EDIV((first), (second), type);
 namespace system_message {
+constexpr size_t EXTENTION = 30;
 class Status {
  private:
   static size_t blocks_;
   static std::string progress_;
+  static size_t wide_;
 
  public:
   /**
@@ -197,6 +199,9 @@ class Status {
     LOG("S:system init");
     Status::blocks_ = 0;
     Status::progress_ = "Start";
+    winsize window;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
+    Status::wide_ = window.ws_col - 9 - EXTENTION;
     return;
   }
   static inline void print(std::ostream& __os = std::cout) noexcept {
@@ -245,6 +250,29 @@ class Status {
   static inline void pause() noexcept {
     std::cout << "==========\npause Enter to continue\n==========\n";
     std::cin.get();
+    return;
+  }
+  static inline void bar(size_t __now, size_t __total,
+                         std::string __extend = std::string(),
+                         size_t __wide = Status::wide_) {
+    __now *= 100;
+    float percent = __now;
+    percent /= __total;
+    __now = static_cast<size_t>(percent);
+    percent /= 100;
+    percent *= __wide;
+    __total = static_cast<size_t>(percent);
+    __wide -= __total;
+    if (__extend.size() > EXTENTION)
+      __extend.resize(EXTENTION);
+    else
+      while (__extend.size() < EXTENTION) __extend.push_back(' ');
+    __extend.push_back(' ');
+    std::cout << '\r' << __extend << '(' << std::setw(3) << __now << "%)[";
+    for (size_t i = 0; i < __total; i++) std::cout.put('#');
+    for (size_t i = 0; i < __wide; i++) std::cout.put('-');
+    std::cout.put(']');
+    std::cout.flush();
     return;
   }
 };

@@ -38,6 +38,9 @@ using FloatType = __fp16;
 #else
 using FloatType = float;
 #endif
+#include <sys/ioctl.h>
+#include <unistd.h>
+
 #include <atomic>
 #include <cfloat>
 #include <chrono>
