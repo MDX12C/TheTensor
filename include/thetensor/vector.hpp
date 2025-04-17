@@ -794,13 +794,10 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __vector,
                               T const& __exponent) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
-  for (auto& i : result)
-    if (i > static_cast<T>(0))
-      i = std::pow(i, __exponent);
-    else {
-      LOG("E:invalid basement");
-      i = static_cast<T>(0);
-    }
+  for (auto& i : result) {
+    if (i <= static_cast<T>(0)) LOG("E:danger basement");
+    i = std::pow(i, __exponent);
+  }
   return result;
 }
 /**
@@ -818,8 +815,8 @@ inline lina_lg::Vector<T> pow(T const& __base,
   if (__base > static_cast<T>(0))
     for (auto& i : result) i = std::pow(__base, i);
   else {
-    LOG("E:invalid basement");
-    result = static_cast<T>(0);
+    LOG("E:danger basement");
+    for (auto& i : result) i = std::pow(__base, i);
   }
   return result;
 }
@@ -841,12 +838,8 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __base,
   lina_lg::Vector<T> result(__base);
   auto i = result.begin(), w = __exponent.begin();
   while (i != result.end()) {
-    if ((*i) > static_cast<T>(0))
-      (*i) = std::pow(*i, *w);
-    else {
-      LOG("E:invalid basement");
-      (*i) = static_cast<T>(0);
-    }
+    if ((*i) <= static_cast<T>(0)) LOG("E:danger basement");
+    (*i) = std::pow(*i, *w);
     i++;
     w++;
   }
