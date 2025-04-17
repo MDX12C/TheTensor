@@ -794,7 +794,11 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __vector,
                               T const& __exponent) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
-  for (auto& i : result) i = std::pow(i, __exponent);
+  for (auto& i : result)
+    if (i > static_cast<T>(0))
+      i = std::pow(i, __exponent);
+    else
+      LOG("E:invalid basement");
   return result;
 }
 /**
@@ -809,7 +813,10 @@ inline lina_lg::Vector<T> pow(T const& __base,
                               lina_lg::Vector<T>& __vector) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
-  for (auto& i : result) i = std::pow(__base, i);
+  if (__base > static_cast<T>(0))
+    for (auto& i : result) i = std::pow(__base, i);
+  else
+    LOG("E:invalid basement");
   return result;
 }
 /**
@@ -827,10 +834,13 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __base,
     LOG("E:unmatch size");
     return lina_lg::Vector<T>(__base);
   }
-  lina_lg::Vector<T> result(__base.size());
+  lina_lg::Vector<T> result(__base);
   auto i = result.begin(), w = __exponent.begin();
   while (i != result.end()) {
-    (*i) = std::pow(*i, *w);
+    if ((*i) > static_cast<T>(0))
+      (*i) = std::pow(*i, *w);
+    else
+      LOG("E:invalid basement");
     i++;
     w++;
   }
@@ -846,7 +856,11 @@ template <typename T>
 inline lina_lg::Vector<T> log(lina_lg::Vector<T>& __vector) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
-  for (auto& i : result) i = std::log(i);
+  for (auto& i : result)
+    if (i > static_cast<T>(0))
+      i = std::log(i);
+    else
+      LOG("E:invalid log");
   return result;
 }
 }  // namespace basic_math

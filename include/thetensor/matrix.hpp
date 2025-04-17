@@ -1003,7 +1003,11 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __matrix,
                               T const& __exponent) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
-  for (auto& i : result) i = std::pow(i, __exponent);
+  for (auto& i : result)
+    if (i > static_cast<T>(0))
+      i = std::pow(i, __exponent);
+    else
+      LOG("E:invalid basement");
   return result;
 }
 /**
@@ -1018,7 +1022,10 @@ inline lina_lg::Matrix<T> pow(T const& __base,
                               lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
-  for (auto& i : result) i = std::pow(__base, i);
+  if (__base > static_cast<T>(0))
+    for (auto& i : result) i = std::pow(__base, i);
+  else
+    LOG("E:invalid basement");
   return result;
 }
 /**
@@ -1031,7 +1038,11 @@ template <typename T>
 inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>& __matrix) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
-  for (auto& i : result) i = std::log(i);
+  for (auto& i : result)
+    if (i > static_cast<T>(0))
+      i = std::log(i);
+    else
+      LOG("E:invalid log");
   return result;
 }
 /**
@@ -1052,7 +1063,10 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __base,
   lina_lg::Matrix<T> result(__base);
   auto i = result.begin(), w = __exponent.begin();
   while (i != result.end()) {
-    (*i) = std::pow(*i, *w);
+    if ((*i) > static_cast<T>(0))
+      (*i) = std::pow(*i, *w);
+    else
+      LOG("E:invalid basement");
     i++;
     w++;
   }
