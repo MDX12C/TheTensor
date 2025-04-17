@@ -1006,8 +1006,10 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __matrix,
   for (auto& i : result)
     if (i > static_cast<T>(0))
       i = std::pow(i, __exponent);
-    else
+    else {
       LOG("E:invalid basement");
+      i = static_cast<T>(0);
+    }
   return result;
 }
 /**
@@ -1024,8 +1026,10 @@ inline lina_lg::Matrix<T> pow(T const& __base,
   lina_lg::Matrix<T> result(__matrix);
   if (__base > static_cast<T>(0))
     for (auto& i : result) i = std::pow(__base, i);
-  else
+  else {
     LOG("E:invalid basement");
+    result = static_cast<T>(0);
+  }
   return result;
 }
 /**
@@ -1041,8 +1045,10 @@ inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>& __matrix) noexcept {
   for (auto& i : result)
     if (i > static_cast<T>(0))
       i = std::log(i);
-    else
+    else {
       LOG("E:invalid log");
+      i = static_cast<T>(0);
+    }
   return result;
 }
 /**
@@ -1065,8 +1071,10 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __base,
   while (i != result.end()) {
     if ((*i) > static_cast<T>(0))
       (*i) = std::pow(*i, *w);
-    else
+    else {
       LOG("E:invalid basement");
+      (*i) = static_cast<T>(0);
+    }
     i++;
     w++;
   }

@@ -797,8 +797,10 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __vector,
   for (auto& i : result)
     if (i > static_cast<T>(0))
       i = std::pow(i, __exponent);
-    else
+    else {
       LOG("E:invalid basement");
+      i = static_cast<T>(0);
+    }
   return result;
 }
 /**
@@ -815,8 +817,10 @@ inline lina_lg::Vector<T> pow(T const& __base,
   lina_lg::Vector<T> result(__vector);
   if (__base > static_cast<T>(0))
     for (auto& i : result) i = std::pow(__base, i);
-  else
+  else {
     LOG("E:invalid basement");
+    result = static_cast<T>(0);
+  }
   return result;
 }
 /**
@@ -839,8 +843,10 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __base,
   while (i != result.end()) {
     if ((*i) > static_cast<T>(0))
       (*i) = std::pow(*i, *w);
-    else
+    else {
       LOG("E:invalid basement");
+      (*i) = static_cast<T>(0);
+    }
     i++;
     w++;
   }
@@ -859,8 +865,10 @@ inline lina_lg::Vector<T> log(lina_lg::Vector<T>& __vector) noexcept {
   for (auto& i : result)
     if (i > static_cast<T>(0))
       i = std::log(i);
-    else
+    else {
       LOG("E:invalid log");
+      i = static_cast<T>(0);
+    }
   return result;
 }
 }  // namespace basic_math
