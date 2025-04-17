@@ -299,9 +299,9 @@ inline void cut(const char* const& __str) noexcept {
     log_file::cut(__FILE__);                                                   \
     sprintf(log_file::LogSupport::formatBuffer, FMT, ##__VA_ARGS__);           \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];       \
-    sprintf(log_file::LogSupport::mainBuffer, "%s\n%s : %s : %d\n",      \ 
+    sprintf(log_file::LogSupport::mainBuffer, "%s\n%s:%d\n",      \ 
           log_file::LogSupport::formatBuffer,                                  \
-            log_file::TEMP_STRING.c_str(), __FUNCTION__, __LINE__);            \
+            log_file::TEMP_STRING.c_str(), __LINE__);                          \
     log_file::LogSupport::queueLock.lock();                                    \
     log_file::LogSupport::taskQueue.emplace(log_file::LogSupport::mainBuffer); \
     log_file::LogSupport::queueLock.unlock();                                  \
