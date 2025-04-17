@@ -24,7 +24,7 @@ class InputBase {
 // the basement of layer
 class LayerBase {
  public:
-  typedef enum { tanh, sigmoid } activationType;
+  typedef enum { tanh, sigmoid, relu, leakyRelu } activationType;
   virtual ~LayerBase() noexcept {};
   inline virtual void forward(OperateType &) = 0;
   inline virtual void backward(OperateType &) = 0;
@@ -89,6 +89,46 @@ inline void Sigmoid::backward(OperateType &__input) noexcept {
   (*input) *= (static_cast<FloatType>(1) - output_);
   return;
 }
+template <FloatType ALPHA = static_cast<FloatType>(0)>
+class ReLU final : public LayerBase {
+ private:
+  lina_lg::MatrixF tangent_;
+
+ public:
+  ReLU() noexcept { LOG("C:constructor of ReLU"); }
+  ~ReLU() noexcept { LOG("C:destructor of ReLU"); }
+  inline virtual void forward(OperateType &) noexcept override;
+  inline virtual void backward(OperateType &) noexcept override;
+  inline virtual std::string name() noexcept override {
+    if constexpr (ALPHA)
+      return std::string("LeakyReLU");
+    else
+      return std::string("ReLU");
+  }
+};
+template <FloatType ALPHA>
+inline void ReLU<ALPHA>::forward(OperateType &__input) noexcept {
+  LOG("C:forward of ReLU");
+  auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
+  tangent_.resize(input->shape());
+  auto in = input->begin(), out = tangent_.begin();
+  for (size_t i = 0; i < tangent_.size(); i++) {
+    if (in[i] > 0) {
+      out[i] = static_cast<FloatType>(1);
+    } else {
+      in[i] *= ALPHA;
+      out[i] = ALPHA;
+    }
+  }
+  return;
+}
+template <FloatType ALPHA>
+inline void ReLU<ALPHA>::backward(OperateType &__input) noexcept {
+  LOG("C:backward of ReLU");
+  auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
+  (*input) *= tangent_;
+  return;
+}
 class Dense final : public LayerBase {
  private:
   lina_lg::MatrixF weight_;
@@ -98,8 +138,14 @@ class Dense final : public LayerBase {
 
  public:
   typedef enum {
+    // read from file
     readFile,
+    // U[-0.01,0.01)
     simpleUniform,
+    glorotUniform,
+    glorotNormal,
+    heUniform,
+    heNormal
   } initialType;
   Dense() noexcept { LOG("C:constructor of Dense") }
   ~Dense() noexcept {
@@ -272,7 +318,7 @@ inline void SoftMax::forward(OperateType &__input) noexcept {
 }
 inline OperateType meanSquareError(OperateType &__standard,
                                    OperateType &__input) noexcept {
-  LOG("C:backward of meanSquareError");
+  LOG("C:meanSquareError");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input),
        standard = dynamic_cast<lina_lg::MatrixF *>(__standard);
   (*input) -= (*standard);
@@ -285,6 +331,22 @@ inline OperateType meanSquareError(OperateType &__standard,
     answer->operator[](j) += ptr[i];
   }
   (*answer) /= static_cast<FloatType>(standard->shape().row_);
+  return dynamic_cast<OperateType>(answer);
+}
+inline OperateType crossEntropyLoss(OperateType &__standard,
+                                    OperateType &__input) noexcept {
+  LOG("C:crossEntropyLoss");
+  auto input = dynamic_cast<lina_lg::MatrixF *>(__input),
+       standard = dynamic_cast<lina_lg::MatrixF *>(__standard);
+  (*standard) *= static_cast<FloatType>(-1);
+  auto answer = new lina_lg::VectorF(standard->shape().col_);
+  auto alpha = std::move((*standard) * basic_math::log(*input));
+  auto ptr = alpha.begin();
+  for (size_t i = 0, j = 0; i < alpha.size(); i++, j++) {
+    if (j == alpha.shape().col_) j = 0;
+    answer->operator[](j) += ptr[i];
+  }
+  (*input) = std::move((*standard) / (*input));
   return dynamic_cast<OperateType>(answer);
 }
 inline OperateType oneHotFormat(OperateType &__input) noexcept {
@@ -330,15 +392,23 @@ class LinearModel {
  public:
   LinearModel() noexcept;
   ~LinearModel() noexcept;
+  // set the name of the model
   template <typename __STRING>
   inline void setName(__STRING const &__name) noexcept {
     LOG("C:set name of Linear Model");
     myName_ = __name;
     return;
   }
+  /**
+   * @brief return the counter
+   * @warning don't modify the value during setting the model
+   */
   inline size_t &counter() noexcept { return temp_; }
+  // the reference of input file
   inline file_io::FileIOOrdered &inFile() noexcept { return inFile_; }
+  // the reference of output file
   inline file_io::FileIOOrdered &outFile() noexcept { return outFile_; }
+  // the reference of weight file
   inline file_io::FileIO &weightFile() noexcept { return weightFile_; }
   inline void setFlatInput(size_t const &, size_t const &) noexcept;
   inline void setFlatOutput(size_t const &) noexcept;
@@ -348,7 +418,7 @@ class LinearModel {
                        Dense::initialType const &, FloatType const &);
   inline bool forward() noexcept;
   inline void backward() noexcept;
-  inline const OperateType &loss(bool const &) noexcept;
+  inline FloatType loss(bool const &) noexcept;
   inline bool write() noexcept;
 };
 LinearModel::LinearModel() noexcept {
@@ -371,6 +441,7 @@ LinearModel::~LinearModel() noexcept {
   delete outputL_;
   return;
 }
+// set the input size and batch
 inline void LinearModel::setFlatInput(size_t const &__input,
                                       size_t const &__batch) noexcept {
   LOG("C:set input of Linear Model");
@@ -380,6 +451,7 @@ inline void LinearModel::setFlatInput(size_t const &__input,
   temp_ = __input;
   return;
 }
+// set the batch of output
 inline void LinearModel::setFlatOutput(size_t const &__batch) noexcept {
   LOG("C:set output of Linear Model");
   auto alpha = new FlatInput;
@@ -388,24 +460,27 @@ inline void LinearModel::setFlatOutput(size_t const &__batch) noexcept {
   temp_ = 0;
   return;
 }
+// choose the loss function
 inline void LinearModel::setLossFunction(lossFunction const &__loss) noexcept {
   LOG("C:set loss function of Linear Model");
   lossF_ = __loss;
   return;
 }
+// add a Soft-max layer
 inline void LinearModel::addSoftMax() noexcept {
   LOG("C:add Soft Max of Linear Model");
   hiddenL_.push_back(dynamic_cast<LayerBase *>(new SoftMax));
   return;
 }
+// add a Dense layer with ordering [cores,activation,init way,learning rate]
 inline void LinearModel::addDense(
-    size_t const &__cores, LayerBase::activationType const &__act,
+    size_t const &__cores,
+    LayerBase::activationType const &__act = LayerBase::activationType::relu,
     Dense::initialType const &__init = Dense::initialType::simpleUniform,
     FloatType const &__lr = LEARNING_RATE) {
   LOG("C:add Dense of Linear Model");
   auto alpha = new Dense;
   alpha->setCores(__cores, temp_);
-  temp_ = __cores;
   alpha->setLR(__lr);
   switch (__act) {
     case LayerBase::activationType::tanh:
@@ -414,29 +489,64 @@ inline void LinearModel::addDense(
     case LayerBase::activationType::sigmoid:
       alpha->setAct(dynamic_cast<LayerBase *>(new Sigmoid));
       break;
+    case LayerBase::activationType::relu:
+      alpha->setAct(dynamic_cast<LayerBase *>(new ReLU));
+      break;
+    case LayerBase::activationType::leakyRelu:
+      alpha->setAct(
+          dynamic_cast<LayerBase *>(new ReLU<static_cast<FloatType>(0.01)>));
+      break;
     default:
       LOG("B:unsupport activation function");
+      endOfMainFunction();
       break;
   }
-  std::string str;
-  auto size = hiddenL_.size();
   switch (__init) {
     case Dense::initialType::readFile:
-      DEBUG(__init);
-      file_io::numToString(str, size);
-      str = myName_ + str.substr(1);
-      if (!alpha->read(str, weightFile_)) {
-        LOG("E:bad read");
-      }
+      [&] {
+        std::string str;
+        auto size = hiddenL_.size();
+        file_io::numToString(str, size);
+        str = myName_ + str.substr(1);
+        if (!alpha->read(str, weightFile_)) {
+          LOG("E:bad read");
+        }
+      }();
       break;
     case Dense::initialType::simpleUniform:
       alpha->init(basic_math::uniformRand<FloatType>, FloatType(-0.1),
                   FloatType(0.1));
       break;
+    case Dense::initialType::glorotUniform:
+      [&] {
+        FloatType limit = std::sqrt((FloatType)6 / (temp_ + __cores));
+        alpha->init(basic_math::uniformRand<FloatType>, limit * (-1), limit);
+      }();
+      break;
+    case Dense::initialType::glorotNormal:
+      [&] {
+        FloatType varient = (FloatType)2 / (temp_ + __cores);
+        alpha->init(basic_math::normalRand<FloatType>, (FloatType)0, varient);
+      }();
+      break;
+    case Dense::initialType::heUniform:
+      [&] {
+        FloatType limit = std::sqrt((FloatType)6 / temp_);
+        alpha->init(basic_math::uniformRand<FloatType>, limit * (-1), limit);
+      }();
+      break;
+    case Dense::initialType::heNormal:
+      [&] {
+        FloatType varient = (FloatType)2 / temp_;
+        alpha->init(basic_math::normalRand<FloatType>, (FloatType)0, varient);
+      }();
+      break;
     default:
       LOG("B:unsupport initial type");
+      endOfMainFunction();
       break;
   }
+  temp_ = __cores;
   hiddenL_.push_back(dynamic_cast<LayerBase *>(alpha));
 }
 inline bool LinearModel::forward() noexcept {
@@ -446,8 +556,7 @@ inline bool LinearModel::forward() noexcept {
     hiddenL_[i]->forward(operand_[0]);
   return true;
 }
-inline const OperateType &LinearModel::loss(
-    bool const &__skip = false) noexcept {
+inline FloatType LinearModel::loss(bool const &__skip = false) noexcept {
   LOG("C:loss of Linear Model");
   outputL_->forward(outFile_, operand_[1]);
   if (operand_[2]) delete operand_[2];
@@ -457,10 +566,11 @@ inline const OperateType &LinearModel::loss(
     auto beta = dynamic_cast<lina_lg::MatrixF *>(operand_[1]);
     temp_ += static_cast<size_t>(((*alpha) * (*beta)).sum());
   }
-  if (__skip) return static_cast<OperateType>(nullptr);
+  if (__skip) return static_cast<FloatType>(0);
   delete operand_[2];
   operand_[2] = lossF_(operand_[1], operand_[0]);
-  return operand_[2];
+  auto alpha = dynamic_cast<lina_lg::VectorF *>(operand_[2]);
+  return alpha->sum() / alpha->size();
 }
 inline void LinearModel::backward() noexcept {
   LOG("C:backward of Linead Model");
