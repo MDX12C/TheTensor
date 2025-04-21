@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tensor_next)
+project(tensor_next LANGUAGES CUDA CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -g")
@@ -63,3 +63,4 @@ add_test_executable(maker_network test/datas_maker.cc)
 add_test_executable(data_reader test/data_reader.cc)
 add_test_executable(model test/model.cc)
 add_test_executable(test_random test/test_random.cc)
+add_executable(cuda_test test/cuda_test.cu)
