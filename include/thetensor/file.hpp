@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef FILE_H
-#define FILE_H 1
+#ifndef FILE_HH
+#define FILE_HH 1
 #include "basic.hpp"
 // the suppurt space, don't touch it
 namespace file_io {

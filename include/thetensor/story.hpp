@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef STORY_H
-#define STORY_H 1
+#ifndef STORY_HH
+#define STORY_HH 1
 #include "basic.hpp"
 #include "memory.hpp"
 namespace storage {

@@ -1,7 +1,7 @@
 #include "thetensor/log.hpp"
 
 #include "thetensor/define.hpp"
-#if LOG_H
+#if LOG_HH
 namespace log_file {
 const char* const CARRY_ARRAY = "0123456789ABCDEF";
 std::string TEMP_STRING;
