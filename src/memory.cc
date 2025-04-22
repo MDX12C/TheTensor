@@ -1,7 +1,7 @@
 #include "thetensor/memory.hpp"
 
 #include "thetensor/define.hpp"
-#if MEMORY_H
+#if MEMORY_HH
 namespace memory_manage {
 size_t MemorySupport::blocks_ = 0;
 std::set<storage::StoryBase*> MemorySupport::zone_;

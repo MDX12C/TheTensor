@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef VECTOR_H
-#define VECTOR_H 1
+#ifndef VECTOR_HH
+#define VECTOR_HH 1
 #include "basic.hpp"
 #include "memory.hpp"
 #include "story.hpp"

@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef MEMORY_H
-#define MEMORY_H 1
+#ifndef MEMORY_HH
+#define MEMORY_HH 1
 #include <set>
 
 #include "basic.hpp"
@@ -31,5 +31,5 @@ class MemorySupport {
 };
 }  // namespace memory_manage
 
-#define MEMORY_CON memory_manage::MemorySupport::init();
+#define MEMORY_HH_CON memory_manage::MemorySupport::init();
 #endif

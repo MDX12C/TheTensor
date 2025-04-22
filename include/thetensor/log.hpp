@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef LOG_H
-#define LOG_H 1
+#ifndef LOG_HH
+#define LOG_HH 1
 #include <chrono>
 #include <cmath>
 #include <cstdarg>
@@ -332,7 +332,7 @@ inline void cut(const char* const& __str) noexcept {
 /**
  * the initalize of the logfile, please use it in the front of main function
  */
-#define LOG_CON                                                                \
+#define LOG_HH_CON                                                             \
   do {                                                                         \
     log_file::logInit();                                                       \
     log_file::LogSupport::mainBuffer = new char[log_file::BUFFER_LENTH];       \
@@ -345,5 +345,5 @@ inline void cut(const char* const& __str) noexcept {
     log_file::LogSupport::queueLock.unlock();                                  \
   } while (false);
 
-#define LOG_DES(X) log_file::logPack(X);
+#define LOG_HH_DES(X) log_file::logPack(X);
 #endif
