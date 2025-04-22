@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef RANDOM_H
-#define RANDOM_H 1
+#ifndef RANDOM_HH
+#define RANDOM_HH 1
 #include "log.hpp"
 
 namespace basic_math {
@@ -78,5 +78,5 @@ inline U binomialRand(U const& __times, float_t const& __probability) {
 /**
  * @warning don't use it
  */
-#define RANDOM_CON basic_math::RandomSupport::init();
+#define RANDOM_HH_CON basic_math::RandomSupport::init();
 #endif

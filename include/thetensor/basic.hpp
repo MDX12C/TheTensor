@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef BASIC_H
-#define BASIC_H 1
+#ifndef BASIC_HH
+#define BASIC_HH 1
 
 #include "log.hpp"
 #include "random.hpp"
@@ -332,7 +332,7 @@ class StoryBase {
 /**
  * @warning don't use it
  */
-#define BASIC_CON system_message::Status::init();
+#define BASIC_HH_CON system_message::Status::init();
 
 #if __DEBUG_MODE__
 #define __DEBUG(X)                        \

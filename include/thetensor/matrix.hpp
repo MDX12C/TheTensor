@@ -1,6 +1,6 @@
 #include "define.hpp"
-#ifndef MATRIX_H
-#define MATRIX_H 1
+#ifndef MATRIX_HH
+#define MATRIX_HH 1
 #include "basic.hpp"
 #include "story.hpp"
 namespace lina_lg {

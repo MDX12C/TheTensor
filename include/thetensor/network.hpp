@@ -1,6 +1,6 @@
 ﻿#include "define.hpp"
-#ifndef NETWORK_H
-#define NETWORK_H 1
+#ifndef NETWORK_HH
+#define NETWORK_HH 1
 #include "basic.hpp"
 #include "file.hpp"
 #include "log.hpp"

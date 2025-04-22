@@ -1,33 +1,6 @@
-#ifndef DEFINE_H
-#define DEFINE_H 1
-
-/*constants*/
-// #define DEBUG_MODE 1
-// #define SPEED_MODE 1
-// #define F16 1
-// #define LIMIT_MODE 1
-
-/*constants control*/
-#ifndef DEBUG_MODE
-#define __DEBUG_MODE__ 0
-#else
-#define __DEBUG_MODE__ 1
-#endif
-#ifndef SPEED_MODE
-#define __SPEED_MODE__ 0
-#else
-#define __SPEED_MODE__ 1
-#endif
-#ifndef F16
-#define __F16__ 0
-#else
-#define __F16__ 1
-#endif
-#ifndef LIMIT_MODE
-#define __LIMIT_MODE__ 0
-#else
-#define __LIMIT_MODE__ 1
-#endif
+#include "define.h"
+#ifndef DEFINE_HH
+#define DEFINE_HH 1
 
 /*control block*/
 #ifndef __GNUC__
@@ -38,8 +11,6 @@ using FloatType = __fp16;
 #else
 using FloatType = float;
 #endif
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 #include <atomic>
 #include <cfloat>
@@ -72,8 +43,8 @@ inline constexpr bool support = the_type_is_absolute_supportable<T>::value;
 template <typename T>
 struct the_type_is_relative_longer {
   static constexpr bool value =
-      (std::is_same_v<T, unsigned long long> | std::is_same_v<T, long long> |
-       std::is_same_v<T, double>);
+      (std::is_same_v<T, uint64_t> | std::is_same_v<T, int64_t> |
+       std::is_same_v<T, double_t>);
 };
 template <typename T>
 inline constexpr bool longer = the_type_is_relative_longer<T>::value;
@@ -112,4 +83,4 @@ class Error final : public std::exception {
 
 }  // namespace system_message
 
-#endif  // DEFINE_H
+#endif  // DEFINE_HH
