@@ -10,6 +10,7 @@
 #include "thetensor/matrix.hpp"
 #include "thetensor/memory.hpp"
 #include "thetensor/network.hpp"
+#include "thetensor/parallel.h"
 #include "thetensor/random.hpp"
 #include "thetensor/story.hpp"
 #include "thetensor/vector.hpp"
