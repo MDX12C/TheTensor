@@ -2,9 +2,17 @@
 typedef int32_t Type;
 signed main() {
   CONSTRUCT;
-  constexpr size_t TEST_SIZE = 1024;
+  size_t TEST_SIZE = 512;
   std::cout << "THREADS= " << THREADS << " BLOCKS= " << BLOCKS
-            << " GROUP= " << GROUP << std::endl;
+            << " GROUP= " << GROUP;
+  TEST_SIZE = []() -> size_t {
+    int a = -1;
+    do {
+      std::cout << "\nput test size: ";
+      std::cin >> a;
+    } while (a <= 0);
+    return size_t(a);
+  }();
   auto alpha = new Type[TEST_SIZE];
   auto beta = new Type[TEST_SIZE];
   auto gamma = new Type[TEST_SIZE];

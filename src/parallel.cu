@@ -1,4 +1,5 @@
 #include "thetensor/define.h"
+#include "thetensor/parallel.cuh"
 
 #ifdef __cplusplus
 extern "C"{
@@ -15,7 +16,8 @@ __global__ void __vv_add_i32(int32_t* __a, int32_t* __b, int32_t* __c, size_t __
       __c[i] = __a[i] + __b[i];
   return;
 }
-inline void vv_add_i32(int32_t* __a, int32_t* __b, int32_t* __c, size_t __size) {
+// the add of int32_t in vector to vector
+void vv_add_i32(int32_t* __a, int32_t* __b, int32_t* __c, size_t __size) {
   if (__size > GROUP) {
     size_t tuple = __size % GROUP ? __size / GROUP + 1 : __size / GROUP;
     size_t tuples = __size % tuple ? __size / tuple + 1 : __size / tuple;
@@ -27,6 +29,7 @@ inline void vv_add_i32(int32_t* __a, int32_t* __b, int32_t* __c, size_t __size) 
   } else {
     __vv_add_i32<<<1, __size>>>(__a, __b, __c, __size);
   }
+  cudaDeviceSynchronize();
   return;
 }
 
