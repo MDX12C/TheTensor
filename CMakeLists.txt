@@ -42,7 +42,6 @@ include_directories(
 add_library(basic_hpp STATIC src/basic.cc)
 add_library(memory_maintainer STATIC src/memory.cc)
 add_library(logger STATIC src/log.cc)
-add_library(rom STATIC src/rom.cc)
 add_library(random STATIC src/random.cc)
 add_library(parallel STATIC src/parallel.cu)
 

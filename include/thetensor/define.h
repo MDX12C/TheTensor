@@ -42,6 +42,7 @@
 extern "C" {
 #endif
 inline void checkBaseType() {
+  bool b __attribute__((__unused__));
   int8_t i8 __attribute__((__unused__));
   int16_t i16 __attribute__((__unused__));
   int32_t i32 __attribute__((__unused__));
@@ -60,9 +61,7 @@ inline void checkBaseType() {
          sizeof(double_t));
   return;
 }
-#define THREADS (1024UL)
-#define BLOCKS (1024UL)
-#define GROUP (THREADS * BLOCKS)
+
 #ifdef __cplusplus
 }
 #endif
