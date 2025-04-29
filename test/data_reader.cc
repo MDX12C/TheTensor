@@ -16,6 +16,7 @@ signed main() {
   // check for mnist file
   system_message::Status::refresh("check for mnist file");
   system_message::Status::print();
+  auto stringBuffer = new char[512];
   std::string fileFolder = "/../datas/mnist";
   fileFolder = std::filesystem::current_path().string() + fileFolder;
   std::cout << "fileFolder is: " << fileFolder << '\n';
@@ -68,10 +69,13 @@ signed main() {
   } while (!pcs);
   system_message::Status::announce("train images");
   for (size_t times = 0; times < pcs; times++) {
-    printf("writing [train images] (%ld,%ld)\n", times + 1, pcs);
+    sprintf(stringBuffer, "train images [%5ld,%5ld]", times + 1, pcs);
+    system_message::Status::bar(times, pcs, stringBuffer);
     imgFunc(file.training_images[times]);
     if (!writingFile.write(temp.begin(), drcc::LENTH)) endOfMainFunction();
   }
+  system_message::Status::bar(1, 1, stringBuffer);
+  std::cout << '\n';
   writingFile.switchMode();
   // write [train labels]
   temp.resize(drcc::OUT);
@@ -79,10 +83,13 @@ signed main() {
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   system_message::Status::announce("train labels");
   for (size_t times = 0; times < pcs; times++) {
-    printf("writing [train labels] (%ld,%ld)\n", times + 1, pcs);
+    sprintf(stringBuffer, "train labers [%5ld,%5ld]", times + 1, pcs);
+    system_message::Status::bar(times, pcs, stringBuffer);
     lbFunc(file.training_labels[times]);
     if (!writingFile.write(temp.begin(), drcc::OUT)) endOfMainFunction();
   }
+  system_message::Status::bar(1, 1, stringBuffer);
+  std::cout << '\n';
   writingFile.switchMode();
   // ask user to add test part
   [] {
@@ -104,10 +111,13 @@ signed main() {
   } while (!pcs);
   system_message::Status::announce("test images");
   for (size_t times = 0; times < pcs; times++) {
-    printf("writing [test images] (%ld,%ld)\n", times + 1, pcs);
+    sprintf(stringBuffer, "test images [%5ld,%5ld]", times + 1, pcs);
+    system_message::Status::bar(times, pcs, stringBuffer);
     imgFunc(file.test_images[times]);
     if (!writingFile.write(temp.begin(), drcc::LENTH)) endOfMainFunction();
   }
+  system_message::Status::bar(1, 1, stringBuffer);
+  std::cout << '\n';
   writingFile.switchMode();
   // write [test labels]
   temp.resize(drcc::OUT);
@@ -115,12 +125,15 @@ signed main() {
   writingFile.switchMode(file_io::FileIOOrdered::writing);
   system_message::Status::announce("test labels");
   for (size_t times = 0; times < pcs; times++) {
-    printf("writing [test labels] (%ld,%ld)\n", times + 1, pcs);
+    sprintf(stringBuffer, "test labels [%5ld,%5ld]", times + 1, pcs);
+    system_message::Status::bar(times, pcs, stringBuffer);
     lbFunc(file.test_labels[times]);
     if (!writingFile.write(temp.begin(), drcc::OUT)) endOfMainFunction();
   }
+  system_message::Status::bar(1, 1, stringBuffer);
+  std::cout << '\n';
   writingFile.switchMode();
-
+  delete[] stringBuffer;
   DESTRUCT;
   return 0;
 }
