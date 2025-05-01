@@ -6,6 +6,7 @@
 // #define SPEED_MODE 1
 // #define F16 1
 // #define LIMIT_MODE 1
+// #define CUDA_MODE
 
 /*constants control*/
 #ifndef DEBUG_MODE
@@ -27,6 +28,11 @@
 #define __LIMIT_MODE__ 0
 #else
 #define __LIMIT_MODE__ 1
+#endif
+#ifndef CUDA_MODE
+#define __CUDA_MODE__ 0
+#else
+#define __CUDA_MODE__ 1
 #endif
 
 #include <float.h>

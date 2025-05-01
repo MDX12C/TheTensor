@@ -8,6 +8,7 @@ option(debugMode "Debug Mode?" OFF)
 option(speedMode "Speed Mode?" OFF)
 option(f16Mode "Use Float 16?" OFF)
 option(limitMode "Limit?" OFF)
+option(cudaMode "Cuda?" OFF)
 
 if(debugMode)
 message("### In DEBUG MODE ###")
@@ -33,6 +34,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLIMIT_MODE")
 else()
 message("### UNLIMIT ###")
 endif()
+if(cudaMode)
+message("### CUDA ON ###")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCUDA_MODE")
+else()
+message("### CUDA OFF ###")
+endif()
 
 include_directories(
     include
@@ -49,7 +56,6 @@ function(add_test_executable target source)
     add_executable(${target} ${source})
     target_link_libraries(${target} 
         PRIVATE logger memory_maintainer basic_hpp random parallel
-        PUBLIC  rom
     )
 endfunction()
 
@@ -65,4 +71,4 @@ add_test_executable(data_reader test/data_reader.cc)
 add_test_executable(model test/model.cc)
 add_test_executable(test_random test/test_random.cc)
 add_test_executable(test_parallel test/test_parallel.cc)
-add_executable(cuda_test test/cuda_test.cu)
+add_test_executable(cuda_test test/cuda_test.cc)
