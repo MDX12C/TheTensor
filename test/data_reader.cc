@@ -100,7 +100,7 @@ signed main() {
     if (c != 'y') endOfMainFunction();
   }();
   // write [test images]
-  system_message::Status::refresh("write training files");
+  system_message::Status::refresh("write testing files");
   system_message::Status::print();
   pcs = 0;
   temp.resize(drcc::LENTH);
