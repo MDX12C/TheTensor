@@ -1,5 +1,12 @@
 #include "interface.hpp"
 
+#define TEST_ADD 0
+#define TEST_MNS 0
+#define TEST_MUL 0
+#define TEST_DIV 0
+#define TEST_SUM 0
+#define TEST_DOT 1
+
 size_t stressLevel__;
 template <typename T>
 inline bool check(T* const&, T* const&, size_t const&) noexcept;
@@ -33,6 +40,7 @@ signed main() {
     return size_t(a);
   };
   // ###############################################################
+#if TEST_ADD
   system_message::Status::refresh("Test for add function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -64,7 +72,9 @@ signed main() {
   testAdd<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testAdd<double_t>(TEST_SIZE);
+#endif
   // ###############################################################
+#if TEST_MNS
   system_message::Status::refresh("Test for minus function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -96,7 +106,9 @@ signed main() {
   testMns<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testMns<double_t>(TEST_SIZE);
-  // ###############################################################
+#endif
+// ###############################################################
+#if TEST_MUL
   system_message::Status::refresh("Test for mutiple function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -128,7 +140,9 @@ signed main() {
   testMul<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testMul<double_t>(TEST_SIZE);
-  // ###############################################################
+#endif
+// ###############################################################
+#if TEST_DIV
   system_message::Status::refresh("Test for divide function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -160,7 +174,9 @@ signed main() {
   testDiv<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testDiv<double_t>(TEST_SIZE);
-  // ###############################################################
+#endif
+// ###############################################################
+#if TEST_SUM
   system_message::Status::refresh("Test for Horizontal and Vertical Sum", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -192,7 +208,9 @@ signed main() {
   testHV<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testHV<double_t>(TEST_SIZE);
-  // ###############################################################
+#endif
+// ###############################################################
+#if TEST_DOT
   system_message::Status::refresh("Test for matrix dot", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
@@ -224,6 +242,7 @@ signed main() {
   testDot<float_t>(TEST_SIZE);
   system_message::Status::announce("double");
   testDot<double_t>(TEST_SIZE);
+#endif
   // ###############################################################
   DESTRUCT;
 }

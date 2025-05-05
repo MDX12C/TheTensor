@@ -2393,6 +2393,25 @@ void dot_d(double_t* __a, double_t* __b, double_t* __c, size_t __row, size_t __l
 }
 //#####################################################################################################################
 
+clock_t test_for_vram(float_t* __a, float_t* __b, float_t* __c, size_t __size) {
+  float_t *deviceA, *deviceB, *deviceC;
+  auto size = __size * sizeof(float_t);
+  clock_t first, second;
+  cudaMalloc(&deviceA, size);
+  cudaMalloc(&deviceB, size);
+  cudaMalloc(&deviceC, size);
+  cudaMemcpy(deviceA, __a, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceB, __b, size, cudaMemcpyHostToDevice);
+  first = clock();
+  vv_add_f(deviceA, deviceB, deviceC, __size);
+  second = clock();
+  cudaMemcpy(__c, deviceC, size, cudaMemcpyDeviceToHost);
+  cudaFree(deviceA);
+  cudaFree(deviceB);
+  cudaFree(deviceC);
+  return second - first;
+}
+
 #ifdef __cplusplus
 }
 #endif

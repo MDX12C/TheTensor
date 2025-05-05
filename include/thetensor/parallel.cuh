@@ -156,6 +156,8 @@ void dot_u64(uint64_t*, uint64_t*, uint64_t*, size_t, size_t, size_t);
 void dot_f(float_t*, float_t*, float_t*, size_t, size_t, size_t);
 void dot_d(double_t*, double_t*, double_t*, size_t, size_t, size_t);
 
+clock_t test_for_vram(float_t* __a, float_t* __b, float_t* __c, size_t __size);
+
 #ifdef __cplusplus
 }
 #endif
