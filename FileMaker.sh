@@ -58,5 +58,19 @@ else
 fi
 break
 done
+PS3="Open Cuda:"
+select mode in OFF ON
+do
+if [ $REPLY -gt 2 ]; then
+  echo "undefined mode"
+  continue;
+fi
+if [ $REPLY == 1 ]; then 
+  ComMode="$ComMode -DcudaMode=OFF"
+else
+  ComMode="$ComMode -DcudaMode=ON"
+fi
+break
+done
 cmake $ComMode ..
 make
