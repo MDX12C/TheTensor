@@ -156,16 +156,16 @@ template <typename T>
 inline lina_lg::Vector<T> uniformRand(size_t const&, T const&,
                                       T const&) noexcept;
 template <typename T>
-inline lina_lg::Vector<T> absolute(lina_lg::Vector<T>&) noexcept;
+inline lina_lg::Vector<T> absolute(lina_lg::Vector<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Vector<T> pow(lina_lg::Vector<T>&, T const&) noexcept;
+inline lina_lg::Vector<T> pow(lina_lg::Vector<T> const&, T const&) noexcept;
 template <typename T>
-inline lina_lg::Vector<T> pow(T const&, lina_lg::Vector<T>&) noexcept;
+inline lina_lg::Vector<T> pow(T const&, lina_lg::Vector<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Vector<T> pow(lina_lg::Vector<T>&,
-                              lina_lg::Vector<T>&) noexcept;
+inline lina_lg::Vector<T> pow(lina_lg::Vector<T> const&,
+                              lina_lg::Vector<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Vector<T> log(lina_lg::Vector<T>&) noexcept;
+inline lina_lg::Vector<T> log(lina_lg::Vector<T> const&) noexcept;
 }  // namespace basic_math
 
 namespace lina_lg {
@@ -776,7 +776,8 @@ inline lina_lg::Vector<T> uniformRand(size_t const& __size, T const& __min,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Vector<T> absolute(lina_lg::Vector<T>& __vector) noexcept {
+inline lina_lg::Vector<T> absolute(
+    lina_lg::Vector<T> const& __vector) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   for (auto& i : result) i = std::abs(i);
@@ -790,7 +791,7 @@ inline lina_lg::Vector<T> absolute(lina_lg::Vector<T>& __vector) noexcept {
  * @throw none
  */
 template <typename T>
-inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __vector,
+inline lina_lg::Vector<T> pow(lina_lg::Vector<T> const& __vector,
                               T const& __exponent) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
@@ -809,7 +810,7 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __vector,
  */
 template <typename T>
 inline lina_lg::Vector<T> pow(T const& __base,
-                              lina_lg::Vector<T>& __vector) noexcept {
+                              lina_lg::Vector<T> const& __vector) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   if (__base > static_cast<T>(0))
@@ -828,8 +829,8 @@ inline lina_lg::Vector<T> pow(T const& __base,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __base,
-                              lina_lg::Vector<T>& __exponent) noexcept {
+inline lina_lg::Vector<T> pow(lina_lg::Vector<T>const& __base,
+                              lina_lg::Vector<T>const& __exponent) noexcept {
   LOG("C:pow to Vector");
   if (__base.size() != __exponent.size()) {
     LOG("E:unmatch size");
@@ -852,7 +853,7 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>& __base,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Vector<T> log(lina_lg::Vector<T>& __vector) noexcept {
+inline lina_lg::Vector<T> log(lina_lg::Vector<T>const& __vector) noexcept {
   LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   for (auto& i : result)

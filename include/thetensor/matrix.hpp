@@ -255,19 +255,19 @@ template <typename T>
 inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const&, T const&,
                                       T const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>&, T const&) noexcept;
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const&, T const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> pow(T const&, lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> pow(T const&, lina_lg::Matrix<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>&,
-                              lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const&,
+                              lina_lg::Matrix<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> log(lina_lg::Matrix<T> const&) noexcept;
 template <typename T>
-inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T>&,
-                              lina_lg::Matrix<T>&) noexcept;
+inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T> const&,
+                              lina_lg::Matrix<T> const&) noexcept;
 }  // namespace basic_math
 namespace lina_lg {
 /**
@@ -985,7 +985,8 @@ inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const& __shape,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> absolute(
+    lina_lg::Matrix<T> const& __matrix) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   for (auto& i : result) i = std::abs(i);
@@ -999,7 +1000,7 @@ inline lina_lg::Matrix<T> absolute(lina_lg::Matrix<T>& __matrix) noexcept {
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __matrix,
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __matrix,
                               T const& __exponent) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
@@ -1018,7 +1019,7 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __matrix,
  */
 template <typename T>
 inline lina_lg::Matrix<T> pow(T const& __base,
-                              lina_lg::Matrix<T>& __matrix) noexcept {
+                              lina_lg::Matrix<T> const& __matrix) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   if (__base > static_cast<T>(0))
@@ -1036,7 +1037,7 @@ inline lina_lg::Matrix<T> pow(T const& __base,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>& __matrix) noexcept {
+inline lina_lg::Matrix<T> log(lina_lg::Matrix<T> const& __matrix) noexcept {
   LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   for (auto& i : result)
@@ -1056,8 +1057,8 @@ inline lina_lg::Matrix<T> log(lina_lg::Matrix<T>& __matrix) noexcept {
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __base,
-                              lina_lg::Matrix<T>& __exponent) noexcept {
+inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __base,
+                              lina_lg::Matrix<T> const& __exponent) noexcept {
   LOG("C:pow to Matrix");
   if (__base.shape() != __exponent.shape()) {
     LOG("E:unmatch shape");
@@ -1081,8 +1082,8 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T>& __base,
  * @throw none
  */
 template <typename T>
-inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T>& __alpha,
-                              lina_lg::Matrix<T>& __beta) noexcept {
+inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T> const& __alpha,
+                              lina_lg::Matrix<T> const& __beta) noexcept {
   LOG("C:dot to Matrix");
   if (__alpha.shape().col_ != __beta.shape().row_) {
     LOG("E:bad size for dot");

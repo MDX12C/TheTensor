@@ -26,14 +26,14 @@ concept _Int = (!std::is_floating_point_v<T>) && basic_math::support<T>;
 /**
  * @brief retrun if the character is [digits,dot,plus,minus]
  */
-inline bool isNumber(char const& __c) noexcept {
+constexpr bool isNumber(char const& __c) noexcept {
   return ((__c >= '0') && (__c <= '9')) || (__c == '+') || (__c == '-') ||
          (__c == '.');
 }
 /**
  * @brief retrun if the character is [alphabet,blank,underline,digit]
  */
-inline bool isAlphabet(char const& __c) noexcept {
+constexpr bool isAlphabet(char const& __c) noexcept {
   return ((__c >= 'A') && (__c <= 'Z')) || ((__c >= 'a') && (__c <= 'z')) ||
          (__c == ' ') || (__c == '_') || ((__c >= '0') && (__c <= '9'));
 }
@@ -82,12 +82,9 @@ inline std::string& numToString(std::string& __str, T& __num) noexcept {
     __str[0] = '-';
     num *= static_cast<T>(-1);
   }
-  DEBUG(num);
   unsigned long long intPart = static_cast<unsigned long long>(std::floor(num));
   num -= static_cast<T>(intPart);
   unsigned long long floatPart = num * std::pow(10, IO_ACC);
-  DEBUG(intPart);
-  DEBUG(floatPart);
   size_t i = __str.size() - 1;
   for (size_t w = 0; w < IO_ACC; w++) {
     __str[i] = static_cast<char>((floatPart % 10) + '0');
@@ -137,12 +134,10 @@ inline T& stringToNum(std::string& __str, T& __num) noexcept {
     __num /= static_cast<T>(10);
     i--;
   }
-  DEBUG(__num);
   for (size_t w = 1; w < i; w++) {
     interPart *= 10;
     interPart += static_cast<float>(__str[w] - '0');
   }
-  DEBUG(interPart);
   __num += static_cast<T>(interPart);
   if constexpr (std::is_signed_v<T>)
     if (__str[0] == '-') __num *= static_cast<T>(-1);
@@ -296,10 +291,8 @@ inline bool FileIO::find(std::string& __str) {
             break;
           }
         }
-        DEBUG(s);
         unsigned long long size;
         stringToNum(s, size);
-        DEBUG(size);
         fileSelf_.seekg(size, std::ios::beg);
         return true;
       } else {
