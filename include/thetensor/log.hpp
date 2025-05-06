@@ -42,7 +42,7 @@ constexpr int WHOLE_NUMBER = std::pow(CARRY, FILE_DIGITS);
 
 extern const char* const CARRY_ARRAY;
 extern std::string TEMP_STRING;
-inline int8_t prioirty(const char* const& alpha) {
+constexpr int8_t prioirty(const char* const& alpha) {
   if (alpha[0] == 'L') {
     if ((alpha[1] == '1') || (alpha[1] == '2')) return int8_t(0);
     if ((alpha[1] == '3') || (alpha[1] == '4')) return int8_t(8);
@@ -285,7 +285,7 @@ inline bool checkAlive() noexcept {
     }
   }
 }
-inline void cut(const char* const& __str) noexcept {
+constexpr void cut(const char* const& __str) noexcept {
   TEMP_STRING = __str;
   TEMP_STRING = TEMP_STRING.substr(TEMP_STRING.find_last_of('/') + 1);
 }

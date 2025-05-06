@@ -186,12 +186,12 @@ class Status {
    * @return the sequence now
    * @throw none
    */
-  static inline size_t blocks() noexcept { return Status::blocks_; }
+  static constexpr size_t blocks() noexcept { return Status::blocks_; }
   /**
    * @return the progress now
    * @throw none
    */
-  static inline std::string progress() noexcept { return Status::progress_; }
+  static constexpr std::string progress() noexcept { return Status::progress_; }
   /**
    * @warning don't use it directly
    */
@@ -289,7 +289,7 @@ constexpr FloatType EXPRISION = std::numbers::e_v<FloatType>;
  * @throws None
  */
 template <typename U>
-inline size_t intDigits(U const& __alpha) noexcept(support<U>) {
+constexpr size_t intDigits(U const& __alpha) noexcept(support<U>) {
   LOG("C:intDigits");
   if constexpr (support<U>) {
     if constexpr (std::is_same_v<U, bool>) return size_t(1);

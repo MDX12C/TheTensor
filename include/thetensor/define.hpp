@@ -3,13 +3,10 @@
 #define DEFINE_HH 1
 
 /*control block*/
-#ifndef __GNUC__
-#define __attribute__(x)
-#endif
 #if __F16__
 using FloatType = __fp16;
 #else
-using FloatType = float;
+using FloatType = float_t;
 #endif
 
 #include <atomic>
@@ -44,7 +41,7 @@ template <typename T>
 struct the_type_is_relative_longer {
   static constexpr bool value =
       (std::is_same_v<T, uint64_t> | std::is_same_v<T, int64_t> |
-       std::is_same_v<T, double_t>);
+       std::is_same_v<T, double_t> | sizeof(T) >= 8);
 };
 template <typename T>
 inline constexpr bool longer = the_type_is_relative_longer<T>::value;
@@ -69,7 +66,9 @@ class Error final : public std::exception {
   /**
    * @return the c-style string of message
    */
-  inline const char* what() const noexcept override { return message_.c_str(); }
+  constexpr const char* what() const noexcept override {
+    return message_.c_str();
+  }
   /**
    * @brief default constructor
    */

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tensor_next LANGUAGES CUDA CXX)
+project(tensor_next LANGUAGES CUDA CXX C)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -g")
@@ -46,16 +46,17 @@ include_directories(
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
 
-add_library(basic_hpp STATIC src/basic.cc)
-add_library(memory_maintainer STATIC src/memory.cc)
-add_library(logger STATIC src/log.cc)
-add_library(random STATIC src/random.cc)
-add_library(parallel STATIC src/parallel.cu)
+add_library(basic_CC STATIC src/basic.cc)
+add_library(memory_CC STATIC src/memory.cc)
+add_library(log_CC STATIC src/log.cc)
+add_library(random_CC STATIC src/random.cc)
+add_library(define_C STATIC src/define.c)
+add_library(parallel_CU STATIC src/parallel.cu)
 
 function(add_test_executable target source)
     add_executable(${target} ${source})
     target_link_libraries(${target} 
-        PRIVATE logger memory_maintainer basic_hpp random parallel
+        PRIVATE log_CC memory_CC basic_CC random_CC parallel_CU define_C
     )
 endfunction()
 
