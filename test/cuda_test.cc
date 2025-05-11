@@ -56,5 +56,6 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
     }
   }
   system_message::Status::bar(1, 1);
+  printf("Operate Success!\n");
   return true;
 }
