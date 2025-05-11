@@ -28,6 +28,15 @@ class Story : public StoryBase {
   inline virtual size_t capacity() const noexcept override {
     return this->size_ * sizeof(T);
   }
+  inline virtual std::string type() const noexcept override {
+    std::string ret = "SC00";
+    if constexpr (std::is_floating_point_v<T>)
+      ret[2] = 'F';
+    else
+      ret[2] = 'I';
+    ret[3] += static_cast<char>(std::log2(sizeof(T)));
+    return ret;
+  }
   inline virtual bool resize(size_t const&);
   inline virtual bool load(size_t const&, T* const&);
   inline virtual void freedom() noexcept;

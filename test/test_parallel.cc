@@ -1,10 +1,10 @@
 #include "interface.hpp"
 
-#define TEST_ADD 0
-#define TEST_MNS 0
-#define TEST_MUL 0
-#define TEST_DIV 0
-#define TEST_SUM 0
+#define TEST_ADD 1
+#define TEST_MNS 1
+#define TEST_MUL 1
+#define TEST_DIV 1
+#define TEST_SUM 1
 #define TEST_DOT 1
 
 size_t stressLevel__;

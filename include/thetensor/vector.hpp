@@ -46,6 +46,15 @@ class Vector final : public storage::Story<T> {
   Vector(Vector const&) noexcept(basic_math::support<T>);
   Vector(Vector&&) noexcept(basic_math::support<T>);
   ~Vector() noexcept;
+  inline virtual std::string type() const noexcept override {
+    std::string ret = "VC00";
+    if constexpr (std::is_floating_point_v<T>)
+      ret[2] = 'F';
+    else
+      ret[2] = 'I';
+    ret[3] += static_cast<char>(std::log2(sizeof(T)));
+    return ret;
+  }
   template <typename U>
   inline operator Vector<U>() const noexcept(basic_math::support<T>) {
     LOG("C:cast operator of Vector");

@@ -124,6 +124,15 @@ class Matrix final : public storage::Story<T> {
   Matrix(Matrix const&) noexcept(basic_math::support<T>);
   Matrix(Matrix&&) noexcept(basic_math::support<T>);
   ~Matrix() noexcept;
+  inline virtual std::string type() const noexcept override {
+    std::string ret = "MC00";
+    if constexpr (std::is_floating_point_v<T>)
+      ret[2] = 'F';
+    else
+      ret[2] = 'I';
+    ret[3] += static_cast<char>(std::log2(sizeof(T)));
+    return ret;
+  }
 
   inline MatrixShape shape() const noexcept { return this->shape_; }
   inline bool resize(MatrixShape const&) noexcept;

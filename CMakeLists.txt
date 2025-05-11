@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(tensor_next LANGUAGES CUDA CXX C)
 
+include_directories(
+    include
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -g -w")
+set(CMAKE_CUDA_ARCHITECTURES 80)
+set(CMAKE_CUDA_STANDARD 14)
 
 option(debugMode "Debug Mode?" OFF)
 option(speedMode "Speed Mode?" OFF)
@@ -41,10 +47,6 @@ else()
 message("### CUDA OFF ###")
 endif()
 
-include_directories(
-    include
-    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-)
 
 add_library(basic_CC STATIC src/basic.cc)
 add_library(memory_CC STATIC src/memory.cc)
@@ -73,3 +75,4 @@ add_test_executable(model test/model.cc)
 add_test_executable(test_random test/test_random.cc)
 add_test_executable(test_parallel test/test_parallel.cc)
 add_test_executable(cuda_test test/cuda_test.cc)
+add_test_executable(test_memory test/test_memory.cc)

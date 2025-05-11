@@ -17,7 +17,8 @@ void MemorySupport::displayUsage(std::ostream& __output) noexcept {
     __output << '\n';
     for (auto i = 0; i < log_file::DOCS_WIDE; i++) __output << '-';
 
-    __output << "\nid: " << (void*)item << "\nsize: " << item->size()
+    __output << "\nid: " << (void*)item << "\ntype: " << item->type()
+             << "\nsize: " << item->size()
              << "\ncapacity: " << item->capacity();
     total += item->capacity();
   }

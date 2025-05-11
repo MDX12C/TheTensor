@@ -327,6 +327,11 @@ class StoryBase {
    * @return the memorysize
    */
   inline virtual size_t capacity() const noexcept = 0;
+  /**
+   * @brief the Story Type
+   * @return the type
+   */
+  inline virtual std::string type() const noexcept = 0;
 };
 }  // namespace storage
 /**
