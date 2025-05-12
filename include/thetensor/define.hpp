@@ -46,7 +46,7 @@ struct the_type_is_relative_longer {
 template <typename T>
 inline constexpr bool longer = the_type_is_relative_longer<T>::value;
 }  // namespace basic_math
-namespace system_message {
+namespace system_control {
 class Error final : public std::exception {
  private:
   std::string message_;
@@ -80,6 +80,6 @@ class Error final : public std::exception {
   Error(const char* const __init) noexcept { message_ = __init; }
 };
 
-}  // namespace system_message
+}  // namespace system_control
 
 #endif  // DEFINE_HH

@@ -143,7 +143,7 @@
  * @param type the type of the operands
  */
 #define EDIV(first, second, type) __EDIV((first), (second), type);
-namespace system_message {
+namespace system_control {
 constexpr size_t EXTENTION = 30;
 class Status {
  private:
@@ -276,7 +276,7 @@ class Status {
     return;
   }
 };
-}  // namespace system_message
+}  // namespace system_control
 namespace basic_math {
 constexpr size_t PRINT_ACCURACY = 3;
 constexpr FloatType EXPRISION = std::numbers::e_v<FloatType>;
@@ -301,7 +301,7 @@ constexpr size_t intDigits(U const& __alpha) noexcept(support<U>) {
       return static_cast<size_t>(std::floor(std::log10(__alpha) + 1));
     }
   } else {
-    throw system_message::Error("unsupport type for intDigits");
+    throw system_control::Error("unsupport type for intDigits");
     return size_t(0);
   }
 }
@@ -343,7 +343,7 @@ class StoryBase {
 #define __DEBUG(X)                        \
   do {                                    \
     __LOG;                                \
-    system_message::Status::debug(X, #X); \
+    system_control::Status::debug(X, #X); \
   } while (false);
 #else
 #define __DEBUG(X)

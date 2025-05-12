@@ -1,5 +1,5 @@
 #include "interface.hpp"
-using sys = system_message::Status;
+using sys = system_control::Status;
 #define __ANC(X, ...)                \
   sprintf(buffer, X, ##__VA_ARGS__); \
   sys::announce(buffer);

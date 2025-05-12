@@ -111,11 +111,11 @@ class Matrix final : public storage::Story<T> {
 
  public:
   inline virtual bool resize(size_t const& __temp) override {
-    throw system_message::Error("unsupport function of Matrix");
+    throw system_control::Error("unsupport function of Matrix");
     return false;
   }
   inline virtual bool load(size_t const& __size, T* const& __data) override {
-    throw system_message::Error("unsupport function of Matrix");
+    throw system_control::Error("unsupport function of Matrix");
     return false;
   }
   Matrix() noexcept(basic_math::support<T>);
@@ -145,7 +145,7 @@ class Matrix final : public storage::Story<T> {
     LOG("C:cast operator of Matrix");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
-      throw system_message::Error("unsupport type of Matrix");
+      throw system_control::Error("unsupport type of Matrix");
     }
     if constexpr (std::is_same_v<T, U>) return *this;
     Matrix<U> result(this->shape_);
@@ -591,7 +591,7 @@ Matrix<T> Matrix<T>::operator!() const {
   LOG("C:operator! of Matrix");
   if constexpr (std::is_unsigned_v<T>) {
     LOG("B:the type can't be signed");
-    throw system_message::Error("the type can't be signed");
+    throw system_control::Error("the type can't be signed");
   }
   Matrix<T> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)

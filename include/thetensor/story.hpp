@@ -49,7 +49,7 @@ class Story : public StoryBase {
     LOG("C:cast operator of Story");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
-      throw system_message::Error("unsupport type of Story");
+      throw system_control::Error("unsupport type of Story");
     }
     if constexpr (std::is_same_v<T, U>) return *this;
     Story<U> result(this->size_);
@@ -105,7 +105,7 @@ Story<T>::Story() noexcept(basic_math::support<T>) : StoryBase() {
     return;
   } else {
     LOG("B:unsupport type for Story");
-    throw system_message::Error("unsupport type for Story");
+    throw system_control::Error("unsupport type for Story");
     return;
   }
 }
@@ -119,7 +119,7 @@ Story<T>::Story(size_t const& __lenth) noexcept(basic_math::support<T>)
   LOG("C:Size constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
-    throw system_message::Error("unsupport type for Story");
+    throw system_control::Error("unsupport type for Story");
     return;
   } else {
     memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
@@ -149,7 +149,7 @@ Story<T>::Story(size_t const& __lenth,
   LOG("C:Init constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
-    throw system_message::Error("unsupport type for Story");
+    throw system_control::Error("unsupport type for Story");
     return;
   } else {
     memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
@@ -176,7 +176,7 @@ Story<T>::Story(Story const& __other) noexcept(basic_math::support<T>)
   LOG("C:Copy constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
-    throw system_message::Error("unsupport type for Story");
+    throw system_control::Error("unsupport type for Story");
     return;
   } else {
     memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
@@ -197,7 +197,7 @@ Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
   LOG("C:Move constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
-    throw system_message::Error("unsupport type for Story");
+    throw system_control::Error("unsupport type for Story");
     return;
   }
   memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));

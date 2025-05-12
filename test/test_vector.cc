@@ -1,7 +1,7 @@
 #include "interface.hpp"
 #define SHOW(X) std::cout << #X << " = " << (X) << std::endl;
 
-using sms = system_message::Status;
+using sms = system_control::Status;
 namespace bsm = basic_math;
 namespace ll = lina_lg;
 signed main() {
@@ -31,7 +31,7 @@ signed main() {
     try {
       ll::Vector<char*> omega;
       SHOW(omega);
-    } catch (system_message::Error& __epsilon) {
+    } catch (system_control::Error& __epsilon) {
       __epsilon.print();
     }
   }();
@@ -64,8 +64,8 @@ signed main() {
     alpha.freedom();
     SHOW(alpha);
   }();
-  system_message::Status::refresh("operator overloading for float");
-  system_message::Status::print();
+  system_control::Status::refresh("operator overloading for float");
+  system_control::Status::print();
   [] {
     auto alpha = bsm::uniformRand(10, (float)-10, (float)10);
     auto beta = bsm::uniformRand(10, (float)-10, (float)10);
@@ -85,8 +85,8 @@ signed main() {
     SHOW(alpha);
     SHOW(sigma + alpha);
   }();
-  system_message::Status::refresh("operator overloading for bool");
-  system_message::Status::print();
+  system_control::Status::refresh("operator overloading for bool");
+  system_control::Status::print();
   [] {
     auto alpha = bsm::uniformRand(10, false, true);
     auto beta = bsm::uniformRand(10, false, true);
@@ -97,8 +97,8 @@ signed main() {
     SHOW(alpha * beta);
     SHOW(alpha / beta);
   }();
-  system_message::Status::refresh("compare operator for Vector");
-  system_message::Status::print();
+  system_control::Status::refresh("compare operator for Vector");
+  system_control::Status::print();
   [] {
     auto alpha = bsm::uniformRand(10, 1, 5);
     auto beta = bsm::uniformRand(10, 1, 5);
@@ -111,8 +111,8 @@ signed main() {
     SHOW(alpha > beta);
     SHOW(alpha < beta);
   }();
-  system_message::Status::refresh("other support function");
-  system_message::Status::print();
+  system_control::Status::refresh("other support function");
+  system_control::Status::print();
   [] {
     auto alpha = bsm::uniformRand(9, 1, 10);
     auto beta = bsm::uniformRand(7, -5, 5);

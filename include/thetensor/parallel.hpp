@@ -32,7 +32,7 @@ inline void add(T* const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vv_add_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) ADD(__a[i], __b[i], __c[i], T)
   return;
@@ -65,7 +65,7 @@ inline void add(T* const& __a, T const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_add_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) ADD(__a[i], __b, __c[i], T)
   return;
@@ -98,7 +98,7 @@ inline void add(T const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_add_d(__b, __a, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) ADD(__a, __b[i], __c[i], T)
   return;
@@ -131,7 +131,7 @@ inline void mns(T* const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vv_mns_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MNS(__a[i], __b[i], __c[i], T)
   return;
@@ -164,7 +164,7 @@ inline void mns(T* const& __a, T const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_mns_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MNS(__a[i], __b, __c[i], T)
   return;
@@ -197,7 +197,7 @@ inline void mns(T const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return sv_mns_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MNS(__a, __b[i], __c[i], T)
   return;
@@ -230,7 +230,7 @@ inline void mul(T* const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vv_mul_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MUL(__a[i], __b[i], __c[i], T)
   return;
@@ -263,7 +263,7 @@ inline void mul(T* const& __a, T const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_mul_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MUL(__a[i], __b, __c[i], T)
   return;
@@ -296,7 +296,7 @@ inline void mul(T const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_mul_d(__b, __a, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) MUL(__a, __b[i], __c[i], T)
   return;
@@ -329,7 +329,7 @@ inline void div(T* const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vv_div_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) DIV(__a[i], __b[i], __c[i], T)
   return;
@@ -362,7 +362,7 @@ inline void div(T* const& __a, T const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return vs_div_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) DIV(__a[i], __b, __c[i], T)
   return;
@@ -395,7 +395,7 @@ inline void div(T const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return sv_div_d(__a, __b, __c, __size);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else
     for (size_t i = 0; i < __size; i++) DIV(__a, __b[i], __c[i], T)
   return;
@@ -434,7 +434,7 @@ inline void hSum(T* const& __lib, void* const& __obj, size_t const& __row,
     else if constexpr (std::is_same_v<T, double_t>)
       return h_sum_d(__lib, static_cast<T*>(__obj), __row, __col);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else {
     if constexpr (std::is_same_v<T, bool>) {
       auto obj = static_cast<size_t*>(__obj);
@@ -482,7 +482,7 @@ inline void vSum(T* const& __lib, void* const& __obj, size_t const& __row,
     else if constexpr (std::is_same_v<T, double_t>)
       return v_sum_d(__lib, static_cast<T*>(__obj), __row, __col);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else {
     if constexpr (std::is_same_v<T, bool>) {
       size_t total = __row * __col;
@@ -530,7 +530,7 @@ inline void mDot(T* const& __a, T* const& __b, T* const& __c,
     else if constexpr (std::is_same_v<T, double_t>)
       return dot_d(__a, __b, __c, __row, __line, __col);
     else
-      throw system_message::Error("unsupport type of parallel operation");
+      throw system_control::Error("unsupport type of parallel operation");
   else {
     if constexpr (std::is_same_v<T, bool>) {
       T *beta, *gamma, *alpha = __a;

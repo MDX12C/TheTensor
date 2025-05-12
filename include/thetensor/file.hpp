@@ -46,7 +46,7 @@ constexpr bool isAlphabet(char const& __c) noexcept {
  */
 template <typename T>
 inline std::string& numToString(std::string& __str, T& __num) {
-  throw system_message::Error("unsupport type for NTS");
+  throw system_control::Error("unsupport type for NTS");
 }
 template <_Int T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
@@ -109,7 +109,7 @@ inline std::string& numToString(std::string& __str, T& __num) noexcept {
  */
 template <typename T>
 inline T& stringToNum(std::string& __str, T& __num) {
-  throw system_message::Error("unsupport type for STN");
+  throw system_control::Error("unsupport type for STN");
 }
 template <_Int T>
 inline T& stringToNum(std::string& __str, T& __num) noexcept {

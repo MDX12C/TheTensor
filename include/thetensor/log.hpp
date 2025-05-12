@@ -23,13 +23,13 @@ namespace log_file {
 #define CHECK_O(X)                               \
   {                                              \
     if (!X.is_open()) {                          \
-      throw system_message::Error("open fail!"); \
+      throw system_control::Error("open fail!"); \
     }                                            \
   }
 #define CHECK_C(X)                                \
   {                                               \
     if (X.is_open()) {                            \
-      throw system_message::Error("close fail!"); \
+      throw system_control::Error("close fail!"); \
     }                                             \
   }
 constexpr int CARRY = 16;

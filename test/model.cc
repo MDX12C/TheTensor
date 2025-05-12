@@ -11,7 +11,7 @@ signed main() {
   CONSTRUCT;
   mdcc::buffer_ = new char[100];
 
-  system_message::Status::refresh("set", true);
+  system_control::Status::refresh("set", true);
   network::LinearModel model;
   model.setName("NerualNetwork");
   model.inFile().setFile("/mnist.", "train_images");
@@ -36,7 +36,7 @@ signed main() {
   model.addSoftMax();
   model.setFlatOutput(mdcc::BATCH);
   model.setLossFunction(network::meanSquareError);
-  system_message::Status::announce("end setting");
+  system_control::Status::announce("end setting");
 
   size_t times = 0;
   if (skip > 0) {
@@ -54,18 +54,18 @@ signed main() {
       if (a > 0) times = a;
     } while (!times);
     std::string str;
-    system_message::Status::refresh("train", true);
+    system_control::Status::refresh("train", true);
     model.counter() = 0;
     FloatType alpha;
     for (size_t i = 0; i < times; i += mdcc::BATCH) {
-      system_message::Status::bar(i, times, str);
+      system_control::Status::bar(i, times, str);
       if (!model.forward()) break;
       alpha = model.loss();
       file_io::numToString(str, alpha);
       str = std::move("mean loss= " + str);
       model.backward();
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << '\n';
     model.weightFile().switchMode(file_io::FileIO::writing);
     if (model.write())
@@ -81,7 +81,7 @@ signed main() {
     std::cin >> a;
     if (a > 0) times = a;
   } while (!times);
-  system_message::Status::refresh("test", true);
+  system_control::Status::refresh("test", true);
   model.counter() = 0;
   model.inFile().setFile("/mnist.", "train_images");
   model.inFile().switchMode();
@@ -90,15 +90,15 @@ signed main() {
   model.outFile().switchMode();
   model.outFile().switchMode(file_io::FileIOOrdered::reading);
   for (size_t i = 0; i < times; i += mdcc::BATCH) {
-    system_message::Status::bar(i, times);
+    system_control::Status::bar(i, times);
     if (!model.forward()) break;
     model.loss(true);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   sprintf(mdcc::buffer_, "the accuracy is %.3f",
           (static_cast<FloatType>(model.counter()) / times) * 100);
-  system_message::Status::announce(mdcc::buffer_);
+  system_control::Status::announce(mdcc::buffer_);
 
   delete[] mdcc::buffer_;
   DESTRUCT;

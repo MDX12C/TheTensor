@@ -40,7 +40,7 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
   extand.reserve(50);
   for (size_t i = 0; i < __size; i++) {
     sprintf(extand.data(), "check %ld in %ld", i + 1, __size);
-    system_message::Status::bar(i, __size, extand);
+    system_control::Status::bar(i, __size, extand);
     if constexpr (std::is_floating_point_v<T>) {
       if ((__a[i] - __b[i]) > static_cast<T>(0.001)) {
         LOG("E:bad answer");
@@ -55,7 +55,7 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
       }
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   printf("Operate Success!\n");
   return true;
 }

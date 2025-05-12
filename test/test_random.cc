@@ -1,6 +1,6 @@
 #include "interface.hpp"
 
-using sys = system_message::Status;
+using sys = system_control::Status;
 signed main() {
   CONSTRUCT;
   constexpr size_t TIMES = 1E6;

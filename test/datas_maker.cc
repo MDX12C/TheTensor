@@ -12,7 +12,7 @@ inline void getInput(FloatType* const&);
 
 signed main() {
   CONSTRUCT;
-  system_message::Status::announce(
+  system_control::Status::announce(
       "This is the datas maker of file:\ntest_network.cc");
   file_io::FileIOOrdered inputFile, outputFile;
   inputFile.setFile("./test_network.cc", "in");

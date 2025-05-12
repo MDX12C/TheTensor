@@ -2,8 +2,8 @@
 
 signed main() {
   CONSTRUCT;
-  system_message::Status::refresh("first");
-  system_message::Status::print();
+  system_control::Status::refresh("first");
+  system_control::Status::print();
   printf("C: float:%d\n", basic_math::support<float>);
   printf("C: int:%d\n", basic_math::support<int>);
   printf("C: bool:%d\n", basic_math::support<bool>);

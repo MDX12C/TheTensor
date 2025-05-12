@@ -60,7 +60,7 @@ class Vector final : public storage::Story<T> {
     LOG("C:cast operator of Vector");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupport type");
-      throw system_message::Error("unsupport type of Vector");
+      throw system_control::Error("unsupport type of Vector");
     }
     if constexpr (std::is_same_v<T, U>) return *this;
     Vector<U> result(this->size_);
@@ -366,7 +366,7 @@ inline Vector<T> Vector<T>::operator!() const {
   LOG("C:operator! of Vector");
   if constexpr (std::is_unsigned_v<T>) {
     LOG("B:the type can't be signed");
-    throw system_message::Error("the type can't be signed");
+    throw system_control::Error("the type can't be signed");
   }
   Vector<T> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)

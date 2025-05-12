@@ -49,7 +49,7 @@ inline U uniformRand(U const& __min, U const& __max) noexcept(support<U>) {
     return dist(RandomSupport::generator_);
   } else {
     LOG("B:unsupport type for uniformRand");
-    throw system_message::Error("unsupport type for uniformRand\n");
+    throw system_control::Error("unsupport type for uniformRand\n");
     return U();
   }
 }
@@ -61,7 +61,7 @@ inline U normalRand(U const& __mean, U const& __variant) {
     return dist(RandomSupport::generator_);
   }
   LOG("B:unsupport type for normalRand");
-  throw system_message::Error("unsupport type for normalRand\n");
+  throw system_control::Error("unsupport type for normalRand\n");
   return U();
 }
 template <typename U>
@@ -71,7 +71,7 @@ inline U binomialRand(U const& __times, float_t const& __probability) {
     return dist(RandomSupport::generator_);
   }
   LOG("B:unsupport type for binomialRand");
-  throw system_message::Error("unsupport type for binomialRand\n");
+  throw system_control::Error("unsupport type for binomialRand\n");
   return U();
 }
 }  // namespace basic_math

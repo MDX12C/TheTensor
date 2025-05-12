@@ -27,7 +27,7 @@ inline void testDot(size_t const&) noexcept;
 
 signed main() {
   CONSTRUCT;
-  system_message::Status::refresh("0");
+  system_control::Status::refresh("0");
   size_t TEST_SIZE = 512;
   std::cout << "THREADS= " << THREADS << " CUDA= " << __CUDA_MODE__ << '\n';
   auto getTimes = [](const char* const& __s) -> size_t {
@@ -41,206 +41,206 @@ signed main() {
   };
   // ###############################################################
 #if TEST_ADD
-  system_message::Status::refresh("Test for add function", true);
+  system_control::Status::refresh("Test for add function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testAdd<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testAdd<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testAdd<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testAdd<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testAdd<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testAdd<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testAdd<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testAdd<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testAdd<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testAdd<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testAdd<double_t>(TEST_SIZE);
 #endif
   // ###############################################################
 #if TEST_MNS
-  system_message::Status::refresh("Test for minus function", true);
+  system_control::Status::refresh("Test for minus function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testMns<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testMns<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testMns<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testMns<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testMns<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testMns<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testMns<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testMns<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testMns<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testMns<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testMns<double_t>(TEST_SIZE);
 #endif
 // ###############################################################
 #if TEST_MUL
-  system_message::Status::refresh("Test for mutiple function", true);
+  system_control::Status::refresh("Test for mutiple function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testMul<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testMul<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testMul<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testMul<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testMul<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testMul<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testMul<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testMul<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testMul<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testMul<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testMul<double_t>(TEST_SIZE);
 #endif
 // ###############################################################
 #if TEST_DIV
-  system_message::Status::refresh("Test for divide function", true);
+  system_control::Status::refresh("Test for divide function", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testDiv<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testDiv<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testDiv<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testDiv<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testDiv<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testDiv<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testDiv<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testDiv<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testDiv<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testDiv<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testDiv<double_t>(TEST_SIZE);
 #endif
 // ###############################################################
 #if TEST_SUM
-  system_message::Status::refresh("Test for Horizontal and Vertical Sum", true);
+  system_control::Status::refresh("Test for Horizontal and Vertical Sum", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testHV<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testHV<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testHV<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testHV<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testHV<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testHV<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testHV<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testHV<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testHV<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testHV<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testHV<double_t>(TEST_SIZE);
 #endif
 // ###############################################################
 #if TEST_DOT
-  system_message::Status::refresh("Test for matrix dot", true);
+  system_control::Status::refresh("Test for matrix dot", true);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("bool");
+  system_control::Status::announce("bool");
   testDot<bool>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("int 8");
   testDot<int8_t>(TEST_SIZE);
-  system_message::Status::announce("int 16");
+  system_control::Status::announce("int 16");
   testDot<int16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("int 32");
   testDot<int32_t>(TEST_SIZE);
-  system_message::Status::announce("int 64");
+  system_control::Status::announce("int 64");
   testDot<int64_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 8");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 8");
   testDot<uint8_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 16");
+  system_control::Status::announce("unsigned int 16");
   testDot<uint16_t>(TEST_SIZE);
-  system_message::Status::pause();
-  system_message::Status::announce("unsigned int 32");
+  system_control::Status::pause();
+  system_control::Status::announce("unsigned int 32");
   testDot<uint32_t>(TEST_SIZE);
-  system_message::Status::announce("unsigned int 64");
+  system_control::Status::announce("unsigned int 64");
   testDot<uint64_t>(TEST_SIZE);
   TEST_SIZE = getTimes("test times");
   stressLevel__ = getTimes("stress level");
-  system_message::Status::announce("float");
+  system_control::Status::announce("float");
   testDot<float_t>(TEST_SIZE);
-  system_message::Status::announce("double");
+  system_control::Status::announce("double");
   testDot<double_t>(TEST_SIZE);
 #endif
   // ###############################################################
@@ -253,7 +253,7 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
   extand.reserve(50);
   for (size_t i = 0; i < __size; i++) {
     sprintf(extand.data(), "check %ld in %ld", i + 1, __size);
-    system_message::Status::bar(i, __size, extand);
+    system_control::Status::bar(i, __size, extand);
     if constexpr (std::is_floating_point_v<T>) {
       if ((__a[i] - __b[i]) > static_cast<T>(0.001)) {
         LOG("E:bad answer");
@@ -268,7 +268,7 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
       }
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << "\nCompute success!\n";
   return true;
 }
@@ -287,7 +287,7 @@ inline void testAdd(size_t const& __size) noexcept {
   }
   std::string tips("initializing...");
   for (size_t i = 0; i < __size; i++) {
-    system_message::Status::bar(i, __size, tips);
+    system_control::Status::bar(i, __size, tips);
     if constexpr (std::is_same_v<T, bool>) {
       alpha[i] = basic_math::uniformRand<T>(0, 1);
       beta[i] = basic_math::uniformRand<T>(0, 1);
@@ -296,13 +296,13 @@ inline void testAdd(size_t const& __size) noexcept {
       beta[i] = basic_math::uniformRand<T>(0, 5);
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << "\ncuda in vec + vec:\n";
   basic_math::add<T, true>(alpha, beta, gamma, __size);
   tips = "checking answer...";
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] || beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -317,7 +317,7 @@ inline void testAdd(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -325,7 +325,7 @@ inline void testAdd(size_t const& __size) noexcept {
   basic_math::add<T, true>(alpha, theta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] || theta)) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -340,7 +340,7 @@ inline void testAdd(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -348,7 +348,7 @@ inline void testAdd(size_t const& __size) noexcept {
   basic_math::add<T, true>(phi, beta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (phi || beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -363,7 +363,7 @@ inline void testAdd(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -378,10 +378,10 @@ inline void testAdd(size_t const& __size) noexcept {
   std::cout << "GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     basic_math::add<T, true>(alpha, beta, gamma, __size);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
@@ -402,7 +402,7 @@ inline void testMns(size_t const& __size) noexcept {
   }
   std::string tips("initializing...");
   for (size_t i = 0; i < __size; i++) {
-    system_message::Status::bar(i, __size, tips);
+    system_control::Status::bar(i, __size, tips);
     if constexpr (std::is_same_v<T, bool>) {
       alpha[i] = basic_math::uniformRand<T>(0, 1);
       beta[i] = basic_math::uniformRand<T>(0, 1);
@@ -411,13 +411,13 @@ inline void testMns(size_t const& __size) noexcept {
       beta[i] = basic_math::uniformRand<T>(5, 10);
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << "\ncuda in vec - vec:\n";
   basic_math::mns<T, true>(alpha, beta, gamma, __size);
   tips = "checking answer...";
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] && (!beta[i]))) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -432,7 +432,7 @@ inline void testMns(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -440,7 +440,7 @@ inline void testMns(size_t const& __size) noexcept {
   basic_math::mns<T, true>(alpha, theta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] && (!theta))) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -455,7 +455,7 @@ inline void testMns(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -463,7 +463,7 @@ inline void testMns(size_t const& __size) noexcept {
   basic_math::mns<T, true>(phi, beta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (phi && (!beta[i]))) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -478,7 +478,7 @@ inline void testMns(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -493,10 +493,10 @@ inline void testMns(size_t const& __size) noexcept {
   std::cout << "GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     basic_math::mns<T, true>(alpha, beta, gamma, __size);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
@@ -517,7 +517,7 @@ inline void testMul(size_t const& __size) noexcept {
   }
   std::string tips("initializing...");
   for (size_t i = 0; i < __size; i++) {
-    system_message::Status::bar(i, __size, tips);
+    system_control::Status::bar(i, __size, tips);
     if constexpr (std::is_same_v<T, bool>) {
       alpha[i] = basic_math::uniformRand<T>(0, 1);
       beta[i] = basic_math::uniformRand<T>(0, 1);
@@ -526,13 +526,13 @@ inline void testMul(size_t const& __size) noexcept {
       beta[i] = basic_math::uniformRand<T>(0, 5);
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << "\ncuda in vec * vec:\n";
   basic_math::mul<T, true>(alpha, beta, gamma, __size);
   tips = "checking answer...";
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] && beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -547,7 +547,7 @@ inline void testMul(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -555,7 +555,7 @@ inline void testMul(size_t const& __size) noexcept {
   basic_math::mul<T, true>(alpha, theta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] && theta)) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -570,7 +570,7 @@ inline void testMul(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -578,7 +578,7 @@ inline void testMul(size_t const& __size) noexcept {
   basic_math::mul<T, true>(phi, beta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (phi && beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -593,7 +593,7 @@ inline void testMul(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -608,10 +608,10 @@ inline void testMul(size_t const& __size) noexcept {
   std::cout << "GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     basic_math::mul<T, true>(alpha, beta, gamma, __size);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
@@ -632,7 +632,7 @@ inline void testDiv(size_t const& __size) noexcept {
   }
   std::string tips("initializing...");
   for (size_t i = 0; i < __size; i++) {
-    system_message::Status::bar(i, __size, tips);
+    system_control::Status::bar(i, __size, tips);
     if constexpr (std::is_same_v<T, bool>) {
       alpha[i] = basic_math::uniformRand<T>(0, 1);
       beta[i] = basic_math::uniformRand<T>(0, 1);
@@ -641,13 +641,13 @@ inline void testDiv(size_t const& __size) noexcept {
       beta[i] = basic_math::uniformRand<T>(5, 10);
     }
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << "\ncuda in vec / vec:\n";
   basic_math::div<T, true>(alpha, beta, gamma, __size);
   tips = "checking answer...";
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] ^ beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -662,7 +662,7 @@ inline void testDiv(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -670,7 +670,7 @@ inline void testDiv(size_t const& __size) noexcept {
   basic_math::div<T, true>(alpha, theta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (alpha[i] ^ theta)) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -685,7 +685,7 @@ inline void testDiv(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -693,7 +693,7 @@ inline void testDiv(size_t const& __size) noexcept {
   basic_math::div<T, true>(phi, beta, gamma, __size);
   [&] {
     for (size_t i = 0; i < __size; i++) {
-      system_message::Status::bar(i, __size, tips);
+      system_control::Status::bar(i, __size, tips);
       if constexpr (std::is_same_v<T, bool>) {
         if (gamma[i] != (phi ^ beta[i])) {
           std::cout << "\nError: bad answer when i= " << i << '\n';
@@ -708,7 +708,7 @@ inline void testDiv(size_t const& __size) noexcept {
         }
       }
     }
-    system_message::Status::bar(1, 1);
+    system_control::Status::bar(1, 1);
     std::cout << "\nOperate success!\n";
     return;
   }();
@@ -723,10 +723,10 @@ inline void testDiv(size_t const& __size) noexcept {
   std::cout << "GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     basic_math::div<T, true>(alpha, beta, gamma, __size);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
@@ -776,7 +776,7 @@ inline void testHV(size_t const& __size) {
   std::cout << "\nin vertical, GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     beta = 0;
     gamma = 0;
     basic_math::hSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
@@ -786,7 +786,7 @@ inline void testHV(size_t const& __size) {
     basic_math::vSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
                               lenth, lenth);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   return;
 }
@@ -834,7 +834,7 @@ inline void testHV<bool>(size_t const& __size) {
   std::cout << "\nin vertical, GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test\n";
   for (auto i = 0; i < stressLevel__; i++) {
-    system_message::Status::bar(i, stressLevel__);
+    system_control::Status::bar(i, stressLevel__);
     beta = 0;
     gamma = 0;
     basic_math::hSum<bool, true>(
@@ -844,7 +844,7 @@ inline void testHV<bool>(size_t const& __size) {
     basic_math::vSum<bool, true>(
         alpha.begin(), static_cast<void*>(beta.begin()), lenth, lenth);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   return;
 }
@@ -882,13 +882,13 @@ inline void testDot(size_t const& __size) noexcept {
   std::cout << "GPU use " << point2 << " and CPU use " << point3
             << "\ncuda stress test\n";
   for (auto i = 0; i < stressLevel__ / 10; i++) {
-    system_message::Status::bar(i, stressLevel__ / 10);
+    system_control::Status::bar(i, stressLevel__ / 10);
     delta = 0;
     gamma = 0;
     basic_math::mDot<T, true>(alpha.begin(), beta.begin(), delta.begin(), lenth,
                               lenth, lenth);
   }
-  system_message::Status::bar(1, 1);
+  system_control::Status::bar(1, 1);
   std::cout << '\n';
   return;
 }

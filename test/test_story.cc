@@ -26,7 +26,7 @@ signed main() {
 
     auto gamma = new storage::Story<char*>();
     memory_manage::MemorySupport::displayUsage();
-  } catch (system_message::Error& __epsilon) {
+  } catch (system_control::Error& __epsilon) {
     __epsilon.print();
   }
   DESTRUCT;
