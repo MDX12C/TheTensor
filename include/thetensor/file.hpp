@@ -205,7 +205,6 @@ inline void FileIO::setFile(const char* const& __file,
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());
   fileName_ += __type;
-  DEBUG(fileName_);
   return;
 }
 /**
@@ -448,7 +447,6 @@ inline void FileIOOrdered::setFile(const char* const& __file,
   fileName_.insert(0, "/../datas");
   fileName_.insert(0, std::filesystem::current_path().string());
   fileName_ += __type;
-  DEBUG(fileName_);
   return;
 }
 /**
