@@ -161,7 +161,7 @@ class Status {
   static inline size_t refresh(std::string const& __progress,
                                bool const& __prt = false,
                                std::ostream& __os = std::cout) noexcept {
-    LOG("S:progress:\n%s", __progress.c_str());
+    LOG("C:progress:\n%s", __progress.c_str());
     Status::progress_ = __progress;
     Status::blocks_++;
     if (__prt) Status::print(__os);
@@ -290,7 +290,6 @@ constexpr FloatType EXPRISION = std::numbers::e_v<FloatType>;
  */
 template <typename U>
 constexpr size_t intDigits(U const& __alpha) noexcept(support<U>) {
-  LOG("C:intDigits");
   if constexpr (support<U>) {
     if constexpr (std::is_same_v<U, bool>) return size_t(1);
     if constexpr (std::is_signed_v<U>) {
@@ -337,7 +336,7 @@ class StoryBase {
 /**
  * @warning don't use it
  */
-#define BASIC_HH_CON system_message::Status::init();
+#define BASIC_HH_CON system_control::Status::init();
 
 #if __DEBUG_MODE__
 #define __DEBUG(X)                        \

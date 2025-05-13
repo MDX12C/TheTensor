@@ -58,19 +58,6 @@ inline bool legalShape(MatrixShape const& __param) noexcept {
 inline size_t sizeofShape(MatrixShape const& __param) noexcept {
   return __param.col_ * __param.row_;
 }
-/**
- * @brief make Shape
- * @param __row the row
- * @param __col the col
- * @return the shape
- * @throw none
- */
-inline MaShape makeShape(size_t const& __row, size_t const& __col) noexcept {
-  MatrixShape ans;
-  ans.row_ = __row;
-  ans.col_ = __col;
-  return ans;
-}
 template <typename T>
 class Matrix final : public storage::Story<T> {
   template <typename W>
@@ -123,7 +110,7 @@ class Matrix final : public storage::Story<T> {
   Matrix(MatrixShape const&, T* const&) noexcept(basic_math::support<T>);
   Matrix(Matrix const&) noexcept(basic_math::support<T>);
   Matrix(Matrix&&) noexcept(basic_math::support<T>);
-  ~Matrix() noexcept;
+  ~Matrix() noexcept {}
   inline virtual std::string type() const noexcept override {
     std::string ret = "MC00";
     if constexpr (std::is_floating_point_v<T>)
@@ -142,7 +129,6 @@ class Matrix final : public storage::Story<T> {
   inline Matrix transpose() const noexcept;
   template <typename U>
   inline operator Matrix<U>() const noexcept(basic_math::support<T>) {
-    LOG("C:cast operator of Matrix");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
       throw system_control::Error("unsupport type of Matrix");
@@ -194,13 +180,11 @@ class Matrix final : public storage::Story<T> {
 };
 typedef Matrix<FloatType> MatrixF;
 std::ostream& operator<<(std::ostream& __os, MaShape const& __shape) noexcept {
-  LOG("C:operator<< to MatrixShape");
   __os << std::noshowpos << '(' << __shape.row_ << ',' << __shape.col_ << ')';
   return __os;
 }
 template <typename T>
 std::ostream& operator<<(std::ostream& __os, Matrix<T> const& __it) noexcept {
-  LOG("C:ostream to Matrix");
   size_t digits = 0;
   __os << __it.shape_;
   if constexpr (std::is_same_v<T, bool>) {
@@ -284,7 +268,6 @@ namespace lina_lg {
  */
 template <typename T>
 Matrix<T>::Matrix() noexcept(basic_math::support<T>) : storage::Story<T>() {
-  LOG("C:defult constructor of Matrix");
   this->shape_.col_ = this->shape_.row_ = 1;
   return;
 }
@@ -295,7 +278,6 @@ Matrix<T>::Matrix() noexcept(basic_math::support<T>) : storage::Story<T>() {
 template <typename T>
 Matrix<T>::Matrix(MatrixShape const& __shape) noexcept(basic_math::support<T>)
     : storage::Story<T>(sizeofShape(__shape)) {
-  LOG("C:size constructor of Matrix");
   if (legalShape(__shape))
     this->shape_ = __shape;
   else
@@ -311,7 +293,6 @@ template <typename T>
 Matrix<T>::Matrix(MatrixShape const& __shape,
                   T* const& __init) noexcept(basic_math::support<T>)
     : storage::Story<T>(sizeofShape(__shape), __init) {
-  LOG("C:init constructor of Matrix");
   if (legalShape(__shape))
     this->shape_ = __shape;
   else
@@ -325,7 +306,6 @@ Matrix<T>::Matrix(MatrixShape const& __shape,
 template <typename T>
 Matrix<T>::Matrix(Matrix const& __other) noexcept(basic_math::support<T>)
     : storage::Story<T>(__other.size_, __other.datas_) {
-  LOG("C:copy constructor of Matrix");
   this->shape_ = __other.shape_;
   return;
 }
@@ -337,7 +317,6 @@ Matrix<T>::Matrix(Matrix const& __other) noexcept(basic_math::support<T>)
 template <typename T>
 Matrix<T>::Matrix(Matrix&& __other) noexcept(basic_math::support<T>)
     : storage::Story<T>() {
-  LOG("C:move constructor of Matrix");
   delete[] this->datas_;
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
@@ -345,17 +324,8 @@ Matrix<T>::Matrix(Matrix&& __other) noexcept(basic_math::support<T>)
   __other.datas_ = nullptr;
   return;
 }
-/**
- * @brief destructor
- */
-template <typename T>
-Matrix<T>::~Matrix() noexcept {
-  LOG("C:destructor of Matrix");
-  return;
-}
 template <typename T>
 inline T& Matrix<T>::operator[](MatrixShape const& __shape) const noexcept {
-  LOG("C:operator[] of Matrix");
   return this->datas_[__shape.row_ * this->shape_.col_ + __shape.col_];
 }
 /**
@@ -366,7 +336,6 @@ inline T& Matrix<T>::operator[](MatrixShape const& __shape) const noexcept {
  */
 template <typename T>
 inline bool Matrix<T>::resize(MatrixShape const& __shape) noexcept {
-  LOG("C:resize of Matrix");
   if (!legalShape(__shape)) {
     LOG("E:error shape");
     return false;
@@ -396,7 +365,6 @@ inline bool Matrix<T>::resize(MatrixShape const& __shape) noexcept {
  */
 template <typename T>
 inline bool Matrix<T>::reshape(MatrixShape const& __shape) noexcept {
-  LOG("C:reshape of Matrix");
   if (!legalShape(__shape)) {
     LOG("E:error shape");
     return false;
@@ -417,7 +385,6 @@ inline bool Matrix<T>::reshape(MatrixShape const& __shape) noexcept {
 template <typename T>
 inline bool Matrix<T>::load(MatrixShape const& __shape,
                             T* const& __init) noexcept {
-  LOG("C:load of Matrix");
   if (!legalShape(__shape)) {
     LOG("E:error shape");
     return false;
@@ -436,7 +403,6 @@ inline bool Matrix<T>::load(MatrixShape const& __shape,
  */
 template <typename T>
 inline void Matrix<T>::freedom() noexcept {
-  LOG("C:freedom of Matrix");
   delete[] this->datas_;
   this->datas_ = new T[1];
   this->datas_[0] = static_cast<T>(0);
@@ -448,8 +414,7 @@ inline void Matrix<T>::freedom() noexcept {
  */
 template <typename T>
 inline Matrix<T> Matrix<T>::transpose() const noexcept {
-  LOG("C:transpose of Matrix");
-  Matrix<T> result(makeShape(this->shape_.col_, this->shape_.row_));
+  Matrix<T> result({this->shape_.col_, this->shape_.row_});
   MatrixShape shape;
   for (shape.row_ = 0; shape.row_ < this->shape_.col_; shape.row_++) {
     for (shape.col_ = 0; shape.col_ < this->shape_.row_; shape.col_++) {
@@ -465,7 +430,6 @@ inline Matrix<T> Matrix<T>::transpose() const noexcept {
  */
 template <typename T>
 T& Matrix<T>::at(MatrixShape const& __where) const noexcept {
-  LOG("C:at of Matrix");
   if (__where < this->shape_) {
     return this->datas_[this->shape_.col_ * __where.row_ + __where.col_];
   }
@@ -479,7 +443,6 @@ T& Matrix<T>::at(MatrixShape const& __where) const noexcept {
  */
 template <typename T>
 T& Matrix<T>::at(size_t const& __row, size_t const& __col) const noexcept {
-  LOG("C:at of Matrix");
   if ((this->shape_.row_ > __row) && (this->shape_.col_ > __col)) {
     return this->datas_[this->shape_.col_ * __row + __col];
   }
@@ -488,7 +451,6 @@ T& Matrix<T>::at(size_t const& __row, size_t const& __col) const noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator= of Matrix");
   if (this->size_ != __other.size_) {
     delete[] this->datas_;
     this->size_ = __other.size_;
@@ -500,7 +462,6 @@ Matrix<T>& Matrix<T>::operator=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 inline Matrix<T>& Matrix<T>::operator=(Matrix<T>&& __other) noexcept {
-  LOG("C:move operator= of Matrix");
   if (this == &__other) {
     LOG("B:inlegal way to move between one Matrix");
     return *this;
@@ -514,13 +475,11 @@ inline Matrix<T>& Matrix<T>::operator=(Matrix<T>&& __other) noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator=(T const& __other) noexcept {
-  LOG("C:operator= of Matrix");
   for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other;
   return *this;
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator+=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator+= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -531,13 +490,11 @@ Matrix<T>& Matrix<T>::operator+=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator+=(T const& __other) noexcept {
-  LOG("C:operator+= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EADD(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator-=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator-= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -548,13 +505,11 @@ Matrix<T>& Matrix<T>::operator-=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator-=(T const& __other) noexcept {
-  LOG("C:operator-= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EMNS(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator*=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator*= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -565,13 +520,11 @@ Matrix<T>& Matrix<T>::operator*=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator*=(T const& __other) noexcept {
-  LOG("C:operator*= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EMUL(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator/=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator/= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -582,13 +535,11 @@ Matrix<T>& Matrix<T>::operator/=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T>& Matrix<T>::operator/=(T const& __other) noexcept {
-  LOG("C:operator/= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EDIV(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator!() const {
-  LOG("C:operator! of Matrix");
   if constexpr (std::is_unsigned_v<T>) {
     LOG("B:the type can't be signed");
     throw system_control::Error("the type can't be signed");
@@ -604,7 +555,6 @@ Matrix<T> Matrix<T>::operator!() const {
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator+(Matrix<T> const& __other) noexcept {
-  LOG("C:operator+ of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -616,14 +566,12 @@ Matrix<T> Matrix<T>::operator+(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator+(T const& __other) const noexcept {
-  LOG("C:operator+ of Matrix");
   Matrix<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EADD(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator-(Matrix<T> const& __other) noexcept {
-  LOG("C:operator- of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -635,14 +583,12 @@ Matrix<T> Matrix<T>::operator-(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator-(T const& __other) const noexcept {
-  LOG("C:operator- of Matrix");
   Matrix<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EMNS(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator*(Matrix<T> const& __other) noexcept {
-  LOG("C:operator* of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -654,14 +600,12 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator*(T const& __other) const noexcept {
-  LOG("C:operator* of Matrix");
   Matrix<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EMUL(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator/(Matrix<T> const& __other) noexcept {
-  LOG("C:operator/ of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -673,14 +617,12 @@ Matrix<T> Matrix<T>::operator/(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<T> Matrix<T>::operator/(T const& __other) const noexcept {
-  LOG("C:operator/ of Matrix");
   Matrix<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EDIV(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator==(Matrix<T> const& __other) noexcept {
-  LOG("C:operator== of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -692,7 +634,6 @@ Matrix<bool> Matrix<T>::operator==(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator==(T const& __other) const noexcept {
-  LOG("C:operator== of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] == __other;
@@ -700,7 +641,6 @@ Matrix<bool> Matrix<T>::operator==(T const& __other) const noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator!=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator!= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -712,7 +652,6 @@ Matrix<bool> Matrix<T>::operator!=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator!=(T const& __other) const noexcept {
-  LOG("C:operator!= of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] != __other;
@@ -720,7 +659,6 @@ Matrix<bool> Matrix<T>::operator!=(T const& __other) const noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator>=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator>= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -732,7 +670,6 @@ Matrix<bool> Matrix<T>::operator>=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator>=(T const& __other) const noexcept {
-  LOG("C:operator>= of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] >= __other;
@@ -740,7 +677,6 @@ Matrix<bool> Matrix<T>::operator>=(T const& __other) const noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator<=(Matrix<T> const& __other) noexcept {
-  LOG("C:operator<= of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -752,7 +688,6 @@ Matrix<bool> Matrix<T>::operator<=(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator<=(T const& __other) const noexcept {
-  LOG("C:operator<= of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] <= __other;
@@ -760,7 +695,6 @@ Matrix<bool> Matrix<T>::operator<=(T const& __other) const noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator>(Matrix<T> const& __other) noexcept {
-  LOG("C:operator> of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -772,7 +706,6 @@ Matrix<bool> Matrix<T>::operator>(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator>(T const& __other) const noexcept {
-  LOG("C:operator> of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] > __other;
@@ -780,7 +713,6 @@ Matrix<bool> Matrix<T>::operator>(T const& __other) const noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator<(Matrix<T> const& __other) noexcept {
-  LOG("C:operator< of Matrix");
   if (this->shape_ != __other.shape_) {
     LOG("E:encounter size will be suited");
     this->resize(__other.shape_);
@@ -792,7 +724,6 @@ Matrix<bool> Matrix<T>::operator<(Matrix<T> const& __other) noexcept {
 }
 template <typename T>
 Matrix<bool> Matrix<T>::operator<(T const& __other) const noexcept {
-  LOG("C:operator< of Matrix");
   Matrix<bool> result(this->shape_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] < __other;
@@ -801,7 +732,6 @@ Matrix<bool> Matrix<T>::operator<(T const& __other) const noexcept {
 template <typename T>
 inline Matrix<T> operator+(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  LOG("C:operator+ to Matrix");
   Matrix<T> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     ADD(__first, __second.datas_[i], result.datas_[i], T);
@@ -810,7 +740,6 @@ inline Matrix<T> operator+(T const& __first,
 template <typename T>
 inline Matrix<T> operator-(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  LOG("C:operator- to Matrix");
   Matrix<T> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     MNS(__first, __second.datas_[i], result.datas_[i], T);
@@ -819,7 +748,6 @@ inline Matrix<T> operator-(T const& __first,
 template <typename T>
 inline Matrix<T> operator*(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  LOG("C:operator* to Matrix");
   Matrix<T> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     MUL(__first, __second.datas_[i], result.datas_[i], T);
@@ -828,7 +756,6 @@ inline Matrix<T> operator*(T const& __first,
 template <typename T>
 inline Matrix<T> operator/(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  LOG("C:operator/ to Matrix");
   Matrix<T> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     DIV(__first, __second.datas_[i], result.datas_[i], T);
@@ -837,7 +764,6 @@ inline Matrix<T> operator/(T const& __first,
 template <typename T>
 inline Matrix<bool> operator==(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  LOG("C:operator== to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first == __second.datas_[i];
@@ -846,7 +772,6 @@ inline Matrix<bool> operator==(T const& __first,
 template <typename T>
 inline Matrix<bool> operator!=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  LOG("C:operator!= to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first != __second.datas_[i];
@@ -855,7 +780,6 @@ inline Matrix<bool> operator!=(T const& __first,
 template <typename T>
 inline Matrix<bool> operator>=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  LOG("C:operator>= to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first >= __second.datas_[i];
@@ -864,7 +788,6 @@ inline Matrix<bool> operator>=(T const& __first,
 template <typename T>
 inline Matrix<bool> operator<=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  LOG("C:operator<= to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first <= __second.datas_[i];
@@ -873,7 +796,6 @@ inline Matrix<bool> operator<=(T const& __first,
 template <typename T>
 inline Matrix<bool> operator>(T const& __first,
                               Matrix<T> const& __second) noexcept {
-  LOG("C:operator> to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first > __second.datas_[i];
@@ -882,7 +804,6 @@ inline Matrix<bool> operator>(T const& __first,
 template <typename T>
 inline Matrix<bool> operator<(T const& __first,
                               Matrix<T> const& __second) noexcept {
-  LOG("C:operator< to Matrix");
   Matrix<bool> result(__second.shape_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first < __second.datas_[i];
@@ -898,7 +819,6 @@ inline Matrix<bool> operator<(T const& __first,
 template <typename T>
 inline Matrix<T> mergeUD(Matrix<T> const& __up,
                          Matrix<T> const& __down) noexcept {
-  LOG("C:mergeUD to Matrix");
   if (__up.shape_.col_ != __down.shape_.col_) {
     LOG("E:unmatch size");
     return Matrix<T>();
@@ -923,7 +843,6 @@ inline Matrix<T> mergeUD(Matrix<T> const& __up,
 template <typename T>
 inline Matrix<T> mergeLR(Matrix<T> const& __left,
                          Matrix<T> const& __right) noexcept {
-  LOG("C:mergeLR to Matrix");
   if (__left.shape_.row_ != __right.shape_.row_) {
     LOG("E:unmatch size");
     return Matrix<T>();
@@ -953,7 +872,6 @@ inline Matrix<T> mergeLR(Matrix<T> const& __left,
 template <typename T>
 inline Matrix<T> scan(Matrix<T> const& __matrix, MaShape const& __low,
                       MaShape const& __up) noexcept {
-  LOG("C:scan to Matrix");
   if (!((__low < __up) && (__up <= __matrix.shape_))) {
     LOG("E:bad param");
     return Matrix<T>();
@@ -982,7 +900,6 @@ namespace basic_math {
 template <typename T>
 inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const& __shape,
                                       T const& __min, T const& __max) noexcept {
-  LOG("C:uniformRand to Matrix");
   lina_lg::Matrix<T> result(__shape);
   for (auto& i : result) i = uniformRand(__min, __max);
   return result;
@@ -996,7 +913,6 @@ inline lina_lg::Matrix<T> uniformRand(lina_lg::MaShape const& __shape,
 template <typename T>
 inline lina_lg::Matrix<T> absolute(
     lina_lg::Matrix<T> const& __matrix) noexcept {
-  LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   for (auto& i : result) i = std::abs(i);
   return result;
@@ -1011,7 +927,6 @@ inline lina_lg::Matrix<T> absolute(
 template <typename T>
 inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __matrix,
                               T const& __exponent) noexcept {
-  LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   for (auto& i : result) {
     if (i <= static_cast<T>(0)) LOG("E:danger basement");
@@ -1029,7 +944,6 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __matrix,
 template <typename T>
 inline lina_lg::Matrix<T> pow(T const& __base,
                               lina_lg::Matrix<T> const& __matrix) noexcept {
-  LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   if (__base > static_cast<T>(0))
     for (auto& i : result) i = std::pow(__base, i);
@@ -1047,7 +961,6 @@ inline lina_lg::Matrix<T> pow(T const& __base,
  */
 template <typename T>
 inline lina_lg::Matrix<T> log(lina_lg::Matrix<T> const& __matrix) noexcept {
-  LOG("C:absolute to Matrix");
   lina_lg::Matrix<T> result(__matrix);
   for (auto& i : result)
     if (i > static_cast<T>(0))
@@ -1068,7 +981,6 @@ inline lina_lg::Matrix<T> log(lina_lg::Matrix<T> const& __matrix) noexcept {
 template <typename T>
 inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __base,
                               lina_lg::Matrix<T> const& __exponent) noexcept {
-  LOG("C:pow to Matrix");
   if (__base.shape() != __exponent.shape()) {
     LOG("E:unmatch shape");
     return lina_lg::Matrix<T>(__base);
@@ -1093,7 +1005,6 @@ inline lina_lg::Matrix<T> pow(lina_lg::Matrix<T> const& __base,
 template <typename T>
 inline lina_lg::Matrix<T> dot(lina_lg::Matrix<T> const& __alpha,
                               lina_lg::Matrix<T> const& __beta) noexcept {
-  LOG("C:dot to Matrix");
   if (__alpha.shape().col_ != __beta.shape().row_) {
     LOG("E:bad size for dot");
     return lina_lg::Matrix<T>(__alpha);

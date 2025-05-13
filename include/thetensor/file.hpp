@@ -50,7 +50,6 @@ inline std::string& numToString(std::string& __str, T& __num) {
 }
 template <_Int T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
-  LOG("C:num to string <interal>");
   T num = __num;
   __str.clear();
   __str.resize(basic_math::intDigits(num) + 1);
@@ -72,7 +71,6 @@ inline std::string& numToString(std::string& __str, T& __num) noexcept {
 }
 template <_Float T>
 inline std::string& numToString(std::string& __str, T& __num) noexcept {
-  LOG("C:num to string <floating>");
   T num = __num;
   __str.clear();
   __str.resize(basic_math::intDigits(num) + 2 + IO_ACC);
@@ -113,7 +111,6 @@ inline T& stringToNum(std::string& __str, T& __num) {
 }
 template <_Int T>
 inline T& stringToNum(std::string& __str, T& __num) noexcept {
-  LOG("C:string to num <interal>")
   __num = static_cast<T>(0);
   for (size_t i = 1; i < __str.size(); i++) {
     __num *= static_cast<T>(10);
@@ -125,7 +122,6 @@ inline T& stringToNum(std::string& __str, T& __num) noexcept {
 }
 template <_Float T>
 inline T& stringToNum(std::string& __str, T& __num) noexcept {
-  LOG("C:string to num <floating>")
   __num = static_cast<T>(0);
   float interPart = static_cast<T>(0);
   auto i = __str.size() - 1;
@@ -180,13 +176,11 @@ class FileIO {
   inline bool write(W&, T* const&, size_t const&);
 };
 FileIO::FileIO() noexcept {
-  LOG("C:constructor of FileIO");
   fileName_ = "";
   mode_ = idle;
   return;
 }
 FileIO::~FileIO() noexcept {
-  LOG("C:destructor of FileIO");
   if (fileSelf_.is_open()) fileSelf_.close();
   if (fileIndex_.is_open()) fileIndex_.close();
   return;
@@ -198,7 +192,6 @@ FileIO::~FileIO() noexcept {
  */
 inline void FileIO::setFile(const char* const& __file,
                             const char* const& __type = "txt") {
-  LOG("C:set file of FileIO");
   fileName_ = __file;
   while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
@@ -252,7 +245,6 @@ inline bool FileIO::switchMode(Status const& __obj = idle,
  * @param __os the stream, std::cout is default
  */
 inline void FileIO::print(std::ostream& __os = std::cout) noexcept {
-  LOG("C:print of FileIO");
   __os << "++++++++++\nfile name: " << fileName_ << "\nmode: ";
   if (mode_ == idle) {
     __os << "idle\n++++++++++\n";
@@ -265,7 +257,6 @@ inline void FileIO::print(std::ostream& __os = std::cout) noexcept {
 }
 // the private function
 inline bool FileIO::find(std::string& __str) {
-  LOG("C:find of FileIO");
   fileIndex_.seekg(0, std::ios::beg);
   char c;
   size_t i = 0;
@@ -309,7 +300,6 @@ inline bool FileIO::find(std::string& __str) {
 }
 // the private function
 inline void FileIO::regist(std::string& __str) {
-  LOG("C:regist of FileIO");
   unsigned long long position = fileSelf_.tellp();
   std::string s;
   numToString(s, position);
@@ -329,7 +319,6 @@ inline void FileIO::regist(std::string& __str) {
  */
 template <typename T, typename W>
 inline bool FileIO::read(W& __str, T* const& __ptr, size_t const& __size) {
-  LOG("C:read of FileIO");
   if (mode_ != reading) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
@@ -369,7 +358,6 @@ inline bool FileIO::read(W& __str, T* const& __ptr, size_t const& __size) {
  */
 template <typename T, typename W>
 inline bool FileIO::write(W& __str, T* const& __ptr, size_t const& __size) {
-  LOG("C:write of FileIO");
   if (mode_ != writing) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
@@ -423,13 +411,11 @@ class FileIOOrdered {
   inline bool write(T* const&, size_t const&);
 };
 FileIOOrdered::FileIOOrdered() noexcept {
-  LOG("C:constructor of FileIOOrdered");
   fileName_ = "";
   mode_ = idle;
   return;
 }
 FileIOOrdered::~FileIOOrdered() noexcept {
-  LOG("C:destructor of FileIOOrdered");
   if (fileSelf_.is_open()) fileSelf_.close();
   return;
 }
@@ -440,7 +426,6 @@ FileIOOrdered::~FileIOOrdered() noexcept {
  */
 inline void FileIOOrdered::setFile(const char* const& __file,
                                    const char* const& __type = "txt") {
-  LOG("C:set file of FileIOOrdered");
   fileName_ = __file;
   while (fileName_[fileName_.size() - 1] != '.') fileName_.pop_back();
   fileName_ = fileName_.substr(fileName_.find_last_of('/'));
@@ -456,7 +441,6 @@ inline void FileIOOrdered::setFile(const char* const& __file,
  */
 inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
                                       bool const& __special = false) noexcept {
-  LOG("C:switch mode of FileIOOrdered");
   if (mode_ == __obj) return true;
   if (__obj >= 3) {
     LOG("E:bad argument");
@@ -490,7 +474,6 @@ inline bool FileIOOrdered::switchMode(Status const& __obj = idle,
  * @param __os the stream, std::cout is default
  */
 inline void FileIOOrdered::print(std::ostream& __os = std::cout) noexcept {
-  LOG("C:print of FileIOOrdered");
   __os << "++++++++++\nfile name: " << fileName_ << "\nmode: ";
   if (mode_ == idle) {
     __os << "idle\n++++++++++\n";
@@ -511,7 +494,6 @@ inline void FileIOOrdered::print(std::ostream& __os = std::cout) noexcept {
  */
 template <typename T>
 inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
-  LOG("C:read of FileIOOrdered");
   if (mode_ != reading) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;
@@ -553,7 +535,6 @@ inline bool FileIOOrdered::read(T* const& __ptr, size_t const& __size) {
  */
 template <typename T>
 inline bool FileIOOrdered::write(T* const& __ptr, size_t const& __size) {
-  LOG("C:write of FileIOOrdered");
   if (mode_ != writing) {
     LOG("E:invalid way in mode\"%d\"", static_cast<int>(mode_));
     return false;

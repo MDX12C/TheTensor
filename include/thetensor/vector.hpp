@@ -40,12 +40,12 @@ class Vector final : public storage::Story<T> {
                                   Vector<W> const& __item) noexcept;
 
  public:
-  Vector() noexcept(basic_math::support<T>);
+  Vector() noexcept(basic_math::support<T>) {}
   Vector(size_t const&) noexcept(basic_math::support<T>);
   Vector(size_t const&, T* const&) noexcept(basic_math::support<T>);
   Vector(Vector const&) noexcept(basic_math::support<T>);
   Vector(Vector&&) noexcept(basic_math::support<T>);
-  ~Vector() noexcept;
+  ~Vector() noexcept {}
   inline virtual std::string type() const noexcept override {
     std::string ret = "VC00";
     if constexpr (std::is_floating_point_v<T>)
@@ -57,7 +57,6 @@ class Vector final : public storage::Story<T> {
   }
   template <typename U>
   inline operator Vector<U>() const noexcept(basic_math::support<T>) {
-    LOG("C:cast operator of Vector");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupport type");
       throw system_control::Error("unsupport type of Vector");
@@ -108,7 +107,6 @@ typedef Vector<FloatType> VectorF;
 template <typename T>
 std::ostream& operator<<(std::ostream& __stream,
                          Vector<T> const& __item) noexcept {
-  LOG("C:ostream to Vector");
   size_t digits = 0;
   __stream << std::noshowpos << '(' << __item.size_ << ')';
   if constexpr (std::is_same_v<T, bool>) {
@@ -179,21 +177,12 @@ inline lina_lg::Vector<T> log(lina_lg::Vector<T> const&) noexcept;
 
 namespace lina_lg {
 /**
- * @brief defult constructor
- */
-template <typename T>
-Vector<T>::Vector() noexcept(basic_math::support<T>) : storage::Story<T>() {
-  LOG("C:defult constructor of Vector");
-  return;
-}
-/**
  * @brief size constructor
  * @param __size the init size
  */
 template <typename T>
 Vector<T>::Vector(size_t const& __size) noexcept(basic_math::support<T>)
     : storage::Story<T>(__size) {
-  LOG("C:size constructor of Vector");
   return;
 }
 /**
@@ -205,7 +194,6 @@ template <typename T>
 Vector<T>::Vector(size_t const& __size,
                   T* const& __init) noexcept(basic_math::support<T>)
     : storage::Story<T>(__size, __init) {
-  LOG("C:init constructor of Vector");
   return;
 }
 /**
@@ -215,7 +203,6 @@ Vector<T>::Vector(size_t const& __size,
 template <typename T>
 Vector<T>::Vector(Vector const& __other) noexcept(basic_math::support<T>)
     : storage::Story<T>(__other.size_, __other.datas_) {
-  LOG("C:copy constructor of Vector");
   return;
 }
 /**
@@ -224,24 +211,14 @@ Vector<T>::Vector(Vector const& __other) noexcept(basic_math::support<T>)
 template <typename T>
 Vector<T>::Vector(Vector&& __other) noexcept(basic_math::support<T>)
     : storage::Story<T>() {
-  LOG("C:move constructor of Vector");
   delete[] this->datas_;
   this->datas_ = __other.datas_;
   this->size_ = __other.size_;
   __other.datas_ = nullptr;
   return;
 }
-/**
- * @brief destructor
- */
-template <typename T>
-Vector<T>::~Vector() noexcept {
-  LOG("C:destructor of Vector");
-  return;
-}
 template <typename T>
 inline Vector<T>& Vector<T>::operator=(Vector<T> const& __other) noexcept {
-  LOG("C:operator= of Vector");
   if (this->size_ != __other.size_) {
     delete[] this->datas_;
     this->size_ = __other.size_;
@@ -252,7 +229,6 @@ inline Vector<T>& Vector<T>::operator=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator=(Vector<T>&& __other) noexcept {
-  LOG("C:move operator= of Vector");
   if (this == &__other) {
     LOG("B:inlegal way to move between one Vector");
     return *this;
@@ -265,13 +241,11 @@ inline Vector<T>& Vector<T>::operator=(Vector<T>&& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator=(T const& __other) noexcept {
-  LOG("C:operator= of Vector");
   for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other;
   return *this;
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator+=(Vector<T> const& __other) noexcept {
-  LOG("C:operator+= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -288,13 +262,11 @@ inline Vector<T>& Vector<T>::operator+=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator+=(T const& __other) noexcept {
-  LOG("C:operator+= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EADD(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator-=(Vector<T> const& __other) noexcept {
-  LOG("C:operator-= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -311,13 +283,11 @@ inline Vector<T>& Vector<T>::operator-=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator-=(T const& __other) noexcept {
-  LOG("C:operator-= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EMNS(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator*=(Vector<T> const& __other) noexcept {
-  LOG("C:operator*= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -334,13 +304,11 @@ inline Vector<T>& Vector<T>::operator*=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator*=(T const& __other) noexcept {
-  LOG("C:operator*= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EMUL(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator/=(Vector<T> const& __other) noexcept {
-  LOG("C:operator/= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -357,13 +325,11 @@ inline Vector<T>& Vector<T>::operator/=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T>& Vector<T>::operator/=(T const& __other) noexcept {
-  LOG("C:operator/= of Vetor");
   for (size_t i = 0; i < this->size_; i++) EDIV(this->datas_[i], __other, T);
   return *this;
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator!() const {
-  LOG("C:operator! of Vector");
   if constexpr (std::is_unsigned_v<T>) {
     LOG("B:the type can't be signed");
     throw system_control::Error("the type can't be signed");
@@ -379,7 +345,6 @@ inline Vector<T> Vector<T>::operator!() const {
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator+(Vector<T> const& __other) noexcept {
-  LOG("C:operator+ of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -397,14 +362,12 @@ inline Vector<T> Vector<T>::operator+(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator+(T const& __other) const noexcept {
-  LOG("C:operator+ of Vector");
   Vector<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EADD(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator-(Vector<T> const& __other) noexcept {
-  LOG("C:operator- of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -422,14 +385,12 @@ inline Vector<T> Vector<T>::operator-(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator-(T const& __other) const noexcept {
-  LOG("C:operator- of Vector");
   Vector<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EMNS(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator*(Vector<T> const& __other) noexcept {
-  LOG("C:operator* of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -447,14 +408,12 @@ inline Vector<T> Vector<T>::operator*(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator*(T const& __other) const noexcept {
-  LOG("C:operator* of Vector");
   Vector<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EMUL(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator/(Vector<T> const& __other) noexcept {
-  LOG("C:operator/ of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -472,14 +431,12 @@ inline Vector<T> Vector<T>::operator/(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<T> Vector<T>::operator/(T const& __other) const noexcept {
-  LOG("C:operator/ of Vector");
   Vector<T> result(*this);
   for (size_t i = 0; i < this->size_; i++) EDIV(result.datas_[i], __other, T);
   return result;
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator==(Vector<T> const& __other) noexcept {
-  LOG("C:operator== of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -497,7 +454,6 @@ inline Vector<bool> Vector<T>::operator==(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator==(T const& __other) const noexcept {
-  LOG("C:operator== of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] == __other;
@@ -505,7 +461,6 @@ inline Vector<bool> Vector<T>::operator==(T const& __other) const noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator!=(Vector<T> const& __other) noexcept {
-  LOG("C:operator!= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -523,7 +478,6 @@ inline Vector<bool> Vector<T>::operator!=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator!=(T const& __other) const noexcept {
-  LOG("C:operator!= of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] != __other;
@@ -531,7 +485,6 @@ inline Vector<bool> Vector<T>::operator!=(T const& __other) const noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator>=(Vector<T> const& __other) noexcept {
-  LOG("C:operator>= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -549,7 +502,6 @@ inline Vector<bool> Vector<T>::operator>=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator>=(T const& __other) const noexcept {
-  LOG("C:operator>= of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] >= __other;
@@ -557,7 +509,6 @@ inline Vector<bool> Vector<T>::operator>=(T const& __other) const noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator<=(Vector<T> const& __other) noexcept {
-  LOG("C:operator<= of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -575,7 +526,6 @@ inline Vector<bool> Vector<T>::operator<=(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator<=(T const& __other) const noexcept {
-  LOG("C:operator<= of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] <= __other;
@@ -583,7 +533,6 @@ inline Vector<bool> Vector<T>::operator<=(T const& __other) const noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator>(Vector<T> const& __other) noexcept {
-  LOG("C:operator> of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -601,7 +550,6 @@ inline Vector<bool> Vector<T>::operator>(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator>(T const& __other) const noexcept {
-  LOG("C:operator> of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] > __other;
@@ -609,7 +557,6 @@ inline Vector<bool> Vector<T>::operator>(T const& __other) const noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator<(Vector<T> const& __other) noexcept {
-  LOG("C:operator< of Vector");
   if (this->size_ != __other.size_) {
     LOG("E:encounter size will be suited");
     T* temp = new T[__other.size_];
@@ -627,7 +574,6 @@ inline Vector<bool> Vector<T>::operator<(Vector<T> const& __other) noexcept {
 }
 template <typename T>
 inline Vector<bool> Vector<T>::operator<(T const& __other) const noexcept {
-  LOG("C:operator< of Vector");
   Vector<bool> result(this->size_);
   for (size_t i = 0; i < this->size_; i++)
     result.datas_[i] = this->datas_[i] < __other;
@@ -636,7 +582,6 @@ inline Vector<bool> Vector<T>::operator<(T const& __other) const noexcept {
 template <typename T>
 inline Vector<T> operator+(T const& __first,
                            Vector<T> const& __second) noexcept {
-  LOG("C:operator+ to Vector");
   Vector<T> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     ADD(__first, __second.datas_[i], result.datas_[i], T);
@@ -645,7 +590,6 @@ inline Vector<T> operator+(T const& __first,
 template <typename T>
 inline Vector<T> operator-(T const& __first,
                            Vector<T> const& __second) noexcept {
-  LOG("C:operator- to Vector");
   Vector<T> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     MNS(__first, __second.datas_[i], result.datas_[i], T);
@@ -654,7 +598,6 @@ inline Vector<T> operator-(T const& __first,
 template <typename T>
 inline Vector<T> operator*(T const& __first,
                            Vector<T> const& __second) noexcept {
-  LOG("C:operator* to Vector");
   Vector<T> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     MUL(__first, __second.datas_[i], result.datas_[i], T);
@@ -663,7 +606,6 @@ inline Vector<T> operator*(T const& __first,
 template <typename T>
 inline Vector<T> operator/(T const& __first,
                            Vector<T> const& __second) noexcept {
-  LOG("C:operator/ to Vector");
   Vector<T> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     DIV(__first, __second.datas_[i], result.datas_[i], T);
@@ -672,7 +614,6 @@ inline Vector<T> operator/(T const& __first,
 template <typename T>
 inline Vector<bool> operator==(T const& __first,
                                Vector<T> const& __second) noexcept {
-  LOG("C:operator== to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first == __second.datas_[i];
@@ -681,7 +622,6 @@ inline Vector<bool> operator==(T const& __first,
 template <typename T>
 inline Vector<bool> operator!=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  LOG("C:operator!= to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first != __second.datas_[i];
@@ -690,7 +630,6 @@ inline Vector<bool> operator!=(T const& __first,
 template <typename T>
 inline Vector<bool> operator>=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  LOG("C:operator>= to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first >= __second.datas_[i];
@@ -699,7 +638,6 @@ inline Vector<bool> operator>=(T const& __first,
 template <typename T>
 inline Vector<bool> operator<=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  LOG("C:operator<= to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first <= __second.datas_[i];
@@ -708,7 +646,6 @@ inline Vector<bool> operator<=(T const& __first,
 template <typename T>
 inline Vector<bool> operator>(T const& __first,
                               Vector<T> const& __second) noexcept {
-  LOG("C:operator> to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first > __second.datas_[i];
@@ -717,7 +654,6 @@ inline Vector<bool> operator>(T const& __first,
 template <typename T>
 inline Vector<bool> operator<(T const& __first,
                               Vector<T> const& __second) noexcept {
-  LOG("C:operator< to Vector");
   Vector<bool> result(__second.size_);
   for (size_t i = 0; i < __second.size_; i++)
     result.datas_[i] = __first < __second.datas_[i];
@@ -733,7 +669,6 @@ inline Vector<bool> operator<(T const& __first,
 template <typename T>
 inline Vector<T> merge(Vector<T> const& __first,
                        Vector<T> const& __second) noexcept {
-  LOG("C:merge to Vector");
   Vector<T> result(__first.size_ + __second.size_);
   std::copy(__first.datas_, __first.datas_ + __first.size_, result.datas_);
   std::copy(__second.datas_, __second.datas_ + __second.size_,
@@ -751,7 +686,6 @@ inline Vector<T> merge(Vector<T> const& __first,
 template <typename T>
 inline Vector<T> scan(Vector<T> const& __vec, size_t const& __low,
                       size_t const& __up) noexcept {
-  LOG("C:scan to Vector");
   if ((__low >= __up) || (__up > __vec.size_)) {
     LOG("E:bad param");
     return Vector<T>();
@@ -773,7 +707,6 @@ namespace basic_math {
 template <typename T>
 inline lina_lg::Vector<T> uniformRand(size_t const& __size, T const& __min,
                                       T const& __max) noexcept {
-  LOG("C:uniformRand to Vector");
   lina_lg::Vector<T> result(__size);
   for (auto& i : result) i = uniformRand(__min, __max);
   return result;
@@ -787,7 +720,6 @@ inline lina_lg::Vector<T> uniformRand(size_t const& __size, T const& __min,
 template <typename T>
 inline lina_lg::Vector<T> absolute(
     lina_lg::Vector<T> const& __vector) noexcept {
-  LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   for (auto& i : result) i = std::abs(i);
   return result;
@@ -802,7 +734,6 @@ inline lina_lg::Vector<T> absolute(
 template <typename T>
 inline lina_lg::Vector<T> pow(lina_lg::Vector<T> const& __vector,
                               T const& __exponent) noexcept {
-  LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   for (auto& i : result) {
     if (i <= static_cast<T>(0)) LOG("E:danger basement");
@@ -820,7 +751,6 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T> const& __vector,
 template <typename T>
 inline lina_lg::Vector<T> pow(T const& __base,
                               lina_lg::Vector<T> const& __vector) noexcept {
-  LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   if (__base > static_cast<T>(0))
     for (auto& i : result) i = std::pow(__base, i);
@@ -840,7 +770,6 @@ inline lina_lg::Vector<T> pow(T const& __base,
 template <typename T>
 inline lina_lg::Vector<T> pow(lina_lg::Vector<T>const& __base,
                               lina_lg::Vector<T>const& __exponent) noexcept {
-  LOG("C:pow to Vector");
   if (__base.size() != __exponent.size()) {
     LOG("E:unmatch size");
     return lina_lg::Vector<T>(__base);
@@ -863,7 +792,6 @@ inline lina_lg::Vector<T> pow(lina_lg::Vector<T>const& __base,
  */
 template <typename T>
 inline lina_lg::Vector<T> log(lina_lg::Vector<T>const& __vector) noexcept {
-  LOG("C:absolute to Vector");
   lina_lg::Vector<T> result(__vector);
   for (auto& i : result)
     if (i > static_cast<T>(0))

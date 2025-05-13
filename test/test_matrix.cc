@@ -3,7 +3,6 @@
 using sms = system_control::Status;
 namespace bsm = basic_math;
 namespace ll = lina_lg;
-auto mks = *lina_lg::makeShape;
 signed main() {
   CONSTRUCT;
   sms::refresh("struct function");
@@ -13,11 +12,11 @@ signed main() {
     ll::Matrix<int> alpha;
     SHOW(alpha);
     sms::announce("shape constructor");
-    ll::Matrix<int> beta(mks(4, 3));
+    ll::Matrix<int> beta({4, 3});
     SHOW(beta);
     sms::announce("init constructor");
     int init[8] = {9, 3, 0, -1, 3, -5, 0, 1};
-    ll::Matrix<int> gamma(mks(2, 4), init);
+    ll::Matrix<int> gamma({2, 4}, init);
     SHOW(gamma);
     sms::announce("copy constructor");
     ll::Matrix<int> delta(gamma);
@@ -41,14 +40,14 @@ signed main() {
     ll::Matrix<int> alpha;
     SHOW(alpha);
     sms::announce("resize");
-    alpha.resize(mks(2, 3));
+    alpha.resize({2, 3});
     SHOW(alpha);
     sms::announce("load");
     int init[6] = {0, -1, 5, 3, 2, 10};
-    alpha.load(mks(3, 2), init);
+    alpha.load({3, 2}, init);
     SHOW(alpha);
     sms::announce("resize");
-    alpha.resize(mks(2, 4));
+    alpha.resize({2, 4});
     SHOW(alpha);
     SHOW(alpha.shape());
     SHOW(alpha.size());
@@ -56,7 +55,7 @@ signed main() {
     SHOW(alpha.sum());
     SHOW(alpha.transpose());
     sms::announce("reshape");
-    alpha.reshape(mks(1, 8));
+    alpha.reshape({1, 8});
     SHOW(alpha);
     sms::announce("wrong way to use resize");
     try {
@@ -66,7 +65,7 @@ signed main() {
     }
     sms::announce("sum for bool");
     bool temp[5] = {false, true, true, false, true};
-    ll::Matrix<bool> beta(mks(1, 5), temp);
+    ll::Matrix<bool> beta({1, 5}, temp);
     SHOW(beta);
     SHOW(beta.sum());
     sms::announce("range based for loop");
@@ -78,8 +77,8 @@ signed main() {
   system_control::Status::refresh("operator overloading for float");
   system_control::Status::print();
   [] {
-    auto alpha = bsm::uniformRand(mks(2, 3), (float)-10, (float)10);
-    auto beta = bsm::uniformRand(mks(2, 3), (float)-10, (float)10);
+    auto alpha = bsm::uniformRand({2, 3}, (float)-10, (float)10);
+    auto beta = bsm::uniformRand({2, 3}, (float)-10, (float)10);
     auto sigma = bsm::uniformRand((float)-10, (float)10);
     SHOW(alpha);
     SHOW(beta);
@@ -99,8 +98,8 @@ signed main() {
   system_control::Status::refresh("operator overloading for bool");
   system_control::Status::print();
   [] {
-    auto alpha = bsm::uniformRand(mks(2, 5), false, true);
-    auto beta = bsm::uniformRand(mks(2, 5), false, true);
+    auto alpha = bsm::uniformRand({2, 5}, false, true);
+    auto beta = bsm::uniformRand({2, 5}, false, true);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha + beta);
@@ -111,8 +110,8 @@ signed main() {
   system_control::Status::refresh("compare operator for Matrix");
   system_control::Status::print();
   [] {
-    auto alpha = bsm::uniformRand(mks(2, 5), 1, 5);
-    auto beta = bsm::uniformRand(mks(2, 5), 1, 5);
+    auto alpha = bsm::uniformRand({2, 5}, 1, 5);
+    auto beta = bsm::uniformRand({2, 5}, 1, 5);
     SHOW(alpha);
     SHOW(beta);
     SHOW(alpha == beta);
@@ -125,15 +124,15 @@ signed main() {
   system_control::Status::refresh("other support function");
   system_control::Status::print();
   [] {
-    auto alpha = bsm::uniformRand(mks(2, 3), 1, 10);
-    auto beta = bsm::uniformRand(mks(2, 3), -5, 5);
+    auto alpha = bsm::uniformRand({2, 3}, 1, 10);
+    auto beta = bsm::uniformRand({2, 3}, -5, 5);
     SHOW(alpha);
     SHOW(ll::mergeUD(alpha, beta));
     SHOW(ll::mergeLR(alpha, beta));
     sms::announce("make new alpha");
-    alpha = std::move(bsm::uniformRand(mks(6, 8), 1, 10));
+    alpha = std::move(bsm::uniformRand({6, 8}, 1, 10));
     SHOW(alpha);
-    SHOW(ll::scan(alpha, mks(1, 2), mks(6, 5)));
+    SHOW(ll::scan(alpha, {1, 2}, {6, 5}));
     alpha.resize(beta.shape());
     SHOW(alpha);
     SHOW(beta);

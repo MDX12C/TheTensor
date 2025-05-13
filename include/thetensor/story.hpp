@@ -46,7 +46,6 @@ class Story : public StoryBase {
   inline virtual T& operator[](size_t const&) const;
   template <typename U>
   inline operator Story<U>() const noexcept(basic_math::support<T>) {
-    LOG("C:cast operator of Story");
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
       throw system_control::Error("unsupport type of Story");
@@ -64,7 +63,6 @@ class Story : public StoryBase {
 template <typename T>
 std::ostream& operator<<(std::ostream& __stream,
                          Story<T> const& __item) noexcept {
-  LOG("C:ostream to Story");
   size_t digits = 0;
   __stream << std::noshowpos << '(' << __item.size_ << ')';
   if constexpr (std::is_same_v<T, bool>) {
@@ -96,7 +94,6 @@ std::ostream& operator<<(std::ostream& __stream,
  */
 template <typename T>
 Story<T>::Story() noexcept(basic_math::support<T>) : StoryBase() {
-  LOG("C:Default consructor of Story");
   if constexpr (basic_math::support<T>) {
     memory_manage::MemorySupport::track(dynamic_cast<StoryBase*>(this));
     this->size_ = 1;
@@ -116,7 +113,6 @@ Story<T>::Story() noexcept(basic_math::support<T>) : StoryBase() {
 template <typename T>
 Story<T>::Story(size_t const& __lenth) noexcept(basic_math::support<T>)
     : StoryBase() {
-  LOG("C:Size constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
     throw system_control::Error("unsupport type for Story");
@@ -146,7 +142,6 @@ template <typename T>
 Story<T>::Story(size_t const& __lenth,
                 T* const& __init) noexcept(basic_math::support<T>)
     : StoryBase() {
-  LOG("C:Init constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
     throw system_control::Error("unsupport type for Story");
@@ -173,7 +168,6 @@ Story<T>::Story(size_t const& __lenth,
 template <typename T>
 Story<T>::Story(Story const& __other) noexcept(basic_math::support<T>)
     : StoryBase() {
-  LOG("C:Copy constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
     throw system_control::Error("unsupport type for Story");
@@ -194,7 +188,6 @@ Story<T>::Story(Story const& __other) noexcept(basic_math::support<T>)
 template <typename T>
 Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
     : StoryBase() {
-  LOG("C:Move constructor of Story");
   if constexpr (!basic_math::support<T>) {
     LOG("B:unsupport type for Story");
     throw system_control::Error("unsupport type for Story");
@@ -211,7 +204,6 @@ Story<T>::Story(Story&& __other) noexcept(basic_math::support<T>)
  */
 template <typename T>
 Story<T>::~Story() noexcept {
-  LOG("C:Destructor of Story");
   if constexpr (basic_math::support<T>)
     memory_manage::MemorySupport::untrack(dynamic_cast<StoryBase*>(this));
   if (this->datas_) {
@@ -225,7 +217,6 @@ Story<T>::~Story() noexcept {
  */
 template <typename T>
 inline T Story<T>::sum() const noexcept {
-  LOG("C:Sum of Story");
   if constexpr (std::is_same_v<T, bool>) {
     size_t total = 0;
     for (size_t i = 0; i < this->size_; i++)
@@ -248,7 +239,6 @@ inline T Story<T>::sum() const noexcept {
  */
 template <typename T>
 inline bool Story<T>::resize(size_t const& __argSize) {
-  LOG("C:Resize of Story");
   if (__argSize == 0) {
     LOG("E:bad lenth");
     return false;
@@ -276,7 +266,6 @@ inline bool Story<T>::resize(size_t const& __argSize) {
  */
 template <typename T>
 inline bool Story<T>::load(size_t const& __size, T* const& __datas) {
-  LOG("C:Load of Story");
   if (__size && __datas) {
     delete[] this->datas_;
     this->datas_ = new T[__size];
@@ -293,7 +282,6 @@ inline bool Story<T>::load(size_t const& __size, T* const& __datas) {
  */
 template <typename T>
 inline void Story<T>::freedom() noexcept {
-  LOG("C:Freedom of Story");
   delete[] this->datas_;
   this->size_ = 1;
   this->datas_ = new T[1];
@@ -305,7 +293,6 @@ inline void Story<T>::freedom() noexcept {
  */
 template <typename T>
 inline T& Story<T>::at(size_t const& __where) const {
-  LOG("C:At of Story");
   if (__where >= this->size_) {
     LOG("E:memory overflow");
     return this->datas_[0];
@@ -314,12 +301,10 @@ inline T& Story<T>::at(size_t const& __where) const {
 }
 template <typename T>
 inline T& Story<T>::operator[](size_t const& __where) const {
-  LOG("C:operator[] of Story");
   return this->datas_[__where];
 }
 template <typename T>
 inline Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
-  LOG("C:operator= of Story");
   if (!(this->size_ == __other.size_)) {
     delete[] this->datas_;
     this->datas_ = new T[__other.size_];
@@ -330,7 +315,6 @@ inline Story<T>& Story<T>::operator=(Story<T> const& __other) noexcept {
 }
 template <typename T>
 inline Story<T>& Story<T>::operator=(Story<T>&& __other) noexcept {
-  LOG("C:move operator= of Story");
   if (this == &__other) {
     LOG("B:inlegal way to move between one Story");
     return *this;
@@ -343,7 +327,6 @@ inline Story<T>& Story<T>::operator=(Story<T>&& __other) noexcept {
 }
 template <typename T>
 inline Story<T>& Story<T>::operator=(T const& __other) noexcept {
-  LOG("C:operator= of Story");
   for (size_t i = 0; i < this->size_; i++) this->datas_[i] = __other;
   return *this;
 }

@@ -11,7 +11,6 @@ std::set<storage::StoryBase*> MemorySupport::zone_;
  * @param __output the ostream, std::cout is defult
  */
 void MemorySupport::displayUsage(std::ostream& __output) noexcept {
-  LOG("C:display usage");
   unsigned long long total = 0;
   for (auto& item : MemorySupport::zone_) {
     __output << '\n';
@@ -33,7 +32,6 @@ void MemorySupport::displayUsage(std::ostream& __output) noexcept {
  * @return total usage counted in bytes
  */
 unsigned long long MemorySupport::getTotalUsage() noexcept {
-  LOG("C:get total");
   unsigned long long total = 0;
   for (auto& item : MemorySupport::zone_) {
     total += item->capacity();
@@ -45,7 +43,6 @@ unsigned long long MemorySupport::getTotalUsage() noexcept {
  * @param __item the pointer
  */
 bool MemorySupport::track(storage::StoryBase* __item) noexcept {
-  LOG("C:track");
   if (MemorySupport::zone_.count(__item)) {
     LOG("E:%p has already been tracked", (void*)__item);
     return false;
@@ -59,7 +56,6 @@ bool MemorySupport::track(storage::StoryBase* __item) noexcept {
  * @param __item the pointer
  */
 bool MemorySupport::untrack(storage::StoryBase* __item) noexcept {
-  LOG("C:untrack");
   if (!MemorySupport::zone_.count(__item)) {
     LOG("E:%p hasn't been tracked", (void*)__item);
     return false;

@@ -35,8 +35,8 @@ class Tanh final : public LayerBase {
   lina_lg::MatrixF output_;
 
  public:
-  Tanh() noexcept { LOG("C:constructor of Tanh") }
-  ~Tanh() noexcept { LOG("C:destructor of Tanh") }
+  Tanh() noexcept {}
+  ~Tanh() noexcept {}
   inline virtual void forward(OperateType &) noexcept override;
   inline virtual void backward(OperateType &) noexcept override;
   inline virtual std::string name() noexcept override {
@@ -44,7 +44,6 @@ class Tanh final : public LayerBase {
   }
 };
 inline void Tanh::forward(OperateType &__input) noexcept {
-  LOG("C:forward of Tanh");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   (*input) *= static_cast<FloatType>(2);
   output_ = std::move(basic_math::pow(basic_math::EXPRISION, (*input)));
@@ -55,7 +54,6 @@ inline void Tanh::forward(OperateType &__input) noexcept {
   return;
 }
 inline void Tanh::backward(OperateType &__input) noexcept {
-  LOG("C:backward of Tanh");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   output_ = std::move(basic_math::pow(output_, static_cast<FloatType>(2)));
   (*input) *= (static_cast<FloatType>(1) - output_);
@@ -66,8 +64,8 @@ class Sigmoid final : public LayerBase {
   lina_lg::MatrixF output_;
 
  public:
-  Sigmoid() noexcept { LOG("C:constructor of Sigmoid") }
-  ~Sigmoid() noexcept { LOG("C:destructor of Sigmoid") }
+  Sigmoid() noexcept {}
+  ~Sigmoid() noexcept {}
   inline virtual void forward(OperateType &) noexcept override;
   inline virtual void backward(OperateType &) noexcept override;
   inline virtual std::string name() noexcept override {
@@ -75,7 +73,6 @@ class Sigmoid final : public LayerBase {
   }
 };
 inline void Sigmoid::forward(OperateType &__input) noexcept {
-  LOG("C:forward of Sigmoid");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   output_ = std::move(basic_math::pow(basic_math::EXPRISION, (*input)));
   output_ /= (output_ + static_cast<FloatType>(1));
@@ -83,7 +80,6 @@ inline void Sigmoid::forward(OperateType &__input) noexcept {
   return;
 }
 inline void Sigmoid::backward(OperateType &__input) noexcept {
-  LOG("C:backward of Sigmoid");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   (*input) *= output_;
   (*input) *= (static_cast<FloatType>(1) - output_);
@@ -95,8 +91,8 @@ class ReLU final : public LayerBase {
   lina_lg::MatrixF tangent_;
 
  public:
-  ReLU() noexcept { LOG("C:constructor of ReLU"); }
-  ~ReLU() noexcept { LOG("C:destructor of ReLU"); }
+  ReLU() noexcept {}
+  ~ReLU() noexcept {}
   inline virtual void forward(OperateType &) noexcept override;
   inline virtual void backward(OperateType &) noexcept override;
   inline virtual std::string name() noexcept override {
@@ -108,7 +104,6 @@ class ReLU final : public LayerBase {
 };
 template <FloatType ALPHA>
 inline void ReLU<ALPHA>::forward(OperateType &__input) noexcept {
-  LOG("C:forward of ReLU");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   tangent_.resize(input->shape());
   auto in = input->begin(), out = tangent_.begin();
@@ -124,7 +119,6 @@ inline void ReLU<ALPHA>::forward(OperateType &__input) noexcept {
 }
 template <FloatType ALPHA>
 inline void ReLU<ALPHA>::backward(OperateType &__input) noexcept {
-  LOG("C:backward of ReLU");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   (*input) *= tangent_;
   return;
@@ -147,9 +141,8 @@ class Dense final : public LayerBase {
     heUniform,
     heNormal
   } initialType;
-  Dense() noexcept { LOG("C:constructor of Dense") }
+  Dense() noexcept {}
   ~Dense() noexcept {
-    LOG("C:destructor of Dense")
     if (activation_) delete activation_;
   }
   inline void setCores(size_t const &, size_t const &) noexcept;
@@ -170,7 +163,6 @@ class Dense final : public LayerBase {
   static inline void tidyBackward(lina_lg::MatrixF *&) noexcept;
 };
 inline void Dense::tidyForward(lina_lg::MatrixF *&__input) noexcept {
-  LOG("C:tidy forward by Dense");
   __input->resize({__input->shape().row_ + 1, __input->shape().col_});
   auto j = __input->end(), i = j - __input->shape().col_;
   while (i != j) {
@@ -180,44 +172,36 @@ inline void Dense::tidyForward(lina_lg::MatrixF *&__input) noexcept {
   return;
 }
 inline void Dense::tidyBackward(lina_lg::MatrixF *&__input) noexcept {
-  LOG("C:tidy backward by Dense");
   __input->resize({__input->shape().row_ - 1, __input->shape().col_});
   return;
 }
 inline void Dense::setCores(size_t const &__cores,
                             size_t const &__inputs) noexcept {
-  LOG("C:set core of Dense");
   weight_.resize({__cores, __inputs + 1});
   return;
 }
 inline void Dense::setAct(LayerBase *__act) noexcept {
-  LOG("C:set activation of Dense");
   activation_ = __act;
   return;
 }
 inline void Dense::setLR(FloatType const &__rate = LEARNING_RATE) noexcept {
-  LOG("C:set learning rate of Dense");
   learningRate_ = __rate;
   return;
 }
 inline void Dense::init(initializer __func, FloatType const &__a,
                         FloatType const &__b) noexcept {
-  LOG("C:init of Dense");
   for (auto &i : weight_) i = __func(__a, __b);
   return;
 }
 template <typename __STRING>
 inline bool Dense::read(__STRING &__str, file_io::FileIO &__io) noexcept {
-  LOG("C:read of Dense");
   return __io.read(__str, weight_.begin(), weight_.size());
 }
 template <typename __STRING>
 inline bool Dense::write(__STRING &__str, file_io::FileIO &__io) noexcept {
-  LOG("C:write of Dense");
   return __io.write(__str, weight_.begin(), weight_.size());
 }
 inline void Dense::print(std::ostream &__os = std::cout) const noexcept {
-  LOG("C:print of Dense");
   for (auto i = 0; i < 10; i++) __os.put('+');
   __os << "\nlearning rate: " << learningRate_
        << "\nactivation function: " << activation_->name() << "\nweight:\n"
@@ -227,7 +211,6 @@ inline void Dense::print(std::ostream &__os = std::cout) const noexcept {
   __os.put('\n');
 }
 inline void Dense::forward(OperateType &__input) noexcept {
-  LOG("C:forward of Dense");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   Dense::tidyForward(input);
   input_ = std::move(*input);
@@ -236,7 +219,6 @@ inline void Dense::forward(OperateType &__input) noexcept {
   return;
 }
 inline void Dense::backward(OperateType &__input) noexcept {
-  LOG("C:backward of Dense");
   activation_->backward(__input);
   auto xT = std::move(input_.transpose());
   auto aT = std::move(weight_.transpose());
@@ -251,8 +233,8 @@ class FlatInput final : public InputBase {
   lina_lg::MatrixF temp_;
 
  public:
-  FlatInput() noexcept { LOG("C:constructor of FlatInput"); }
-  ~FlatInput() noexcept { LOG("C:destructor of FlatInput"); }
+  FlatInput() noexcept {}
+  ~FlatInput() noexcept {}
   inline void setSize(size_t const &, size_t const &) noexcept;
   inline virtual bool forward(file_io::FileIOOrdered &,
                               OperateType &) noexcept override;
@@ -262,12 +244,10 @@ class FlatInput final : public InputBase {
 };
 inline void FlatInput::setSize(size_t const &__inputs,
                                size_t const &__batchs) noexcept {
-  LOG("C:set size for FlatInput");
   temp_.resize({__batchs, __inputs});
 }
 inline bool FlatInput::forward(file_io::FileIOOrdered &__file,
                                OperateType &__alpha) noexcept {
-  LOG("C:forward of FlatInput");
   const auto shape = temp_.shape();
   temp_ = static_cast<FloatType>(0);
   bool reading;
@@ -288,19 +268,15 @@ inline bool FlatInput::forward(file_io::FileIOOrdered &__file,
 }
 class SoftMax final : public LayerBase {
  public:
-  SoftMax() noexcept { LOG("C:constructor of SoftMax"); }
-  ~SoftMax() noexcept { LOG("C:destructor of SoftMax"); }
+  SoftMax() noexcept {}
+  ~SoftMax() noexcept {}
   inline virtual void forward(OperateType &) noexcept override;
-  inline virtual void backward(OperateType &) noexcept override {
-    LOG("C:baward of SoftMax");
-    return;
-  }
+  inline virtual void backward(OperateType &) noexcept override {}
   inline virtual std::string name() noexcept override {
     return std::string("SoftMax");
   }
 };
 inline void SoftMax::forward(OperateType &__input) noexcept {
-  LOG("C:forward of SoftMax");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   const auto size = input->size(), wide = input->shape().col_;
   auto ptr = input->begin();
@@ -318,7 +294,6 @@ inline void SoftMax::forward(OperateType &__input) noexcept {
 }
 inline OperateType meanSquareError(OperateType &__standard,
                                    OperateType &__input) noexcept {
-  LOG("C:meanSquareError");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input),
        standard = dynamic_cast<lina_lg::MatrixF *>(__standard);
   (*input) -= (*standard);
@@ -335,7 +310,6 @@ inline OperateType meanSquareError(OperateType &__standard,
 }
 inline OperateType crossEntropyLoss(OperateType &__standard,
                                     OperateType &__input) noexcept {
-  LOG("C:crossEntropyLoss");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input),
        standard = dynamic_cast<lina_lg::MatrixF *>(__standard);
   (*standard) *= static_cast<FloatType>(-1);
@@ -350,7 +324,6 @@ inline OperateType crossEntropyLoss(OperateType &__standard,
   return dynamic_cast<OperateType>(answer);
 }
 inline OperateType oneHotFormat(OperateType &__input) noexcept {
-  LOG("C:one hot format");
   auto input = dynamic_cast<lina_lg::MatrixF *>(__input);
   auto shape = input->shape();
   auto ret = new lina_lg::MatrixF(shape);
@@ -395,7 +368,6 @@ class LinearModel {
   // set the name of the model
   template <typename __STRING>
   inline void setName(__STRING const &__name) noexcept {
-    LOG("C:set name of Linear Model");
     myName_ = __name;
     return;
   }
@@ -422,7 +394,6 @@ class LinearModel {
   inline bool write() noexcept;
 };
 LinearModel::LinearModel() noexcept {
-  LOG("C:constructor of Linear Model");
   operand_[0] = dynamic_cast<OperateType>(new lina_lg::MatrixF);
   operand_[1] = dynamic_cast<OperateType>(new lina_lg::MatrixF);
   operand_[2] = nullptr;
@@ -432,7 +403,6 @@ LinearModel::LinearModel() noexcept {
   return;
 }
 LinearModel::~LinearModel() noexcept {
-  LOG("C:destructor of Linear Model");
   delete operand_[0];
   delete operand_[1];
   if (operand_[2]) delete operand_[2];
@@ -444,7 +414,6 @@ LinearModel::~LinearModel() noexcept {
 // set the input size and batch
 inline void LinearModel::setFlatInput(size_t const &__input,
                                       size_t const &__batch) noexcept {
-  LOG("C:set input of Linear Model");
   auto alpha = new FlatInput;
   alpha->setSize(__input, __batch);
   inputL_ = dynamic_cast<InputBase *>(alpha);
@@ -453,7 +422,6 @@ inline void LinearModel::setFlatInput(size_t const &__input,
 }
 // set the batch of output
 inline void LinearModel::setFlatOutput(size_t const &__batch) noexcept {
-  LOG("C:set output of Linear Model");
   auto alpha = new FlatInput;
   alpha->setSize(temp_, __batch);
   outputL_ = dynamic_cast<InputBase *>(alpha);
@@ -462,13 +430,11 @@ inline void LinearModel::setFlatOutput(size_t const &__batch) noexcept {
 }
 // choose the loss function
 inline void LinearModel::setLossFunction(lossFunction const &__loss) noexcept {
-  LOG("C:set loss function of Linear Model");
   lossF_ = __loss;
   return;
 }
 // add a Soft-max layer
 inline void LinearModel::addSoftMax() noexcept {
-  LOG("C:add Soft Max of Linear Model");
   hiddenL_.push_back(dynamic_cast<LayerBase *>(new SoftMax));
   return;
 }
@@ -478,7 +444,6 @@ inline void LinearModel::addDense(
     LayerBase::activationType const &__act = LayerBase::activationType::relu,
     Dense::initialType const &__init = Dense::initialType::simpleUniform,
     FloatType const &__lr = LEARNING_RATE) {
-  LOG("C:add Dense of Linear Model");
   auto alpha = new Dense;
   alpha->setCores(__cores, temp_);
   alpha->setLR(__lr);
@@ -550,14 +515,12 @@ inline void LinearModel::addDense(
   hiddenL_.push_back(dynamic_cast<LayerBase *>(alpha));
 }
 inline bool LinearModel::forward() noexcept {
-  LOG("C:forward of Linear Model");
   if (!inputL_->forward(inFile_, operand_[0])) return false;
   for (size_t i = 0; i < hiddenL_.size(); i++)
     hiddenL_[i]->forward(operand_[0]);
   return true;
 }
 inline FloatType LinearModel::loss(bool const &__skip = false) noexcept {
-  LOG("C:loss of Linear Model");
   outputL_->forward(outFile_, operand_[1]);
   if (operand_[2]) delete operand_[2];
   operand_[2] = oneHotFormat(operand_[0]);
@@ -573,14 +536,12 @@ inline FloatType LinearModel::loss(bool const &__skip = false) noexcept {
   return alpha->sum() / alpha->size();
 }
 inline void LinearModel::backward() noexcept {
-  LOG("C:backward of Linead Model");
   for (size_t i = hiddenL_.size() - 1; i > 0; i--)
     hiddenL_[i]->backward(operand_[0]);
   hiddenL_[0]->backward(operand_[0]);
   return;
 }
 inline bool LinearModel::write() noexcept {
-  LOG("C:write of Linear Model");
   std::string str;
   Dense *alpha;
   for (size_t i = 0; i < hiddenL_.size(); i++) {

@@ -5,7 +5,7 @@
 namespace log_file {
 const char* const CARRY_ARRAY = "0123456789ABCDEF";
 std::string TEMP_STRING;
-std::priority_queue<char*, std::vector<char*>, CharCompare>
+std::priority_queue<LogItem, std::vector<LogItem>, CharCompare>
     LogSupport::taskQueue;
 char* LogSupport::mainBuffer = nullptr;
 char* LogSupport::formatBuffer = nullptr;

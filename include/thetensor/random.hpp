@@ -36,19 +36,15 @@ class RandomSupport {
 template <typename U>
 inline U uniformRand(U const& __min, U const& __max) noexcept(support<U>) {
   if constexpr (std::is_same_v<bool, U>) {
-    LOG("C:uniformRand<bool>");
     std::bernoulli_distribution dist;
     return dist(RandomSupport::generator_);
   } else if constexpr (std::is_integral_v<U>) {
-    LOG("C:uniformRand<intergral>");
     std::uniform_int_distribution<U> dist(__min, __max);
     return dist(RandomSupport::generator_);
   } else if constexpr (std::is_floating_point_v<U>) {
-    LOG("C:uniformRand<float_point>");
     std::uniform_real_distribution<U> dist(__min, __max);
     return dist(RandomSupport::generator_);
   } else {
-    LOG("B:unsupport type for uniformRand");
     throw system_control::Error("unsupport type for uniformRand\n");
     return U();
   }
@@ -56,7 +52,6 @@ inline U uniformRand(U const& __min, U const& __max) noexcept(support<U>) {
 template <typename U>
 inline U normalRand(U const& __mean, U const& __variant) {
   if constexpr (std::is_floating_point_v<U>) {
-    LOG("C:normalRandom<float_point>");
     std::normal_distribution<U> dist(__mean, __variant);
     return dist(RandomSupport::generator_);
   }
