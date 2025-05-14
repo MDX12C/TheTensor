@@ -13,17 +13,20 @@ signed main() {
   } else {
     printf("C: FloatType != float\n");
   }
-  printf("C: exp=%f\n", basic_math::EXPRISION);
+  printf("C: exp=%f\n", (float)basic_math::EXPRISION);
   float a;
   a = 0.5;
   printf("C:digit(%.*f)=%d\n", basic_math::PRINT_ACCURACY, a,
          basic_math::intDigits(a));
   a = 2;
-  printf("C:digit(%f)=%d\n", a, basic_math::intDigits(a));
+  printf("C:digit(%.*f)=%d\n", a, basic_math::PRINT_ACCURACY,
+         basic_math::intDigits(a));
   a = 10;
-  printf("C:digit(%f)=%d\n", a, basic_math::intDigits(a));
+  printf("C:digit(%.*f)=%d\n", basic_math::PRINT_ACCURACY, a,
+         basic_math::intDigits(a));
   a = -8;
-  printf("C:digit(%f)=%d\n", a, basic_math::intDigits(a));
+  printf("C:digit(%.*f)=%d\n", basic_math::PRINT_ACCURACY, a,
+         basic_math::intDigits(a));
   checkBaseType();
   DESTRUCT;
   return 0;

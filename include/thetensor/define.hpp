@@ -2,13 +2,6 @@
 #ifndef DEFINE_HH
 #define DEFINE_HH 1
 
-/*control block*/
-#if __F16__
-using FloatType = __fp16;
-#else
-using FloatType = float_t;
-#endif
-
 #include <atomic>
 #include <cfloat>
 #include <chrono>
@@ -23,9 +16,30 @@ using FloatType = float_t;
 #include <numbers>
 #include <random>
 #include <set>
+#include <stdfloat>
 #include <thread>
 #include <type_traits>
 #include <utility>
+
+/*control block*/
+#if (__STDCPP_FLOAT64_T__ != 1)
+#error "float64 type require"
+#endif
+#if (__STDCPP_FLOAT32_T__ != 1)
+#error "float32 type require"
+using FloatType = float_t;
+#endif
+
+#if __F16__
+#if (__STDCPP_FLOAT16_T__ != 1)
+#error "float16 type require"
+using FloatType = float_t;
+#else
+using FloatType = std::float16_t;
+#endif
+#else
+using FloatType = std::float32_t;
+#endif
 
 extern inline void endOfMainFunction() noexcept;
 namespace basic_math {
@@ -39,9 +53,7 @@ template <typename T>
 inline constexpr bool support = the_type_is_absolute_supportable<T>::value;
 template <typename T>
 struct the_type_is_relative_longer {
-  static constexpr bool value =
-      (std::is_same_v<T, uint64_t> | std::is_same_v<T, int64_t> |
-       std::is_same_v<T, double_t> | sizeof(T) >= 8);
+  static constexpr bool value = (sizeof(T) >= 8);
 };
 template <typename T>
 inline constexpr bool longer = the_type_is_relative_longer<T>::value;

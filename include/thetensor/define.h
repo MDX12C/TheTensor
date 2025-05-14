@@ -36,7 +36,7 @@
 #endif
 
 #ifndef __GNUC__
-#define __attribute__(x)
+#define __attribute__(x)printf("C:digit(%f)=%d\n", a, basic_math::intDigits(a));
 #endif
 
 #include <float.h>
