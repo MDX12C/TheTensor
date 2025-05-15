@@ -97,7 +97,7 @@ signed main() {
   system_control::Status::bar(1, 1);
   std::cout << '\n';
   sprintf(mdcc::buffer_, "the accuracy is %.3f",
-          (static_cast<FloatType>(model.counter()) / times) * 100);
+          (static_cast<float>(model.counter()) / times) * 100);
   system_control::Status::announce(mdcc::buffer_);
 
   delete[] mdcc::buffer_;

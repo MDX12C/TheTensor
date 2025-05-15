@@ -21,26 +21,6 @@
 #include <type_traits>
 #include <utility>
 
-/*control block*/
-#if (__STDCPP_FLOAT64_T__ != 1)
-#error "float64 type require"
-#endif
-#if (__STDCPP_FLOAT32_T__ != 1)
-#error "float32 type require"
-using FloatType = float_t;
-#endif
-
-#if __F16__
-#if (__STDCPP_FLOAT16_T__ != 1)
-#error "float16 type require"
-using FloatType = float_t;
-#else
-using FloatType = std::float16_t;
-#endif
-#else
-using FloatType = std::float32_t;
-#endif
-
 extern inline void endOfMainFunction() noexcept;
 namespace basic_math {
 template <typename T>

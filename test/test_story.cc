@@ -24,8 +24,8 @@ signed main() {
     SHOW(beta->load(10, temp));
     SHOW(*beta);
 
-    auto gamma = new storage::Story<char*>();
     memory_manage::MemorySupport::displayUsage();
+    auto gamma = new storage::Story<char*>();
   } catch (system_control::Error& __epsilon) {
     __epsilon.print();
   }

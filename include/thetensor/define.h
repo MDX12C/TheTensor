@@ -36,7 +36,7 @@
 #endif
 
 #ifndef __GNUC__
-#define __attribute__(x)printf("C:digit(%f)=%d\n", a, basic_math::intDigits(a));
+#define __attribute__(x)
 #endif
 
 #include <float.h>
@@ -53,6 +53,14 @@ extern "C" {
 #endif
 
 extern inline void checkBaseType();
+typedef _Float16 f16_t;
+typedef _Float32 f32_t;
+typedef _Float64 f64_t;
+#if __F16__
+typedef f16_t FloatType;
+#else
+typedef f32_t FloatType;
+#endif
 
 #ifdef __cplusplus
 }

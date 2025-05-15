@@ -23,6 +23,8 @@ inline void checkBaseType() {
          sizeof(uint8_t), sizeof(uint16_t), sizeof(uint32_t), sizeof(uint64_t));
   printf("floating form: %d\nf= %ld d= %ld\n", FLT_EVAL_METHOD, sizeof(float_t),
          sizeof(double_t));
+  printf("f16= %ld f32= %ld f64= %ld\n", sizeof(f16_t), sizeof(f32_t),
+         sizeof(f64_t));
   return;
 }
 
