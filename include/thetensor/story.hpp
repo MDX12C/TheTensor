@@ -8,9 +8,6 @@ template <typename T>
 class Story : public StoryBase {
   template <typename W>
   friend class Story;
-  template <typename W>
-  friend std::ostream& operator<<(std::ostream& __stream,
-                                  Story<W> const& __item) noexcept;
 
  protected:
   T* datas_;
@@ -45,7 +42,7 @@ class Story : public StoryBase {
   inline virtual T& at(size_t const&) const;
   inline virtual T& operator[](size_t const&) const;
   template <typename U>
-  inline operator Story<U>() const noexcept(basic_math::support<T>) {
+  inline operator Story<U>() const noexcept(basic_math::support<U>) {
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
       throw system_control::Error("unsupport type of Story");
@@ -64,27 +61,29 @@ template <typename T>
 std::ostream& operator<<(std::ostream& __stream,
                          Story<T> const& __item) noexcept {
   size_t digits = 0;
-  __stream << std::noshowpos << '(' << __item.size_ << ')';
+  auto size = __item.size();
+  auto datas = __item.begin();
+  __stream << std::noshowpos << '(' << size << ')';
   if constexpr (std::is_same_v<T, bool>) {
     digits = 1;
     __stream << '[';
   } else if constexpr (std::is_floating_point_v<T>) {
-    for (size_t i = 0; i < __item.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 2;
     digits += basic_math::PRINT_ACCURACY;
     __stream << std::setprecision(basic_math::PRINT_ACCURACY) << std::fixed
              << std::showpos << std::internal << std::setfill(' ')
              << std::showpoint << '[';
   } else {
-    for (size_t i = 0; i < __item.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 1;
     __stream << std::showpos << std::internal << std::setfill(' ') << '[';
   }
-  __stream << std::setw(digits) << __item.datas_[0];
-  for (size_t i = 0; i < __item.size_; i++) {
-    __stream << ',' << std::setw(digits) << __item.datas_[i];
+  __stream << std::setw(digits) << datas[0];
+  for (size_t i = 0; i < size; i++) {
+    __stream << ',' << std::setw(digits) << datas[i];
   }
   __stream << ']';
   return __stream;

@@ -29,7 +29,8 @@ signed main() {
   CONSTRUCT;
   system_control::Status::refresh("0");
   size_t TEST_SIZE = 512;
-  std::cout << "THREADS= " << THREADS << " CUDA= " << __CUDA_MODE__ << '\n';
+  std::cout << "THREADS= " << THREADS << " CUDA= " << __CUDA_MODE__
+            << " CLOCK= " << CLOCKS_PER_SEC << '\n';
   auto getTimes = [](const char* const& __s) -> size_t {
     int a = -1;
     do {
@@ -255,7 +256,7 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
     sprintf(extand.data(), "check %ld in %ld", i + 1, __size);
     system_control::Status::bar(i, __size, extand);
     if constexpr (std::is_floating_point_v<T>) {
-      if ((__a[i] - __b[i]) > static_cast<T>(0.001)) {
+      if (std::abs(__a[i] - __b[i]) > static_cast<T>(0.001)) {
         LOG("E:bad answer");
         printf("\nbad answer when i= %ld\n", i);
         return false;
@@ -274,9 +275,11 @@ inline bool check(T* const& __a, T* const& __b, size_t const& __size) noexcept {
 }
 template <typename T>
 inline void testAdd(size_t const& __size) noexcept {
+  // init
   auto alpha = new T[__size];
   auto beta = new T[__size];
   auto gamma = new T[__size];
+  auto delta = new T[__size];
   T theta, phi;
   if constexpr (std::is_same_v<T, bool>) {
     theta = basic_math::uniformRand<T>(0, 1);
@@ -297,101 +300,77 @@ inline void testAdd(size_t const& __size) noexcept {
     }
   }
   system_control::Status::bar(1, 1);
+  std::clock_t point1, point2;
+  auto ALLOC_SIZE = __size * sizeof(T);
+  T *vAlpha, *vBeta, *vGamma;
+  vramAlloc((void**)&vAlpha, ALLOC_SIZE);
+  vramAlloc((void**)&vBeta, ALLOC_SIZE);
+  vramAlloc((void**)&vGamma, ALLOC_SIZE);
+  vramCopy(vAlpha, alpha, ALLOC_SIZE, 1);
+  vramCopy(vBeta, beta, ALLOC_SIZE, 1);
+
+  // vector and vector
   std::cout << "\ncuda in vec + vec:\n";
-  basic_math::add<T, true>(alpha, beta, gamma, __size);
-  tips = "checking answer...";
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] || beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] + beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in vec + scl:\n";
-  basic_math::add<T, true>(alpha, theta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] || theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] + theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in scl + vec:\n";
-  basic_math::add<T, true>(phi, beta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (phi || beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (phi + beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::clock_t point1, point2, point3;
   point1 = std::clock();
-  basic_math::add<T, true>(alpha, beta, gamma, __size);
+  basic_math::add<T, true>(vAlpha, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
   point2 = std::clock();
-  basic_math::add<T, false>(alpha, beta, gamma, __size);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test:\n";
+  basic_math::add<T, false>(alpha, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vector and scalar
+  std::cout << "\ncuda in vec + scl:\n";
+  point1 = std::clock();
+  basic_math::add<T, true>(vAlpha, theta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::add<T, false>(alpha, theta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // scalar and vector
+  std::cout << "\ncuda in scl + vec:\n";
+  point1 = std::clock();
+  basic_math::add<T, true>(phi, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::add<T, false>(phi, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    basic_math::add<T, true>(alpha, beta, gamma, __size);
+    basic_math::add<T, true>(vAlpha, vBeta, vGamma, __size);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
   delete[] gamma;
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vBeta);
+  vramFree((void**)&vGamma);
+  return;
 }
 template <typename T>
 inline void testMns(size_t const& __size) noexcept {
+  // init
   auto alpha = new T[__size];
   auto beta = new T[__size];
   auto gamma = new T[__size];
+  auto delta = new T[__size];
   T theta, phi;
   if constexpr (std::is_same_v<T, bool>) {
     theta = basic_math::uniformRand<T>(0, 1);
@@ -412,101 +391,77 @@ inline void testMns(size_t const& __size) noexcept {
     }
   }
   system_control::Status::bar(1, 1);
+  std::clock_t point1, point2;
+  auto ALLOC_SIZE = __size * sizeof(T);
+  T *vAlpha, *vBeta, *vGamma;
+  vramAlloc((void**)&vAlpha, ALLOC_SIZE);
+  vramAlloc((void**)&vBeta, ALLOC_SIZE);
+  vramAlloc((void**)&vGamma, ALLOC_SIZE);
+  vramCopy(vAlpha, alpha, ALLOC_SIZE, 1);
+  vramCopy(vBeta, beta, ALLOC_SIZE, 1);
+
+  // vector and vector
   std::cout << "\ncuda in vec - vec:\n";
-  basic_math::mns<T, true>(alpha, beta, gamma, __size);
-  tips = "checking answer...";
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] && (!beta[i]))) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] - beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in vec - scl:\n";
-  basic_math::mns<T, true>(alpha, theta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] && (!theta))) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] - theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in scl - vec:\n";
-  basic_math::mns<T, true>(phi, beta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (phi && (!beta[i]))) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (phi - beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::clock_t point1, point2, point3;
   point1 = std::clock();
-  basic_math::mns<T, true>(alpha, beta, gamma, __size);
+  basic_math::mns<T, true>(vAlpha, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
   point2 = std::clock();
-  basic_math::mns<T, false>(alpha, beta, gamma, __size);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test:\n";
+  basic_math::mns<T, false>(alpha, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vector and scalar
+  std::cout << "\ncuda in vec - scl:\n";
+  point1 = std::clock();
+  basic_math::mns<T, true>(vAlpha, theta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::mns<T, false>(alpha, theta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // scalar and vector
+  std::cout << "\ncuda in scl - vec:\n";
+  point1 = std::clock();
+  basic_math::mns<T, true>(phi, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::mns<T, false>(phi, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    basic_math::mns<T, true>(alpha, beta, gamma, __size);
+    basic_math::mns<T, true>(vAlpha, vBeta, vGamma, __size);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
   delete[] gamma;
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vBeta);
+  vramFree((void**)&vGamma);
+  return;
 }
 template <typename T>
 inline void testMul(size_t const& __size) noexcept {
+  // init
   auto alpha = new T[__size];
   auto beta = new T[__size];
   auto gamma = new T[__size];
+  auto delta = new T[__size];
   T theta, phi;
   if constexpr (std::is_same_v<T, bool>) {
     theta = basic_math::uniformRand<T>(0, 1);
@@ -527,101 +482,77 @@ inline void testMul(size_t const& __size) noexcept {
     }
   }
   system_control::Status::bar(1, 1);
+  std::clock_t point1, point2;
+  auto ALLOC_SIZE = __size * sizeof(T);
+  T *vAlpha, *vBeta, *vGamma;
+  vramAlloc((void**)&vAlpha, ALLOC_SIZE);
+  vramAlloc((void**)&vBeta, ALLOC_SIZE);
+  vramAlloc((void**)&vGamma, ALLOC_SIZE);
+  vramCopy(vAlpha, alpha, ALLOC_SIZE, 1);
+  vramCopy(vBeta, beta, ALLOC_SIZE, 1);
+
+  // vector and vector
   std::cout << "\ncuda in vec * vec:\n";
-  basic_math::mul<T, true>(alpha, beta, gamma, __size);
-  tips = "checking answer...";
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] && beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] * beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in vec * scl:\n";
-  basic_math::mul<T, true>(alpha, theta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] && theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] * theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in scl * vec:\n";
-  basic_math::mul<T, true>(phi, beta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (phi && beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (phi * beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::clock_t point1, point2, point3;
   point1 = std::clock();
-  basic_math::mul<T, true>(alpha, beta, gamma, __size);
+  basic_math::mul<T, true>(vAlpha, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
   point2 = std::clock();
-  basic_math::mul<T, false>(alpha, beta, gamma, __size);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test:\n";
+  basic_math::mul<T, false>(alpha, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vector and scalar
+  std::cout << "\ncuda in vec * scl:\n";
+  point1 = std::clock();
+  basic_math::mul<T, true>(vAlpha, theta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::mul<T, false>(alpha, theta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // scalar and vector
+  std::cout << "\ncuda in scl * vec:\n";
+  point1 = std::clock();
+  basic_math::mul<T, true>(phi, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::mul<T, false>(phi, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    basic_math::mul<T, true>(alpha, beta, gamma, __size);
+    basic_math::mul<T, true>(vAlpha, vBeta, vGamma, __size);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
   delete[] gamma;
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vBeta);
+  vramFree((void**)&vGamma);
+  return;
 }
 template <typename T>
 inline void testDiv(size_t const& __size) noexcept {
+  // init
   auto alpha = new T[__size];
   auto beta = new T[__size];
   auto gamma = new T[__size];
+  auto delta = new T[__size];
   T theta, phi;
   if constexpr (std::is_same_v<T, bool>) {
     theta = basic_math::uniformRand<T>(0, 1);
@@ -642,214 +573,192 @@ inline void testDiv(size_t const& __size) noexcept {
     }
   }
   system_control::Status::bar(1, 1);
+  std::clock_t point1, point2;
+  auto ALLOC_SIZE = __size * sizeof(T);
+  T *vAlpha, *vBeta, *vGamma;
+  vramAlloc((void**)&vAlpha, ALLOC_SIZE);
+  vramAlloc((void**)&vBeta, ALLOC_SIZE);
+  vramAlloc((void**)&vGamma, ALLOC_SIZE);
+  vramCopy(vAlpha, alpha, ALLOC_SIZE, 1);
+  vramCopy(vBeta, beta, ALLOC_SIZE, 1);
+
+  // vector and vector
   std::cout << "\ncuda in vec / vec:\n";
-  basic_math::div<T, true>(alpha, beta, gamma, __size);
-  tips = "checking answer...";
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] ^ beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] / beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in vec / scl:\n";
-  basic_math::div<T, true>(alpha, theta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (alpha[i] ^ theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (alpha[i] / theta)) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::cout << "cuda in scl / vec:\n";
-  basic_math::div<T, true>(phi, beta, gamma, __size);
-  [&] {
-    for (size_t i = 0; i < __size; i++) {
-      system_control::Status::bar(i, __size, tips);
-      if constexpr (std::is_same_v<T, bool>) {
-        if (gamma[i] != (phi ^ beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      } else {
-        if (gamma[i] != (phi / beta[i])) {
-          std::cout << "\nError: bad answer when i= " << i << '\n';
-          LOG("E:error answer");
-          return;
-        }
-      }
-    }
-    system_control::Status::bar(1, 1);
-    std::cout << "\nOperate success!\n";
-    return;
-  }();
-  std::clock_t point1, point2, point3;
   point1 = std::clock();
-  basic_math::div<T, true>(alpha, beta, gamma, __size);
+  basic_math::div<T, true>(vAlpha, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
   point2 = std::clock();
-  basic_math::div<T, false>(alpha, beta, gamma, __size);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test:\n";
+  basic_math::div<T, false>(alpha, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vector and scalar
+  std::cout << "\ncuda in vec / scl:\n";
+  point1 = std::clock();
+  basic_math::div<T, true>(vAlpha, theta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::div<T, false>(alpha, theta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // scalar and vector
+  std::cout << "\ncuda in scl / vec:\n";
+  point1 = std::clock();
+  basic_math::div<T, true>(phi, vBeta, vGamma, __size);
+  point1 = std::clock() - point1;
+  vramCopy(gamma, vGamma, ALLOC_SIZE, 2);
+  point2 = std::clock();
+  basic_math::div<T, false>(phi, beta, delta, __size);
+  point2 = std::clock() - point2;
+  tips = "checking answer...";
+  if (check(gamma, delta, __size))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    basic_math::div<T, true>(alpha, beta, gamma, __size);
+    basic_math::div<T, true>(vAlpha, vBeta, vGamma, __size);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
   delete[] alpha;
   delete[] beta;
   delete[] gamma;
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vBeta);
+  vramFree((void**)&vGamma);
+  return;
 }
 template <typename T>
 inline void testHV(size_t const& __size) {
-  size_t lenth = std::sqrt(__size);
+  // init
+  const size_t lenth = std::sqrt(__size);
   lina_lg::Matrix<T> alpha({lenth, lenth});
-  lina_lg::Vector<T> beta(lenth), gamma(lenth);
+  lina_lg::Vector<T> delta(lenth), gamma(lenth);
+  T *vAlpha, *vGamma;
+  vramAlloc((void**)&vAlpha, __size * sizeof(T));
+  vramAlloc((void**)&vGamma, lenth * sizeof(T));
   for (auto& i : alpha) i = basic_math::uniformRand<T>(0, 1);
-  std::cout << "horizontal sum:\n";
-  basic_math::hSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                            lenth, lenth);
-  basic_math::hSum<T, false>(alpha.begin(), static_cast<void*>(gamma.begin()),
-                             lenth, lenth);
-  check(beta.begin(), gamma.begin(), lenth);
-  std::cout << "vertical sum:\n";
-  beta = 0;
-  gamma = 0;
-  basic_math::vSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                            lenth, lenth);
-  basic_math::vSum<T, false>(alpha.begin(), static_cast<void*>(gamma.begin()),
-                             lenth, lenth);
-  check(beta.begin(), gamma.begin(), lenth);
+  vramCopy(vAlpha, alpha.begin(), __size * sizeof(T), 1);
+  std::clock_t point1, point2;
 
-  std::clock_t point1, point2, point3;
+  // horizontal
+  std::cout << "horizontal sum:\n";
+  vramSet(vGamma, lenth * sizeof(T));
+  delta = 0;
   point1 = std::clock();
-  basic_math::hSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                            lenth, lenth);
+  basic_math::hSum<T, true>(vAlpha, (void*)vGamma, lenth, lenth);
+  point1 = std::clock() - point1;
+  vramCopy(gamma.begin(), vGamma, lenth * sizeof(T), 2);
   point2 = std::clock();
-  basic_math::hSum<T, false>(alpha.begin(), static_cast<void*>(gamma.begin()),
-                             lenth, lenth);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "in horizontal, GPU use " << point2 << " and CPU use " << point3;
+  basic_math::hSum<T, false>(alpha.begin(), (void*)delta.begin(), lenth, lenth);
+  point2 = std::clock() - point2;
+  if (check(delta.begin(), gamma.begin(), lenth))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vertical
+  std::cout << "vertical sum:\n";
+  vramSet(vGamma, lenth * sizeof(T));
+  delta = 0;
   point1 = std::clock();
-  basic_math::vSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                            lenth, lenth);
+  basic_math::vSum<T, true>(vAlpha, (void*)vGamma, lenth, lenth);
+  point1 = std::clock() - point1;
+  vramCopy(gamma.begin(), vGamma, lenth * sizeof(T), 2);
   point2 = std::clock();
-  basic_math::vSum<T, false>(alpha.begin(), static_cast<void*>(gamma.begin()),
-                             lenth, lenth);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "\nin vertical, GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test\n";
+  basic_math::vSum<T, false>(alpha.begin(), (void*)delta.begin(), lenth, lenth);
+  point2 = std::clock() - point2;
+  if (check(delta.begin(), gamma.begin(), lenth))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    beta = 0;
-    gamma = 0;
-    basic_math::hSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                              lenth, lenth);
-    beta = 0;
-    gamma = 0;
-    basic_math::vSum<T, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                              lenth, lenth);
+    vramSet(vGamma, lenth * sizeof(T));
+    delta = 0;
+    basic_math::hSum<T, true>(vAlpha, (void*)vGamma, lenth, lenth);
+    vramSet(vGamma, lenth * sizeof(T));
+    delta = 0;
+    basic_math::vSum<T, true>(vAlpha, (void*)vGamma, lenth, lenth);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vGamma);
   return;
 }
 template <>
 inline void testHV<bool>(size_t const& __size) {
-  size_t lenth = std::sqrt(__size);
+  // init
+  const size_t lenth = std::sqrt(__size);
   lina_lg::Matrix<bool> alpha({lenth, lenth});
-  lina_lg::Vector<size_t> beta(lenth), gamma(lenth);
+  lina_lg::Vector<size_t> delta(lenth), gamma(lenth);
+  bool* vAlpha;
+  size_t* vGamma;
+  vramAlloc((void**)&vAlpha, __size * sizeof(bool));
+  vramAlloc((void**)&vGamma, lenth * sizeof(size_t));
   for (auto& i : alpha) i = basic_math::uniformRand<bool>(0, 1);
-  std::cout << "horizontal sum:\n";
-  basic_math::hSum<bool, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                               lenth, lenth);
-  basic_math::hSum<bool, false>(
-      alpha.begin(), static_cast<void*>(gamma.begin()), lenth, lenth);
-  check(beta.begin(), gamma.begin(), lenth);
-  std::cout << "vertical sum:\n";
-  beta = 0;
-  gamma = 0;
-  basic_math::vSum<bool, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                               lenth, lenth);
-  basic_math::vSum<bool, false>(
-      alpha.begin(), static_cast<void*>(gamma.begin()), lenth, lenth);
-  check(beta.begin(), gamma.begin(), lenth);
+  vramCopy(vAlpha, alpha.begin(), __size * sizeof(bool), 1);
+  std::clock_t point1, point2;
 
-  std::clock_t point1, point2, point3;
+  // horizontal
+  std::cout << "horizontal sum:\n";
+  vramSet(vGamma, lenth * sizeof(size_t));
+  delta = 0;
   point1 = std::clock();
-  basic_math::hSum<bool, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                               lenth, lenth);
+  basic_math::hSum<bool, true>(vAlpha, (void*)vGamma, lenth, lenth);
+  point1 = std::clock() - point1;
+  vramCopy(gamma.begin(), vGamma, lenth * sizeof(size_t), 2);
   point2 = std::clock();
-  basic_math::hSum<bool, false>(
-      alpha.begin(), static_cast<void*>(gamma.begin()), lenth, lenth);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "in horizontal, GPU use " << point2 << " and CPU use " << point3;
+  basic_math::hSum<bool, false>(alpha.begin(), (void*)delta.begin(), lenth,
+                                lenth);
+  point2 = std::clock() - point2;
+  if (check(delta.begin(), gamma.begin(), lenth))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // vertical
+  std::cout << "vertical sum:\n";
+  vramSet(vGamma, lenth * sizeof(size_t));
+  delta = 0;
   point1 = std::clock();
-  basic_math::vSum<bool, true>(alpha.begin(), static_cast<void*>(beta.begin()),
-                               lenth, lenth);
+  basic_math::vSum<bool, true>(vAlpha, (void*)vGamma, lenth, lenth);
+  point1 = std::clock() - point1;
+  vramCopy(gamma.begin(), vGamma, lenth * sizeof(size_t), 2);
   point2 = std::clock();
-  basic_math::vSum<bool, false>(
-      alpha.begin(), static_cast<void*>(gamma.begin()), lenth, lenth);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "\nin vertical, GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test\n";
+  basic_math::vSum<bool, false>(alpha.begin(), (void*)delta.begin(), lenth,
+                                lenth);
+  point2 = std::clock() - point2;
+  if (check(delta.begin(), gamma.begin(), lenth))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
   for (auto i = 0; i < stressLevel__; i++) {
     system_control::Status::bar(i, stressLevel__);
-    beta = 0;
-    gamma = 0;
-    basic_math::hSum<bool, true>(
-        alpha.begin(), static_cast<void*>(beta.begin()), lenth, lenth);
-    beta = 0;
-    gamma = 0;
-    basic_math::vSum<bool, true>(
-        alpha.begin(), static_cast<void*>(beta.begin()), lenth, lenth);
+    vramSet(vGamma, lenth * sizeof(size_t));
+    delta = 0;
+    basic_math::hSum<bool, true>(vAlpha, (void*)vGamma, lenth, lenth);
+    vramSet(vGamma, lenth * sizeof(size_t));
+    delta = 0;
+    basic_math::vSum<bool, true>(vAlpha, (void*)vGamma, lenth, lenth);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vGamma);
   return;
 }
 template <typename T>
 inline void testDot(size_t const& __size) noexcept {
+  // init
   size_t lenth = std::sqrt(__size);
   lina_lg::Matrix<T> alpha, beta, gamma, delta;
   alpha.resize({lenth, lenth});
@@ -860,35 +769,40 @@ inline void testDot(size_t const& __size) noexcept {
   delta = 0;
   for (auto& i : alpha) i = basic_math::uniformRand<T>(0, 2);
   for (auto& i : beta) i = basic_math::uniformRand<T>(0, 2);
-  std::cout << "matrix dot:\n";
-  basic_math::mDot<T, false>(alpha.begin(), beta.begin(), gamma.begin(), lenth,
-                             lenth, lenth);
-  basic_math::mDot<T, true>(alpha.begin(), beta.begin(), delta.begin(), lenth,
-                            lenth, lenth);
-  check(delta.begin(), gamma.begin(), lenth * lenth);
-  gamma = 0;
-  delta = 0;
+  const auto ALLOC_BYTES = lenth * lenth * sizeof(T);
+  T *vAlpha, *vBeta, *vGamma;
+  vramAlloc((void**)&vAlpha, ALLOC_BYTES);
+  vramAlloc((void**)&vBeta, ALLOC_BYTES);
+  vramAlloc((void**)&vGamma, ALLOC_BYTES);
+  vramCopy(vAlpha, alpha.begin(), ALLOC_BYTES, 1);
+  vramCopy(vBeta, beta.begin(), ALLOC_BYTES, 1);
+  std::clock_t point1, point2;
 
-  std::clock_t point1, point2, point3;
+  // Compute
+  std::cout << "matrix dot:\n";
+  vramSet(vGamma, ALLOC_BYTES);
   point1 = std::clock();
-  basic_math::mDot<T, true>(alpha.begin(), beta.begin(), delta.begin(), lenth,
-                            lenth, lenth);
+  basic_math::mDot<T, true>(vAlpha, vBeta, vGamma, lenth, lenth, lenth);
+  point1 = std::clock() - point1;
+  vramCopy(gamma.begin(), vGamma, ALLOC_BYTES, 2);
   point2 = std::clock();
-  basic_math::mDot<T, false>(alpha.begin(), beta.begin(), gamma.begin(), lenth,
+  basic_math::mDot<T, false>(alpha.begin(), beta.begin(), delta.begin(), lenth,
                              lenth, lenth);
-  point3 = std::clock();
-  point3 -= point2;
-  point2 -= point1;
-  std::cout << "GPU use " << point2 << " and CPU use " << point3
-            << "\ncuda stress test\n";
-  for (auto i = 0; i < stressLevel__ / 10; i++) {
-    system_control::Status::bar(i, stressLevel__ / 10);
-    delta = 0;
-    gamma = 0;
-    basic_math::mDot<T, true>(alpha.begin(), beta.begin(), delta.begin(), lenth,
-                              lenth, lenth);
+  point2 = std::clock() - point2;
+  if (check(delta.begin(), gamma.begin(), lenth * lenth))
+    std::cout << "GPU use " << point1 << " and CPU use " << point2 << '\n';
+
+  // stress test
+  std::cout << "cuda stress test:\n";
+  for (auto i = 0; i < stressLevel__ / 4; i++) {
+    system_control::Status::bar(i, stressLevel__ / 4);
+    vramSet(vGamma, ALLOC_BYTES);
+    basic_math::mDot<T, true>(vAlpha, vBeta, vGamma, lenth, lenth, lenth);
   }
   system_control::Status::bar(1, 1);
   std::cout << '\n';
+  vramFree((void**)&vAlpha);
+  vramFree((void**)&vBeta);
+  vramFree((void**)&vGamma);
   return;
 }

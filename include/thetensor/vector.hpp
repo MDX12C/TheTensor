@@ -10,34 +10,6 @@ template <typename T>
 class Vector final : public storage::Story<T> {
   template <typename W>
   friend class Vector;
-  template <typename W>
-  friend inline Vector<W> operator+(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<W> operator-(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<W> operator*(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<W> operator/(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator==(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator!=(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator>=(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator<=(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator>(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<bool> operator<(W const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<W> merge(Vector<W> const&, Vector<W> const&) noexcept;
-  template <typename W>
-  friend inline Vector<W> scan(Vector<W> const&, size_t const&,
-                               size_t const&) noexcept;
-  template <typename W>
-  friend std::ostream& operator<<(std::ostream& __stream,
-                                  Vector<W> const& __item) noexcept;
 
  public:
   Vector() noexcept(basic_math::support<T>) {}
@@ -56,7 +28,7 @@ class Vector final : public storage::Story<T> {
     return ret;
   }
   template <typename U>
-  inline operator Vector<U>() const noexcept(basic_math::support<T>) {
+  inline operator Vector<U>() const noexcept(basic_math::support<U>) {
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupport type");
       throw system_control::Error("unsupport type of Vector");
@@ -108,27 +80,29 @@ template <typename T>
 std::ostream& operator<<(std::ostream& __stream,
                          Vector<T> const& __item) noexcept {
   size_t digits = 0;
-  __stream << std::noshowpos << '(' << __item.size_ << ')';
+  auto datas = __item.begin();
+  auto size = __item.size();
+  __stream << std::noshowpos << '(' << size << ')';
   if constexpr (std::is_same_v<T, bool>) {
     digits = 1;
     __stream << '[';
   } else if constexpr (std::is_floating_point_v<T>) {
-    for (size_t i = 0; i < __item.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 2;
     digits += basic_math::PRINT_ACCURACY;
     __stream << std::setprecision(basic_math::PRINT_ACCURACY) << std::fixed
              << std::showpos << std::internal << std::setfill(' ')
              << std::showpoint << '[';
   } else {
-    for (size_t i = 0; i < __item.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__item.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 1;
     __stream << std::showpos << std::internal << std::setfill(' ') << '[';
   }
-  __stream << std::setw(digits) << __item.datas_[0];
-  for (size_t i = 1; i < __item.size_; i++) {
-    __stream << ',' << std::setw(digits) << __item.datas_[i];
+  __stream << std::setw(digits) << datas[0];
+  for (size_t i = 1; i < size; i++) {
+    __stream << ',' << std::setw(digits) << datas[i];
   }
   __stream << ']';
   return __stream;
@@ -582,81 +556,91 @@ inline Vector<bool> Vector<T>::operator<(T const& __other) const noexcept {
 template <typename T>
 inline Vector<T> operator+(T const& __first,
                            Vector<T> const& __second) noexcept {
-  Vector<T> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    ADD(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Vector<T> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) ADD(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Vector<T> operator-(T const& __first,
                            Vector<T> const& __second) noexcept {
-  Vector<T> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    MNS(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Vector<T> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) MNS(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Vector<T> operator*(T const& __first,
                            Vector<T> const& __second) noexcept {
-  Vector<T> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    MUL(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Vector<T> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) MUL(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Vector<T> operator/(T const& __first,
                            Vector<T> const& __second) noexcept {
-  Vector<T> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    DIV(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Vector<T> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) DIV(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Vector<bool> operator==(T const& __first,
                                Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first == __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first == datas[i];
   return result;
 }
 template <typename T>
 inline Vector<bool> operator!=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first != __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first != datas[i];
   return result;
 }
 template <typename T>
 inline Vector<bool> operator>=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first >= __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first >= datas[i];
   return result;
 }
 template <typename T>
 inline Vector<bool> operator<=(T const& __first,
                                Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first <= __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first <= datas[i];
   return result;
 }
 template <typename T>
 inline Vector<bool> operator>(T const& __first,
                               Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first > __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first > datas[i];
   return result;
 }
 template <typename T>
 inline Vector<bool> operator<(T const& __first,
                               Vector<T> const& __second) noexcept {
-  Vector<bool> result(__second.size_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first < __second.datas_[i];
+  auto size = __second.size();
+  Vector<bool> result(size);
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first < datas[i];
   return result;
 }
 /**
@@ -669,10 +653,10 @@ inline Vector<bool> operator<(T const& __first,
 template <typename T>
 inline Vector<T> merge(Vector<T> const& __first,
                        Vector<T> const& __second) noexcept {
-  Vector<T> result(__first.size_ + __second.size_);
-  std::copy(__first.datas_, __first.datas_ + __first.size_, result.datas_);
-  std::copy(__second.datas_, __second.datas_ + __second.size_,
-            result.datas_ + __first.size_);
+  auto firstSize = __first.size();
+  Vector<T> result(firstSize + __second.size());
+  std::copy(__first.begin(), __first.end(), result.begin());
+  std::copy(__second.begin(), __second.end(), result.begin() + firstSize);
   return result;
 }
 /**
@@ -686,12 +670,12 @@ inline Vector<T> merge(Vector<T> const& __first,
 template <typename T>
 inline Vector<T> scan(Vector<T> const& __vec, size_t const& __low,
                       size_t const& __up) noexcept {
-  if ((__low >= __up) || (__up > __vec.size_)) {
+  if ((__low >= __up) || (__up > __vec.size())) {
     LOG("E:bad param");
     return Vector<T>();
   }
   Vector<T> ans(__up - __low);
-  std::copy(__vec.datas_ + __low, __vec.datas_ + __up, ans.datas_);
+  std::copy(__vec.begin() + __low, __vec.begin() + __up, ans.begin());
   return ans;
 }
 }  // namespace lina_lg

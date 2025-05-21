@@ -62,36 +62,6 @@ template <typename T>
 class Matrix final : public storage::Story<T> {
   template <typename W>
   friend class Matrix;
-  template <typename W>
-  friend inline Matrix<W> operator+(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> operator-(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> operator*(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> operator/(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator==(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator!=(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator>=(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator<=(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator>(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<bool> operator<(W const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> mergeUD(Matrix<W> const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> mergeLR(Matrix<W> const&, Matrix<W> const&) noexcept;
-  template <typename W>
-  friend inline Matrix<W> scan(Matrix<W> const&, MaShape const&,
-                               MaShape const&) noexcept;
-  template <typename W>
-  friend std::ostream& operator<<(std::ostream& __stream,
-                                  Matrix<W> const& __item) noexcept;
 
  protected:
   MatrixShape shape_;
@@ -128,7 +98,7 @@ class Matrix final : public storage::Story<T> {
   inline virtual void freedom() noexcept override;
   inline Matrix transpose() const noexcept;
   template <typename U>
-  inline operator Matrix<U>() const noexcept(basic_math::support<T>) {
+  inline operator Matrix<U>() const noexcept(basic_math::support<U>) {
     if constexpr (!basic_math::support<U>) {
       LOG("B:unsupportted type");
       throw system_control::Error("unsupport type of Matrix");
@@ -186,29 +156,32 @@ std::ostream& operator<<(std::ostream& __os, MaShape const& __shape) noexcept {
 template <typename T>
 std::ostream& operator<<(std::ostream& __os, Matrix<T> const& __it) noexcept {
   size_t digits = 0;
-  __os << __it.shape_;
+  auto datas = __it.begin();
+  auto size = __it.size();
+  auto shape = __it.shape();
+  __os << shape;
   if constexpr (std::is_same_v<T, bool>) {
     digits = 1;
   } else if constexpr (std::is_floating_point_v<T>) {
-    for (size_t i = 0; i < __it.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__it.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 2;
     digits += basic_math::PRINT_ACCURACY;
     __os << std::setprecision(basic_math::PRINT_ACCURACY) << std::fixed
          << std::showpos << std::internal << std::setfill(' ')
          << std::showpoint;
   } else {
-    for (size_t i = 0; i < __it.size_; i++)
-      digits = std::max(digits, basic_math::intDigits(__it.datas_[i]));
+    for (size_t i = 0; i < size; i++)
+      digits = std::max(digits, basic_math::intDigits(datas[i]));
     digits += 1;
     __os << std::showpos << std::internal << std::setfill(' ');
   }
   size_t i = 0;
-  for (size_t r = 0; r < __it.shape_.row_; r++) {
-    __os << "\n[" << std::setw(digits) << __it.datas_[i];
+  for (size_t r = 0; r < shape.row_; r++) {
+    __os << "\n[" << std::setw(digits) << datas[i];
     i++;
-    for (size_t c = 1; c < __it.shape_.col_; c++) {
-      __os << ',' << std::setw(digits) << __it.datas_[i];
+    for (size_t c = 1; c < shape.col_; c++) {
+      __os << ',' << std::setw(digits) << datas[i];
       i++;
     }
     __os << ']';
@@ -732,81 +705,91 @@ Matrix<bool> Matrix<T>::operator<(T const& __other) const noexcept {
 template <typename T>
 inline Matrix<T> operator+(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    ADD(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Matrix<T> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) ADD(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Matrix<T> operator-(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    MNS(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Matrix<T> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) MNS(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Matrix<T> operator*(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    MUL(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Matrix<T> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) MUL(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Matrix<T> operator/(T const& __first,
                            Matrix<T> const& __second) noexcept {
-  Matrix<T> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    DIV(__first, __second.datas_[i], result.datas_[i], T);
+  auto size = __second.size();
+  Matrix<T> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) DIV(__first, datas[i], retDatas[i], T);
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator==(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first == __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first == datas[i];
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator!=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first != __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first != datas[i];
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator>=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first >= __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first >= datas[i];
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator<=(T const& __first,
                                Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first <= __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first <= datas[i];
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator>(T const& __first,
                               Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first > __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first > datas[i];
   return result;
 }
 template <typename T>
 inline Matrix<bool> operator<(T const& __first,
                               Matrix<T> const& __second) noexcept {
-  Matrix<bool> result(__second.shape_);
-  for (size_t i = 0; i < __second.size_; i++)
-    result.datas_[i] = __first < __second.datas_[i];
+  auto size = __second.size();
+  Matrix<bool> result(__second.shape());
+  auto retDatas = result.begin(), datas = __second.begin();
+  for (size_t i = 0; i < size; i++) retDatas[i] = __first < datas[i];
   return result;
 }
 /**
@@ -819,18 +802,18 @@ inline Matrix<bool> operator<(T const& __first,
 template <typename T>
 inline Matrix<T> mergeUD(Matrix<T> const& __up,
                          Matrix<T> const& __down) noexcept {
-  if (__up.shape_.col_ != __down.shape_.col_) {
+  auto upShape = __up.shape(), downShape = __down.shape();
+  if (upShape.col_ != downShape.col_) {
     LOG("E:unmatch size");
     return Matrix<T>();
   }
-  if ((__up.shape_.row_ + __down.shape_.row_) >= MaShape::LIMIT) {
+  if ((upShape.row_ + downShape.row_) >= MaShape::LIMIT) {
     LOG("E:too big shape may cause unpredictable result");
     return Matrix<T>();
   }
-  Matrix<T> ans({__up.shape_.row_ + __down.shape_.row_, __up.shape_.col_});
-  std::copy(__up.datas_, __up.datas_ + __up.size_, ans.datas_);
-  std::copy(__down.datas_, __down.datas_ + __down.size_,
-            ans.datas_ + __up.size_);
+  Matrix<T> ans({upShape.row_ + downShape.row_, upShape.col_});
+  std::copy(__up.begin(), __up.end(), ans.begin());
+  std::copy(__down.begin(), __down.end(), ans.begin() + __up.size());
   return ans;
 }
 /**
@@ -843,21 +826,22 @@ inline Matrix<T> mergeUD(Matrix<T> const& __up,
 template <typename T>
 inline Matrix<T> mergeLR(Matrix<T> const& __left,
                          Matrix<T> const& __right) noexcept {
-  if (__left.shape_.row_ != __right.shape_.row_) {
+  auto leftShape = __left.shape(), rightShape = __right.shape();
+  if (leftShape.row_ != rightShape.row_) {
     LOG("E:unmatch size");
     return Matrix<T>();
   }
-  if ((__left.shape_.col_ + __right.shape_.col_) >= MaShape::LIMIT) {
+  if ((leftShape.col_ + rightShape.col_) >= MaShape::LIMIT) {
     LOG("E:too big shape may cause unpredictable result");
     return Matrix<T>();
   }
-  Matrix<T> ans({__left.shape_.row_, __left.shape_.col_ + __right.shape_.col_});
-  T *left = __left.datas_, *right = __right.datas_, *answer = ans.datas_;
-  for (size_t i = 0; i < __left.shape_.row_; i++) {
-    answer = std::copy(left, left + __left.shape_.col_, answer);
-    left += __left.shape_.col_;
-    answer = std::copy(right, right + __right.shape_.col_, answer);
-    right += __right.shape_.col_;
+  Matrix<T> ans({leftShape.row_, leftShape.col_ + rightShape.col_});
+  T *left = __left.begin(), *right = __right.begin(), *answer = ans.begin();
+  for (size_t i = 0; i < leftShape.row_; i++) {
+    answer = std::copy(left, left + leftShape.col_, answer);
+    left += leftShape.col_;
+    answer = std::copy(right, right + rightShape.col_, answer);
+    right += rightShape.col_;
   }
   return ans;
 }
@@ -872,18 +856,19 @@ inline Matrix<T> mergeLR(Matrix<T> const& __left,
 template <typename T>
 inline Matrix<T> scan(Matrix<T> const& __matrix, MaShape const& __low,
                       MaShape const& __up) noexcept {
-  if (!((__low < __up) && (__up <= __matrix.shape_))) {
+  if (!((__low < __up) && (__up <= __matrix.shape()))) {
     LOG("E:bad param");
     return Matrix<T>();
   }
   MaShape ansShape;
   ansShape = __up - __low;
   Matrix<T> ans(ansShape);
-  T *alpha = __matrix.datas_ + __matrix.shape_.col_ * __low.row_ + __low.col_,
-    *beta = ans.datas_;
+  T *alpha = __matrix.begin() + __matrix.shape().col_ * __low.row_ + __low.col_,
+    *beta = ans.begin();
+  auto col = __matrix.shape().col_;
   for (size_t i = 0; i < ansShape.row_; i++) {
     beta = std::copy(alpha, alpha + ansShape.col_, beta);
-    alpha += __matrix.shape_.col_;
+    alpha += col;
   }
   return ans;
 }

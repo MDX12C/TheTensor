@@ -2393,23 +2393,51 @@ void dot_d(double_t* __a, double_t* __b, double_t* __c, size_t __row, size_t __l
 }
 //#####################################################################################################################
 
-clock_t test_for_vram(float_t* __a, float_t* __b, float_t* __c, size_t __size) {
-  float_t *deviceA, *deviceB, *deviceC;
-  auto size = __size * sizeof(float_t);
-  clock_t first, second;
-  cudaMalloc(&deviceA, size);
-  cudaMalloc(&deviceB, size);
-  cudaMalloc(&deviceC, size);
-  cudaMemcpy(deviceA, __a, size, cudaMemcpyHostToDevice);
-  cudaMemcpy(deviceB, __b, size, cudaMemcpyHostToDevice);
-  first = clock();
-  vv_add_f(deviceA, deviceB, deviceC, __size);
-  second = clock();
-  cudaMemcpy(__c, deviceC, size, cudaMemcpyDeviceToHost);
-  cudaFree(deviceA);
-  cudaFree(deviceB);
-  cudaFree(deviceC);
-  return second - first;
+/*
+copy memory in bytes
+0: host to host
+1: host to device
+2: device to host
+3: device to device
+4: default
+*/
+void vramCopy(void* __des, void* __src, size_t __bytes, uint8_t __type) {
+  switch (__type){
+    case 0:
+      cudaMemcpy(__des, __src, __bytes, cudaMemcpyHostToHost);
+      break;
+    case 1:
+      cudaMemcpy(__des, __src, __bytes, cudaMemcpyHostToDevice);
+      break;
+    case 2:
+      cudaMemcpy(__des, __src, __bytes, cudaMemcpyDeviceToHost);
+      break;
+    case 3:
+      cudaMemcpy(__des, __src, __bytes, cudaMemcpyDeviceToDevice);
+      break;
+    case 4:
+      cudaMemcpy(__des, __src, __bytes, cudaMemcpyDefault);
+      break;
+    default:
+      return;
+  }
+  return;
+}
+//Set memory to zero in bytes
+void vramSet(void* __ptr, size_t __bytes) {
+  cudaMemset(__ptr, 0, __bytes);
+  return;
+}
+//Alloc memory in bytes
+void vramAlloc(void** __ptr, size_t __bytes) {
+  cudaMalloc(__ptr, __bytes);
+  return;
+}
+//Free memory
+void vramFree(void** __ptr) {
+  cudaFree(*__ptr);
+  *__ptr = nullptr;
+  return;
 }
 
 #ifdef __cplusplus
